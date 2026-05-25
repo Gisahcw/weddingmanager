@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #fdfbf7;
+            --cream-dark: #f5f0e8;
+            --gold: #d4af37;
+            --gold-light: #e8cc6a;
+            --gold-pale: #f7f0d8;
+            --black: #1a1a1a;
+            --black-soft: #2d2d2d;
+            --gray: #8a8a8a;
+            --gray-light: #e8e4dc;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--cream);
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--black);
+            min-height: 100vh;
+        }
+
+        /* ── LOGIN ── */
+        #login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--black);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #login-screen::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(212,175,55,0.12) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 20%, rgba(212,175,55,0.08) 0%, transparent 50%);
+        }
+
+        .login-box {
+            background: var(--cream);
+            width: 420px;
+            max-width: 90vw;
+            padding: 60px 50px;
+            position: relative;
+            animation: fadeUp 0.8s ease both;
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .login-ornament {
+            text-align: center;
+            color: var(--gold);
+            font-size: 22px;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+        }
+
+        .login-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 400;
+            text-align: center;
+            color: var(--black);
+            margin-bottom: 6px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        .field-group { margin-bottom: 24px; }
+
+        .field-group label {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+
+        .field-group input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--gray-light);
+            padding: 10px 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 16px;
+            color: var(--black);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .field-group input:focus { border-bottom-color: var(--gold); }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--black);
+            color: var(--cream);
+            border: none;
+            padding: 16px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover { background: var(--gold); color: var(--black); }
+
+        .error-msg {
+            color: #c0392b;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 14px;
+            min-height: 20px;
+        }
+
+        /* ── APP SHELL ── */
+        #app-screen { display: none; min-height: 100vh; }
+
+        .top-bar {
+            background: var(--black);
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar-title {
+            font-family: 'Playfair Display', serif;
+            color: var(--cream);
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .top-bar-title span { color: var(--gold); }
+
+        .top-bar-right { display: flex; align-items: center; gap: 20px; }
+
+        .user-badge {
+            color: var(--gray);
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid rgba(212,175,55,0.4);
+            color: var(--gold);
+            padding: 6px 18px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover { background: var(--gold); color: var(--black); }
+
+        .main-content { padding: 40px; max-width: 1200px; margin: 0 auto; }
+
+        /* ── ADMIN VIEW ── */
+        .page-header {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 400;
+            color: var(--black);
+        }
+
+        .page-header p {
+            color: var(--gray);
+            font-size: 14px;
+            letter-spacing: 1px;
+            margin-top: 6px;
+        }
+
+        .weddings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .wedding-card {
+            background: white;
+            border: 1px solid var(--gray-light);
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wedding-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--gold);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .wedding-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .wedding-card:hover::after { transform: scaleX(1); }
+
+        .wedding-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .wedding-card .wedding-date {
+            color: var(--gold);
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .wedding-card .wedding-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        .add-wedding-card {
+            background: transparent;
+            border: 1px dashed var(--gray-light);
+            padding: 30px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+            min-height: 140px;
+        }
+
+        .add-wedding-card:hover { border-color: var(--gold); background: var(--gold-pale); }
+
+        .add-wedding-card .plus {
+            font-size: 32px;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .add-wedding-card span {
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gray);
+        }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(26,26,26,0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: var(--cream);
+            width: 480px;
+            max-width: 90vw;
+            padding: 50px;
+            position: relative;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .modal-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 30px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px; right: 24px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* ── TABS ── */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 32px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 14px 28px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gray);
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0; right: 0;
+            height: 2px;
+            background: var(--gold);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .tab-btn.active { color: var(--black); }
+        .tab-btn.active::after { transform: scaleX(1); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── STATS BAR ── */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--gray-light);
+            border: 1px solid var(--gray-light);
+            margin-bottom: 32px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 20px 24px;
+            text-align: center;
+        }
+
+        .stat-item .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: var(--black);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-item .stat-label {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--gray);
+        }
+
+        .stat-item.gold .stat-num { color: var(--gold); }
+
+        /* ── FORM CARD ── */
+        .form-card {
+            background: white;
+            border: 1px solid var(--gray-light);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .form-card h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; align-items: end; }
+
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
+
+        .input-group label {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gray);
+        }
+
+        .input-group input,
+        .input-group select {
+            background: var(--cream);
+            border: 1px solid var(--gray-light);
+            padding: 10px 14px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 15px;
+            color: var(--black);
+            outline: none;
+            transition: border-color 0.3s;
+            width: 100%;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus { border-color: var(--gold); }
+
+        .btn-add {
+            background: var(--black);
+            color: var(--cream);
+            border: none;
+            padding: 11px 28px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-add:hover { background: var(--gold); color: var(--black); }
+
+        /* ── SEARCH BAR ── */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+
+        .search-input {
+            background: white;
+            border: 1px solid var(--gray-light);
+            padding: 10px 16px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 15px;
+            color: var(--black);
+            outline: none;
+            flex: 1;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus { border-color: var(--gold); }
+
+        /* ── TABLE ── */
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        thead tr {
+            border-bottom: 2px solid var(--black);
+        }
+
+        thead th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--gray-light);
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover { background: var(--cream-dark); }
+
+        tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-yes { background: var(--gold-pale); color: #8a6d00; }
+        .badge-no { background: #f5f5f5; color: var(--gray); }
+
+        .btn-icon {
+            background: none;
+            border: 1px solid var(--gray-light);
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover { border-color: #c0392b; color: #c0392b; }
+
+        .btn-icon.edit:hover { border-color: var(--gold); color: var(--gold); }
+
+        td[contenteditable="true"] {
+            outline: none;
+            border-bottom: 1px solid var(--gold);
+            min-width: 60px;
+        }
+
+        /* ── BUDGET ── */
+        .budget-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .budget-header h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        .budget-input-inline {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--gold);
+            padding: 4px 8px;
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--gold);
+            width: 140px;
+            outline: none;
+        }
+
+        .diff-pos { color: #2e7d50; }
+        .diff-neg { color: #c0392b; }
+
+        /* ── BACK BTN ── */
+        .btn-back {
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 32px;
+            transition: color 0.3s;
+        }
+
+        .btn-back:hover { color: var(--gold); }
+
+        .btn-csv {
+            background: transparent;
+            border: 1px solid var(--gray-light);
+            color: var(--gray);
+            padding: 8px 20px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-csv:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in { animation: fadeUp 0.5s ease both; }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.3; }
+        .empty-state p { font-size: 14px; letter-spacing: 1px; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .main-content { padding: 20px; }
+            .top-bar { padding: 0 20px; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .login-box { padding: 40px 30px; }
+            .modal-box { padding: 36px 28px; }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+    <div class="login-box">
+        <div class="login-ornament">✦ ✦ ✦</div>
+        <h1 class="login-title">Wedding Manager</h1>
+        <p class="login-subtitle">Gestione Matrimoni</p>
+        <div class="field-group">
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="la tua email">
+        </div>
+        <div class="field-group">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()">
+        </div>
+        <button class="btn-primary" onclick="doLogin()">Accedi</button>
+        <div class="error-msg" id="login-error"></div>
+    </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+    <div class="top-bar">
+        <div class="top-bar-title">Wedding <span>Manager</span></div>
+        <div class="top-bar-right">
+            <span class="user-badge" id="user-badge"></span>
+            <button class="btn-logout" onclick="doLogout()">Esci</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- ADMIN: lista matrimoni -->
+        <div id="view-admin" style="display:none">
+            <div class="page-header animate-in">
+                <h1>I Matrimoni</h1>
+                <p>Seleziona un matrimonio per gestirlo</p>
+            </div>
+            <div class="weddings-grid" id="weddings-grid">
+                <div class="loading">Caricamento...</div>
+            </div>
+        </div>
+
+        <!-- SPOSI / DETTAGLIO MATRIMONIO -->
+        <div id="view-wedding" style="display:none">
+            <button class="btn-back" id="btn-back-admin" onclick="backToAdmin()" style="display:none">
+                ← Tutti i matrimoni
+            </button>
+            <div class="page-header animate-in">
+                <h1 id="wedding-title">Matrimonio</h1>
+                <p id="wedding-date-label"></p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('ospiti', this)">Ospiti</button>
+                <button class="tab-btn" onclick="switchTab('budget', this)">Budget</button>
+            </div>
+
+            <!-- TAB OSPITI -->
+            <div id="tab-ospiti" class="tab-panel active">
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-num" id="s-totale">0</div>
+                        <div class="stat-label">Totale Ospiti</div>
+                    </div>
+                    <div class="stat-item gold">
+                        <div class="stat-num" id="s-transfer">0</div>
+                        <div class="stat-label">Transfer Sì</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num" id="s-tavoli">0</div>
+                        <div class="stat-label">Tavoli Usati</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num" id="s-intoll">0</div>
+                        <div class="stat-label">Intolleranze</div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h4>Aggiungi Ospite</h4>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Nome</label>
+                            <input type="text" id="inp-nome" placeholder="Marco">
+                        </div>
+                        <div class="input-group">
+                            <label>Cognome</label>
+                            <input type="text" id="inp-cognome" placeholder="Rossi">
+                        </div>
+                        <div class="input-group">
+                            <label>Tavolo N°</label>
+                            <input type="number" id="inp-tavolo" placeholder="1" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Transfer</label>
+                            <select id="inp-transfer">
+                                <option value="No">No</option>
+                                <option value="Sì">Sì</option>
+                            </select>
+                        </div>
+                        <div class="input-group" style="grid-column: span 2">
+                            <label>Intolleranze / Note</label>
+                            <input type="text" id="inp-intoll" placeholder="es. glutine, lattosio...">
+                        </div>
+                        <div class="input-group" style="align-self:end">
+                            <button class="btn-add" onclick="addOspite()">+ Aggiungi</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                    <div class="search-bar" style="margin:0; flex:1">
+                        <input class="search-input" id="search-ospiti" placeholder="Cerca per cognome o tavolo..." oninput="renderOspiti()">
+                    </div>
+                    <button class="btn-csv" onclick="esportaCSV()">Esporta CSV</button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Tavolo</th>
+                                <th>Transfer</th>
+                                <th>Intolleranze</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-ospiti"></tbody>
+                    </table>
+                </div>
+                <div id="empty-ospiti" class="empty-state" style="display:none">
+                    <div class="empty-icon">♡</div>
+                    <p>Nessun ospite aggiunto</p>
+                </div>
+            </div>
+
+            <!-- TAB BUDGET -->
+            <div id="tab-budget" class="tab-panel">
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-num" id="b-previsto">€ 0</div>
+                        <div class="stat-label">Totale Previsto</div>
+                    </div>
+                    <div class="stat-item gold">
+                        <div class="stat-num" id="b-speso">€ 0</div>
+                        <div class="stat-label">Speso</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num" id="b-rimanente">€ 0</div>
+                        <div class="stat-label">Budget Rimanente</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-num" id="b-voci">0</div>
+                        <div class="stat-label">Voci di Spesa</div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="budget-header">
+                        <h4>Budget Totale:</h4>
+                        <input class="budget-input-inline" type="number" id="budget-max" value="20000" onchange="saveBudgetMax()">
+                        <span style="color:var(--gold); font-family:'Playfair Display',serif; font-size:22px">€</span>
+                    </div>
+                    <div class="form-grid">
+                        <div class="input-group" style="grid-column: span 2">
+                            <label>Voce di Spesa</label>
+                            <input type="text" id="inp-voce" placeholder="es. Fiorista, Location, Catering...">
+                        </div>
+                        <div class="input-group">
+                            <label>Previsto (€)</label>
+                            <input type="number" id="inp-prev" placeholder="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Effettivo (€)</label>
+                            <input type="number" id="inp-real" placeholder="0">
+                        </div>
+                        <div class="input-group" style="align-self:end">
+                            <button class="btn-add" onclick="addBudget()">+ Aggiungi</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Voce</th>
+                                <th>Previsto</th>
+                                <th>Effettivo</th>
+                                <th>Differenza</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-budget"></tbody>
+                    </table>
+                </div>
+                <div id="empty-budget" class="empty-state" style="display:none">
+                    <div class="empty-icon">◈</div>
+                    <p>Nessuna voce di spesa aggiunta</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CREA COPPIA -->
+<div class="modal-overlay" id="modal-coppia">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h3 class="modal-title">Nuovo Matrimonio</h3>
+        <div class="form-row" style="margin-bottom:20px">
+            <div class="input-group">
+                <label>Nome Sposo/a 1</label>
+                <input type="text" id="m-nome1" placeholder="Sofia">
+            </div>
+            <div class="input-group">
+                <label>Nome Sposo/a 2</label>
+                <input type="text" id="m-nome2" placeholder="Marco">
+            </div>
+        </div>
+        <div class="input-group" style="margin-bottom:20px">
+            <label>Data Matrimonio</label>
+            <input type="date" id="m-data">
+        </div>
+        <div class="input-group" style="margin-bottom:20px">
+            <label>Email Accesso Sposi</label>
+            <input type="email" id="m-email" placeholder="sofia.marco@wedding.com">
+        </div>
+        <div class="input-group" style="margin-bottom:28px">
+            <label>Password Accesso Sposi</label>
+            <input type="password" id="m-password" placeholder="minimo 6 caratteri">
+        </div>
+        <button class="btn-primary" onclick="creaMatrimonio()">Crea Matrimonio</button>
+        <div class="error-msg" id="modal-error"></div>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getDatabase, ref, set, push, remove, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCtQ1RZlIy7dzQlIGj4-ohs7z7Ht5pdi2Q",
+        authDomain: "wedding-manager-f1488.firebaseapp.com",
+        databaseURL: "https://wedding-manager-f1488-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "wedding-manager-f1488",
+        storageBucket: "wedding-manager-f1488.firebasestorage.app",
+        messagingSenderId: "430184287073",
+        appId: "1:430184287073:web:826913002d74b394ac9320"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    // UID admin (il tuo — da aggiornare dopo il primo login)
+    const ADMIN_UID = "VcwNeVwESsOdR2Y2e0EGYOaiQO53";
+
+    let currentUser = null;
+    let currentWeddingId = null;
+    let ospiti = {};
+    let budgetVoci = {};
+    let ospiteListeners = null;
+    let budgetListeners = null;
+
+    // ── AUTH ──
+    window.doLogin = async () => {
+        const email = document.getElementById('login-email').value;
+        const pwd = document.getElementById('login-password').value;
+        document.getElementById('login-error').textContent = '';
+        try {
+            await signInWithEmailAndPassword(auth, email, pwd);
+        } catch(e) {
+            document.getElementById('login-error').textContent = 'Email o password errati.';
+        }
+    };
+
+    window.doLogout = async () => {
+        await signOut(auth);
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            document.getElementById('user-badge').textContent = user.email;
+
+            // Controlla se admin
+            const adminSnap = await get(ref(db, `admins/${user.uid}`));
+            if (adminSnap.exists()) {
+                showAdminView();
+            } else {
+                // Cerca il matrimonio associato a questo utente
+                const wSnap = await get(ref(db, 'matrimoni'));
+                if (wSnap.exists()) {
+                    const all = wSnap.val();
+                    for (const [wid, w] of Object.entries(all)) {
+                        if (w.uid === user.uid) {
+                            showWeddingView(wid, w);
+                            return;
+                        }
+                    }
+                }
+                // Nessun matrimonio trovato
+                document.getElementById('view-admin').style.display = 'none';
+                document.getElementById('view-wedding').style.display = 'block';
+                document.getElementById('wedding-title').textContent = 'Nessun matrimonio trovato';
+            }
+        } else {
+            currentUser = null;
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('app-screen').style.display = 'none';
+        }
+    });
+
+    // ── ADMIN VIEW ──
+    function showAdminView() {
+        document.getElementById('view-admin').style.display = 'block';
+        document.getElementById('view-wedding').style.display = 'none';
+        loadWeddings();
+    }
+
+    function loadWeddings() {
+        const grid = document.getElementById('weddings-grid');
+        onValue(ref(db, 'matrimoni'), (snap) => {
+            grid.innerHTML = '';
+            if (snap.exists()) {
+                const all = snap.val();
+                for (const [wid, w] of Object.entries(all)) {
+                    const card = document.createElement('div');
+                    card.className = 'wedding-card animate-in';
+                    const guestsCount = w.ospiti ? Object.keys(w.ospiti).length : 0;
+                    card.innerHTML = `
+                        <h3>${w.nome1} & ${w.nome2}</h3>
+                        <div class="wedding-date">${formatDate(w.data)}</div>
+                        <div class="wedding-stats">
+                            <span>♡ ${guestsCount} ospiti</span>
+                        </div>`;
+                    card.onclick = () => showWeddingView(wid, w);
+                    grid.appendChild(card);
+                }
+            }
+            // Add card
+            const addCard = document.createElement('div');
+            addCard.className = 'add-wedding-card';
+            addCard.innerHTML = `<div class="plus">+</div><span>Nuovo Matrimonio</span>`;
+            addCard.onclick = () => document.getElementById('modal-coppia').classList.add('active');
+            grid.appendChild(addCard);
+        });
+    }
+
+    // ── WEDDING VIEW ──
+    window.showWeddingView = function(wid, w) {
+        currentWeddingId = wid;
+        document.getElementById('view-admin').style.display = 'none';
+        document.getElementById('view-wedding').style.display = 'block';
+        document.getElementById('wedding-title').textContent = `${w.nome1} & ${w.nome2}`;
+        document.getElementById('wedding-date-label').textContent = formatDate(w.data);
+
+        // Mostra tasto back solo per admin
+        get(ref(db, `admins/${currentUser.uid}`)).then(s => {
+            document.getElementById('btn-back-admin').style.display = s.exists() ? 'block' : 'none';
+        });
+
+        // Carica ospiti in realtime
+        if (ospiteListeners) ospiteListeners();
+        ospiteListeners = onValue(ref(db, `matrimoni/${wid}/ospiti`), (snap) => {
+            ospiti = snap.exists() ? snap.val() : {};
+            renderOspiti();
+        });
+
+        // Carica budget in realtime
+        if (budgetListeners) budgetListeners();
+        budgetListeners = onValue(ref(db, `matrimoni/${wid}/budget`), (snap) => {
+            const data = snap.exists() ? snap.val() : {};
+            budgetVoci = data.voci || {};
+            const maxVal = data.max || 20000;
+            document.getElementById('budget-max').value = maxVal;
+            renderBudget();
+        });
+    };
+
+    window.backToAdmin = function() {
+        if (ospiteListeners) { ospiteListeners(); ospiteListeners = null; }
+        if (budgetListeners) { budgetListeners(); budgetListeners = null; }
+        currentWeddingId = null;
+        document.getElementById('view-wedding').style.display = 'none';
+        document.getElementById('view-admin').style.display = 'block';
+    };
+
+    // ── OSPITI ──
+    window.addOspite = async () => {
+        const nome = document.getElementById('inp-nome').value.trim();
+        const cognome = document.getElementById('inp-cognome').value.trim();
+        if (!nome || !cognome) { alert('Nome e cognome sono obbligatori.'); return; }
+        const ospite = {
+            nome,
+            cognome,
+            tavolo: document.getElementById('inp-tavolo').value || '',
+            transfer: document.getElementById('inp-transfer').value,
+            intolleranze: document.getElementById('inp-intoll').value.trim()
+        };
+        await push(ref(db, `matrimoni/${currentWeddingId}/ospiti`), ospite);
+        document.getElementById('inp-nome').value = '';
+        document.getElementById('inp-cognome').value = '';
+        document.getElementById('inp-tavolo').value = '';
+        document.getElementById('inp-transfer').value = 'No';
+        document.getElementById('inp-intoll').value = '';
+    };
+
+    window.deleteOspite = async (id) => {
+        if (confirm('Eliminare questo ospite?')) {
+            await remove(ref(db, `matrimoni/${currentWeddingId}/ospiti/${id}`));
+        }
+    };
+
+    window.renderOspiti = function() {
+        const tbody = document.getElementById('tbody-ospiti');
+        const q = (document.getElementById('search-ospiti').value || '').toLowerCase();
+        tbody.innerHTML = '';
+
+        let totale = 0, transfer = 0, tavoli = new Set(), intoll = 0;
+        let filtered = Object.entries(ospiti).filter(([, o]) => {
+            if (!q) return true;
+            return o.cognome.toLowerCase().includes(q) || String(o.tavolo).includes(q);
+        });
+
+        if (filtered.length === 0 && Object.keys(ospiti).length === 0) {
+            document.getElementById('empty-ospiti').style.display = 'block';
+        } else {
+            document.getElementById('empty-ospiti').style.display = 'none';
+        }
+
+        filtered.sort((a, b) => a[1].cognome.localeCompare(b[1].cognome));
+
+        filtered.forEach(([id, o]) => {
+            totale++;
+            if (o.transfer === 'Sì') transfer++;
+            if (o.tavolo) tavoli.add(o.tavolo);
+            if (o.intolleranze) intoll++;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${o.cognome}</td>
+                <td>${o.nome}</td>
+                <td>${o.tavolo || '—'}</td>
+                <td><span class="badge ${o.transfer === 'Sì' ? 'badge-yes' : 'badge-no'}">${o.transfer}</span></td>
+                <td>${o.intolleranze || '—'}</td>
+                <td><button class="btn-icon" onclick="deleteOspite('${id}')">✕</button></td>`;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('s-totale').textContent = Object.keys(ospiti).length;
+        document.getElementById('s-transfer').textContent = transfer;
+        document.getElementById('s-tavoli').textContent = tavoli.size;
+        document.getElementById('s-intoll').textContent = intoll;
+    };
+
+    window.esportaCSV = () => {
+        let csv = 'Cognome,Nome,Tavolo,Transfer,Intolleranze\n';
+        Object.values(ospiti).forEach(o => {
+            csv += `${o.cognome},${o.nome},${o.tavolo || ''},${o.transfer},${o.intolleranze || ''}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'ospiti.csv'; a.click();
+    };
+
+    // ── BUDGET ──
+    window.addBudget = async () => {
+        const voce = document.getElementById('inp-voce').value.trim();
+        if (!voce) { alert('Inserisci una voce di spesa.'); return; }
+        const item = {
+            desc: voce,
+            prev: parseFloat(document.getElementById('inp-prev').value) || 0,
+            real: parseFloat(document.getElementById('inp-real').value) || 0
+        };
+        await push(ref(db, `matrimoni/${currentWeddingId}/budget/voci`), item);
+        document.getElementById('inp-voce').value = '';
+        document.getElementById('inp-prev').value = '';
+        document.getElementById('inp-real').value = '';
+    };
+
+    window.deleteBudget = async (id) => {
+        if (confirm('Eliminare questa voce?')) {
+            await remove(ref(db, `matrimoni/${currentWeddingId}/budget/voci/${id}`));
+        }
+    };
+
+    window.saveBudgetMax = async () => {
+        const val = parseFloat(document.getElementById('budget-max').value) || 0;
+        await set(ref(db, `matrimoni/${currentWeddingId}/budget/max`), val);
+    };
+
+    window.renderBudget = function() {
+        const tbody = document.getElementById('tbody-budget');
+        tbody.innerHTML = '';
+        const entries = Object.entries(budgetVoci);
+
+        document.getElementById('empty-budget').style.display = entries.length === 0 ? 'block' : 'none';
+
+        let totPrev = 0, totReal = 0;
+        const maxBudget = parseFloat(document.getElementById('budget-max').value) || 0;
+
+        entries.forEach(([id, b]) => {
+            totPrev += b.prev;
+            totReal += b.real;
+            const diff = b.prev - b.real;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${b.desc}</td>
+                <td>€ ${b.prev.toLocaleString('it-IT')}</td>
+                <td>€ ${b.real.toLocaleString('it-IT')}</td>
+                <td class="${diff >= 0 ? 'diff-pos' : 'diff-neg'}">€ ${diff.toLocaleString('it-IT')}</td>
+                <td><button class="btn-icon" onclick="deleteBudget('${id}')">✕</button></td>`;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('b-previsto').textContent = '€ ' + totPrev.toLocaleString('it-IT');
+        document.getElementById('b-speso').textContent = '€ ' + totReal.toLocaleString('it-IT');
+        document.getElementById('b-rimanente').textContent = '€ ' + (maxBudget - totReal).toLocaleString('it-IT');
+        document.getElementById('b-voci').textContent = entries.length;
+    };
+
+    // ── CREA MATRIMONIO (admin) ──
+    window.creaMatrimonio = async () => {
+        const nome1 = document.getElementById('m-nome1').value.trim();
+        const nome2 = document.getElementById('m-nome2').value.trim();
+        const data = document.getElementById('m-data').value;
+        const email = document.getElementById('m-email').value.trim();
+        const pwd = document.getElementById('m-password').value;
+        const errEl = document.getElementById('modal-error');
+        errEl.textContent = '';
+
+        if (!nome1 || !nome2 || !data || !email || !pwd) {
+            errEl.textContent = 'Compila tutti i campi.'; return;
+        }
+        if (pwd.length < 6) {
+            errEl.textContent = 'La password deve avere almeno 6 caratteri.'; return;
+        }
+
+        try {
+            // Crea utente Firebase per gli sposi
+            const userCred = await createUserWithEmailAndPassword(auth, email, pwd);
+            const sposiUID = userCred.user.uid;
+
+            // Salva matrimonio nel DB
+            const newRef = push(ref(db, 'matrimoni'));
+            await set(newRef, { nome1, nome2, data, uid: sposiUID, email });
+
+            closeModal();
+
+            // Ri-login come admin
+            alert(`Matrimonio creato!\n\nCredenziali sposi:\nEmail: ${email}\nPassword: ${pwd}\n\nCondividi queste credenziali con gli sposi.`);
+
+        } catch(e) {
+            if (e.code === 'auth/email-already-in-use') {
+                errEl.textContent = 'Email già in uso.';
+            } else {
+                errEl.textContent = 'Errore: ' + e.message;
+            }
+        }
+    };
+
+    window.closeModal = () => {
+        document.getElementById('modal-coppia').classList.remove('active');
+        document.getElementById('modal-error').textContent = '';
+    };
+
+    // ── TABS ──
+    window.switchTab = (name, btn) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + name).classList.add('active');
+    };
+
+    // ── UTILS ──
+    function formatDate(d) {
+        if (!d) return '';
+        const parts = d.split('-');
+        if (parts.length !== 3) return d;
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+</script>
+
+</body>
+</html>
