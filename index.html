@@ -963,7 +963,7 @@
             document.getElementById('user-badge').textContent = user.email;
 
             // Controlla se admin
-            const adminSnap = await get(ref(db, `admins/${user.uid}`));
+            const adminSnap = await get(ref(db, `admin/${user.uid}`));
             if (adminSnap.exists()) {
                 showAdminView();
             } else {
