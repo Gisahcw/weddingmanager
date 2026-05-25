@@ -1091,6 +1091,10 @@
         }
     };
 
+    window.updateOspite = async (id, field, value) => {
+        await set(ref(db, `matrimoni/${currentWeddingId}/ospiti/${id}/${field}`), value);
+    };
+
     window.renderOspiti = function() {
         const tbody = document.getElementById('tbody-ospiti');
         const q = (document.getElementById('search-ospiti').value || '').toLowerCase();
@@ -1118,11 +1122,18 @@
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${o.cognome}</td>
-                <td>${o.nome}</td>
-                <td>${o.tavolo || '—'}</td>
-                <td><span class="badge ${o.transfer === 'Sì' ? 'badge-yes' : 'badge-no'}">${o.transfer}</span></td>
-                <td>${o.intolleranze || '—'}</td>
+                <td contenteditable="true" onblur="updateOspite('${id}','cognome',this.textContent.trim())">${o.cognome}</td>
+                <td contenteditable="true" onblur="updateOspite('${id}','nome',this.textContent.trim())">${o.nome}</td>
+                <td contenteditable="true" onblur="updateOspite('${id}','tavolo',this.textContent.trim())" style="min-width:60px">${o.tavolo || ''}</td>
+                <td>
+                    <select class="badge ${o.transfer === 'Sì' ? 'badge-yes' : 'badge-no'}" 
+                        onchange="updateOspite('${id}','transfer',this.value); this.className='badge '+(this.value==='Sì'?'badge-yes':'badge-no')"
+                        style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;">
+                        <option value="No" ${o.transfer !== 'Sì' ? 'selected' : ''}>No</option>
+                        <option value="Sì" ${o.transfer === 'Sì' ? 'selected' : ''}>Sì</option>
+                    </select>
+                </td>
+                <td contenteditable="true" onblur="updateOspite('${id}','intolleranze',this.textContent.trim())">${o.intolleranze || ''}</td>
                 <td><button class="btn-icon" onclick="deleteOspite('${id}')">✕</button></td>`;
             tbody.appendChild(tr);
         });
