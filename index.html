@@ -1176,6 +1176,15 @@
         }
     };
 
+    window.updateBudget = async (id, field, value) => {
+        const num = parseFloat(value.replace(',', '.')) || 0;
+        await set(ref(db, `matrimoni/${currentWeddingId}/budget/voci/${id}/${field}`), num);
+    };
+
+    window.updateBudgetDesc = async (id, value) => {
+        await set(ref(db, `matrimoni/${currentWeddingId}/budget/voci/${id}/desc`), value);
+    };
+
     window.saveBudgetMax = async () => {
         const val = parseFloat(document.getElementById('budget-max').value) || 0;
         await set(ref(db, `matrimoni/${currentWeddingId}/budget/max`), val);
@@ -1197,9 +1206,9 @@
             const diff = b.prev - b.real;
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${b.desc}</td>
-                <td>€ ${b.prev.toLocaleString('it-IT')}</td>
-                <td>€ ${b.real.toLocaleString('it-IT')}</td>
+                <td contenteditable="true" onblur="updateBudgetDesc('${id}',this.textContent.trim())">${b.desc}</td>
+                <td contenteditable="true" onblur="updateBudget('${id}','prev',this.textContent.replace('€','').trim())" style="min-width:80px">${b.prev.toLocaleString('it-IT')}</td>
+                <td contenteditable="true" onblur="updateBudget('${id}','real',this.textContent.replace('€','').trim())" style="min-width:80px;border-bottom:1px solid var(--gold)">${b.real.toLocaleString('it-IT')}</td>
                 <td class="${diff >= 0 ? 'diff-pos' : 'diff-neg'}">€ ${diff.toLocaleString('it-IT')}</td>
                 <td><button class="btn-icon" onclick="deleteBudget('${id}')">✕</button></td>`;
             tbody.appendChild(tr);
