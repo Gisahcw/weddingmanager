@@ -293,6 +293,26 @@
             color: var(--gray);
         }
 
+        .btn-delete-wedding {
+            margin-top: 16px;
+            background: transparent;
+            border: 1px solid #e0c0c0;
+            color: #c0392b;
+            padding: 6px 14px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-wedding:hover {
+            background: #c0392b;
+            color: white;
+            border-color: #c0392b;
+        }
+
         /* ── MODAL ── */
         .modal-overlay {
             display: none;
@@ -1012,8 +1032,11 @@
                         <div class="wedding-date">${formatDate(w.data)}</div>
                         <div class="wedding-stats">
                             <span>♡ ${guestsCount} ospiti</span>
-                        </div>`;
-                    card.onclick = () => showWeddingView(wid, w);
+                        </div>
+                        <button class="btn-delete-wedding" onclick="eliminaMatrimonio(event,'${wid}','${w.nome1} & ${w.nome2}')">Elimina</button>`;
+                    card.onclick = (e) => {
+                        if (!e.target.classList.contains('btn-delete-wedding')) showWeddingView(wid, w);
+                    };
                     grid.appendChild(card);
                 }
             }
@@ -1025,6 +1048,13 @@
             grid.appendChild(addCard);
         });
     }
+
+    window.eliminaMatrimonio = async (e, wid, nomi) => {
+        e.stopPropagation();
+        if (confirm(`Eliminare definitivamente il matrimonio di ${nomi}?\n\nVerranno cancellati tutti gli ospiti e il budget. Questa azione non può essere annullata.`)) {
+            await remove(ref(db, `matrimoni/${wid}`));
+        }
+    };
 
     // ── WEDDING VIEW ──
     window.showWeddingView = function(wid, w) {
