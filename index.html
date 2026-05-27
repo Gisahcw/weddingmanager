@@ -1486,18 +1486,14 @@ window.copyRsvpLink=function(){navigator.clipboard.writeText(window._rsvpUrl||''
 window.copyKitchenLink=function(){navigator.clipboard.writeText(window._kitchenUrl||'');alert('Link cucina copiato!');};
 
 window.exportGuestsCSV=function(){
-  let csv='Cognome,Nome,Tavolo,RSVP,Transfer,Menu,Allergeni,Intolleranze,Tel,Email
-';
-  Object.values(guests).forEach(g=>{
-    csv+=`"${g.cognome}","${g.nome}","${g.tavolo||''}","${g.rsvp||'In attesa'}","${g.transfer||'No'}","${g.menu||'Normale'}","${g.allergeni||''}","${g.intolleranze||''}","${g.tel||''}","${g.email||''}"
-`;
-  });
+  let rows=[['Cognome','Nome','Tavolo','RSVP','Transfer','Menu','Allergeni','Intolleranze','Tel','Email']];
+  Object.values(guests).forEach(function(g){rows.push([g.cognome||'',g.nome||'',g.tavolo||'',g.rsvp||'In attesa',g.transfer||'No',g.menu||'Normale',g.allergeni||'',g.intolleranze||'',g.tel||'',g.email||'']);});
+  const csv=rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}), 'ospiti.csv');
 };
 
 window.exportGuestsXLS=function(){
-  let csv='Cognome	Nome	Tavolo	RSVP	Transfer	Menu	Allergeni	Intolleranze	Tel	Email	Nota Admin
-';
+  let csv='Cognome\tNome\tTavolo\tRSVP\tTransfer\tMenu\tAllergeni\tIntolleranze\tTel\tEmail\tNota Admin\n';
   Object.values(guests).forEach(g=>{
     csv+=`${g.cognome}	${g.nome}	${g.tavolo||''}	${g.rsvp||'In attesa'}	${g.transfer||'No'}	${g.menu||'Normale'}	${g.allergeni||''}	${g.intolleranze||''}	${g.tel||''}	${g.email||''}	${g.notaAdmin||''}
 `;
