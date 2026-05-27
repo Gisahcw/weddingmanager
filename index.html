@@ -343,7 +343,7 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
       </div>
       <div class="rsvp-confirm-btns">
         <button class="btn-rsvp-yes" id="rsvp-yes-btn" onclick="selectRsvp('yes')" id="r-yes">✓ Confermo la presenza</button>
-        <button class="btn-rsvp-no" id="rsvp-no-btn" onclick="selectRsvp('no')" id="r-no">✕ Non potrò essere presente</button>
+        <button class="btn-rsvp-no" id="rsvp-no-btn" onclick="selectRsvp('no')" id="r-no">✕ Non potro essere presente</button>
       </div>
       <button class="btn-primary" onclick="submitRsvp()" id="r-send">Invia conferma</button>
       <div class="err" id="rsvp-err"></div>
@@ -746,7 +746,7 @@ const T={
     kitchen_title:'Lista Cucina — Per il Catering',
     table:'Tavolo',guests_total:'Ospiti Totali',
     rsvp_invite:'Sei invitato al loro matrimonio. Conferma la tua presenza.',
-    rsvp_thanks_yes:'Grazie! Non vediamo l'ora di festeggiare con te.',
+    rsvp_thanks_yes:'Grazie! Non vediamo l ora di festeggiare con te.',
     rsvp_thanks_no:'Grazie per la risposta. Ci dispiace non potrai esserci.',
   },
   en:{
@@ -783,8 +783,8 @@ const T={
     kitchen_title:'Kitchen List — For Catering',
     table:'Table',guests_total:'Total Guests',
     rsvp_invite:'You are invited to their wedding. Please confirm your attendance.',
-    rsvp_thanks_yes:'Thank you! We can't wait to celebrate with you.',
-    rsvp_thanks_no:'Thank you for your reply. We're sorry you won't be able to join.',
+    rsvp_thanks_yes:'Thank you! We cant wait to celebrate with you.',
+    rsvp_thanks_no:'Thank you for your reply. Were sorry you wont be able to join.',
   }
 };
 
@@ -847,7 +847,7 @@ async function loadRsvpPage(wid){
   LANG=lang;
   document.getElementById('rsvp-invite-text').textContent=t('rsvp_invite');
   document.getElementById('r-yes').textContent='✓ '+( lang==='en'?'Confirm attendance':'Confermo la presenza');
-  document.getElementById('r-no').textContent='✕ '+(lang==='en'?"I won't be able to attend":'Non potrò essere presente');
+  document.getElementById('r-no').textContent='✕ '+(lang==='en'?"I wont be able to attend":'Non potro essere presente');
   document.getElementById('r-send').textContent=lang==='en'?'Send confirmation':'Invia conferma';
 }
 
@@ -1392,7 +1392,7 @@ function renderVendors(){
 // ── CHECKLIST ──
 window.addChecklistItem=async function(){
   const text=document.getElementById('cl-text').value.trim();
-  if(!text){alert('Inserisci un'attività');return;}
+  if(!text){alert('Inserisci un attività');return;}
   await push(ref(db,`matrimoni/${CW_ID}/checklist`),{text,date:document.getElementById('cl-date').value,cat:document.getElementById('cl-cat').value,done:false});
   document.getElementById('cl-text').value='';document.getElementById('cl-date').value='';
 };
@@ -1475,7 +1475,7 @@ Credenziali sposi:
 Email: ${email}
 Password: ${pwd}
 
-⚠️ Firebase ti ha spostato sull'account sposi. Clicca ESCI e rientra con il tuo account admin.`);
+⚠️ Firebase ti ha spostato sull account sposi. Clicca ESCI e rientra con il tuo account admin.`);
   }catch(e){
     errEl.textContent=e.code==='auth/email-already-in-use'?'Email già in uso':'Errore: '+e.message;
   }
