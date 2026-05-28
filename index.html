@@ -289,6 +289,7 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
   .kpi-grid{grid-template-columns:1fr 1fr}
 }
 </style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -508,7 +509,7 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
           <button class="btn-sm" onclick="exportGuestsPDF('tavolo')" data-t="pdf_table">PDF per tavolo</button>
           <button class="btn-sm" onclick="exportGuestsPDF('alfa')" data-t="pdf_alpha">PDF alfabetica</button>
           <button class="btn-sm" onclick="exportGuestsCSV()" data-t="export_csv">CSV</button>
-          <button class="btn-sm" onclick="exportGuestsXLS()" data-t="backup_xls">Backup XLS</button>
+          <button class="btn-sm" onclick="exportGuestsXLS()" data-t="backup_xls">Backup Excel</button>
         </div>
         <div class="tw">
           <table>
@@ -1074,12 +1075,13 @@ function loadAdminWeddings(){
       for(const [wid,w] of Object.entries(snap.val())){
         if(!w.archived)continue;
         hasArchive=true;
+        window._weddingCache[wid]=w;
         const card=document.createElement('div');
         card.className='archive-card';
         card.innerHTML=`<h3>${w.nome1} & ${w.nome2}</h3>
           <div class="arc-date">${formatDate(w.data)}</div>
           <div style="font-size:13px;color:var(--gray);margin-bottom:12px">♡ ${w.ospiti?Object.keys(w.ospiti).length:0} ospiti</div>
-          <button class="btn-sm" onclick="loadWedding('${wid}',${JSON.stringify(w).replace(/'/g,"&#39;")})">Apri</button>
+          <button class="btn-sm" onclick="loadWeddingById('${wid}')">Apri</button>
           <button class="btn-sm" style="color:var(--green);margin-left:8px" onclick="unarchiveWedding('${wid}')">Ripristina</button>`;
         archiveGrid.appendChild(card);
       }
@@ -1541,13 +1543,28 @@ window.exportGuestsCSV=function(){
 };
 
 window.exportGuestsXLS=function(){
-  let csv='Cognome\tNome\tTavolo\tRSVP\tTransfer\tMenu\tAllergeni\tIntolleranze\tTel\tEmail\tNota Admin\n';
-  Object.values(guests).forEach(g=>{
-    csv+=`${g.cognome}	${g.nome}	${g.tavolo||''}	${g.rsvp||'In attesa'}	${g.transfer||'No'}	${g.menu||'Normale'}	${g.allergeni||''}	${g.intolleranze||''}	${g.tel||''}	${g.email||''}	${g.notaAdmin||''}
-`;
+  const headers=['Cognome','Nome','Tavolo','RSVP','Transfer','Menu','Allergeni','Intolleranze','Tel','Email','Nota Admin'];
+  const rows=Object.values(guests).sort(function(a,b){return (a.cognome||'').localeCompare(b.cognome||'');}).map(function(g){
+    return {
+      'Cognome':g.cognome||'','Nome':g.nome||'','Tavolo':g.tavolo||'',
+      'RSVP':g.rsvp||'In attesa','Transfer':g.transfer||'No','Menu':g.menu||'Normale',
+      'Allergeni':g.allergeni||'','Intolleranze':g.intolleranze||'',
+      'Tel':g.tel||'','Email':g.email||'','Nota Admin':g.notaAdmin||''
+    };
   });
-  downloadBlob(new Blob(["﻿"+csv],{type:'application/vnd.ms-excel;charset=utf-8;'}), 'ospiti_backup.xls');
-};
+  const ws=XLSX.utils.json_to_sheet(rows,{header:headers});
+  // Style header row
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  for(let c=range.s.c;c<=range.e.c;c++){
+    const cell=ws[XLSX.utils.encode_cell({r:0,c:c})];
+    if(cell){cell.s={font:{bold:true},fill:{fgColor:{rgb:'F7F0D8'}}};}
+  }
+  // Auto column widths
+  ws['!cols']=headers.map(function(h){return {wch:Math.max(h.length,12)};});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Ospiti');
+  XLSX.writeFile(wb,'ospiti_backup.xlsx');
+}
 
 window.exportGuestsPDF=function(mode){
   const w=window.open('','_blank');
