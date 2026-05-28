@@ -329,14 +329,14 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
         <div class="ig rsvp-full">
           <label id="rl-allerg">Allergeni</label>
           <div class="rsvp-allergeni">
-            <label class="allerg-cb"><input type="checkbox" value="Glutine" class="rsvp-allerg-cb"> <span id="ra-glut">Glutine</span></label>
-            <label class="allerg-cb"><input type="checkbox" value="Lattosio" class="rsvp-allerg-cb"> <span id="ra-latt">Lattosio</span></label>
-            <label class="allerg-cb"><input type="checkbox" value="Frutta secca" class="rsvp-allerg-cb"> <span id="ra-nuts">Frutta secca</span></label>
-            <label class="allerg-cb"><input type="checkbox" value="Crostacei" class="rsvp-allerg-cb"> <span id="ra-crust">Crostacei</span></label>
-            <label class="allerg-cb"><input type="checkbox" value="Uova" class="rsvp-allerg-cb"> <span id="ra-eggs">Uova</span></label>
-            <label class="allerg-cb"><input type="checkbox" value="Soia" class="rsvp-allerg-cb"> <span id="ra-soya">Soia</span></label>
-            <label class="allerg-cb"><input type="checkbox" value="Pesce" class="rsvp-allerg-cb"> <span id="ra-fish">Pesce</span></label>
-            <label class="allerg-cb"><input type="checkbox" value="Sesamo" class="rsvp-allerg-cb"> <span id="ra-ses">Sesamo</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Glutine" class="rsvp-allerg-cb"> <span data-t="al_gluten">Glutine</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Lattosio" class="rsvp-allerg-cb"> <span data-t="al_lactose">Lattosio</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Frutta secca" class="rsvp-allerg-cb"> <span data-t="al_nuts">Frutta secca</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Crostacei" class="rsvp-allerg-cb"> <span data-t="al_shellfish">Crostacei</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Uova" class="rsvp-allerg-cb"> <span data-t="al_eggs">Uova</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Soia" class="rsvp-allerg-cb"> <span data-t="al_soy">Soia</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Pesce" class="rsvp-allerg-cb"> <span data-t="al_fish">Pesce</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Sesamo" class="rsvp-allerg-cb"> <span data-t="al_sesame">Sesamo</span></label>
           </div>
         </div>
         <div class="ig rsvp-full"><label id="rl-note">Note</label><input id="rsvp-note" id="rl-note-inp" placeholder="..."></div>
@@ -473,14 +473,14 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
             <div class="ig span2">
               <label data-t="allergens">Allergeni rapidi</label>
               <div class="allerg-grid" id="allerg-form">
-                <label class="allerg-item"><input type="checkbox" value="Glutine"> Glutine</label>
-                <label class="allerg-item"><input type="checkbox" value="Lattosio"> Lattosio</label>
-                <label class="allerg-item"><input type="checkbox" value="Frutta secca"> Frutta secca</label>
-                <label class="allerg-item"><input type="checkbox" value="Crostacei"> Crostacei</label>
-                <label class="allerg-item"><input type="checkbox" value="Uova"> Uova</label>
-                <label class="allerg-item"><input type="checkbox" value="Soia"> Soia</label>
-                <label class="allerg-item"><input type="checkbox" value="Pesce"> Pesce</label>
-                <label class="allerg-item"><input type="checkbox" value="Sesamo"> Sesamo</label>
+                <label class="allerg-item"><input type="checkbox" value="Glutine"> <span data-t="al_gluten">Glutine</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Lattosio"> <span data-t="al_lactose">Lattosio</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Frutta secca"> <span data-t="al_nuts">Frutta secca</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Crostacei"> <span data-t="al_shellfish">Crostacei</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Uova"> <span data-t="al_eggs">Uova</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Soia"> <span data-t="al_soy">Soia</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Pesce"> <span data-t="al_fish">Pesce</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Sesamo"> <span data-t="al_sesame">Sesamo</span></label>
               </div>
             </div>
             <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="g-intoll" placeholder="es. senza glutine..."></div>
@@ -739,6 +739,8 @@ const T={
     wedding_location:'Location',pwd_spouses:'Password Sposi',create_wedding:'Crea Matrimonio',
     nav_archive:'Archivio',no_archive:'Nessun matrimonio archiviato',
     pdf_table:'PDF per tavolo',pdf_alpha:'PDF alfabetica',export_csv:'Esporta CSV',backup_xls:'Backup XLS',
+    al_gluten:'Glutine',al_lactose:'Lattosio',al_nuts:'Frutta secca',al_shellfish:'Crostacei',
+    al_eggs:'Uova',al_soy:'Soia',al_fish:'Pesce',al_sesame:'Sesamo',
     menu_normal:'Normale',menu_veg:'Vegetariano',menu_vegan:'Vegano',menu_fish:'Pesce',
     menu_staff:'Staff',menu_child:'Bambino',menu_other:'Altro',
     days:'Giorni',hours:'Ore',mins:'Minuti',secs:'Secondi',
@@ -776,6 +778,8 @@ const T={
     wedding_location:'Venue',pwd_spouses:'Couple password',create_wedding:'Create Wedding',
     nav_archive:'Archive',no_archive:'No archived weddings',
     pdf_table:'PDF by table',pdf_alpha:'PDF alphabetical',export_csv:'Export CSV',backup_xls:'Backup XLS',
+    al_gluten:'Gluten',al_lactose:'Lactose',al_nuts:'Tree nuts',al_shellfish:'Shellfish',
+    al_eggs:'Eggs',al_soy:'Soy',al_fish:'Fish',al_sesame:'Sesame',
     menu_normal:'Standard',menu_veg:'Vegetarian',menu_vegan:'Vegan',menu_fish:'Fish',
     menu_staff:'Staff',menu_child:'Child',menu_other:'Other',
     days:'Days',hours:'Hours',mins:'Minutes',secs:'Seconds',
@@ -798,6 +802,42 @@ window.setLang=function(l){
     else if(el.tagName==='INPUT'&&el.placeholder){}
     else el.textContent=t(k);
   });
+  // Update placeholders
+  const placeholders={
+    'g-nome': l==='en'?'Marco':'Marco',
+    'g-cognome': l==='en'?'Smith':'Rossi',
+    'g-tel': l==='en'?'+44 333...':'+39 333...',
+    'g-intoll': l==='en'?'e.g. gluten free...':'es. senza glutine...',
+    'g-nota-admin': l==='en'?'Only you can read this':'Solo tu puoi leggere questo',
+    'g-search': l==='en'?'Search by last name, table...':'Cerca per cognome, tavolo...',
+    'b-desc': l==='en'?'e.g. Florist, Venue...':'es. Fiorista, Location...',
+    'f-nome': l==='en'?'e.g. Studio Smith':'es. Studio Rossi',
+    'f-cont': l==='en'?'phone / email':'tel / email',
+    'f-note': l==='en'?'Additional notes...':'Note aggiuntive...',
+    'cl-text': l==='en'?'e.g. Confirm florist':'es. Confermare fiorista',
+    'tl-txt': l==='en'?'e.g. Church ceremony':'es. Cerimonia in chiesa',
+    'm-n1': l==='en'?'Sofia':'Sofia',
+    'm-n2': l==='en'?'Marco':'Marco',
+    'm-email': l==='en'?'couple@email.com':'sposi@email.com',
+    'm-location': l==='en'?'e.g. Villa Borghese, Rome':'es. Villa Borghese, Roma',
+    'login-email': l==='en'?'your email':'la tua email',
+  };
+  Object.entries(placeholders).forEach(([id,ph])=>{
+    const el=document.getElementById(id);
+    if(el)el.placeholder=ph;
+  });
+  // Update filter selects
+  const rsvpSel=document.getElementById('g-filter-rsvp');
+  if(rsvpSel){
+    rsvpSel.options[0].text=l==='en'?'All RSVP':'Tutti RSVP';
+    rsvpSel.options[1].text=l==='en'?'Confirmed':'Confermati';
+    rsvpSel.options[2].text=l==='en'?'Pending':'In attesa';
+    rsvpSel.options[3].text=l==='en'?'Absent':'Assenti';
+  }
+  const menuSel=document.getElementById('g-filter-menu');
+  if(menuSel){
+    menuSel.options[0].text=l==='en'?'All menus':'Tutti menu';
+  }
   document.getElementById('lang-sel').value=l;
   if(CW_ID)renderAll();
 }
