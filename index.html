@@ -1254,11 +1254,11 @@ window.renderGuests=function(){
       <td contenteditable="true" onblur="updateGuest('${id}','nome',this.textContent.trim())">${g.nome||''}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','tavolo',this.textContent.trim())">${g.tavolo||''}</td>
       <td><select class="badge ${rsvpB}" onchange="updateGuest('${id}','rsvp',this.value);const m={Confermato:'b-green',Assente:'b-red','In attesa':'b-gray'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
-        ${['In attesa','Confermato','Assente'].map(v=>`<option ${(g.rsvp||'In attesa')===v?'selected':''}>${v}</option>`).join('')}
+        ${[['In attesa',t('rsvp_waiting')],['Confermato',t('rsvp_yes')],['Assente',t('rsvp_no')]].map(([v,label])=>`<option value="${v}" ${(g.rsvp||'In attesa')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
-      <td><span class="badge ${g.transfer==='Sì'?'b-gold':'b-gray'}">${g.transfer||'No'}</span></td>
+      <td><span class="badge ${g.transfer==='Sì'?'b-gold':'b-gray'}">${g.transfer==='Sì'?(LANG==='en'?'Yes':'Sì'):'No'}</span></td>
       <td><select class="badge ${menuBadge(g.menu)}" onchange="updateGuest('${id}','menu',this.value);const mm={'Normale':'b-gray','Vegetariano':'b-green','Vegano':'b-teal','Pesce':'b-blue','Staff':'b-gray','Bambino':'b-orange','Altro':'b-gray'};this.className='badge '+(mm[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
-        ${['Normale','Vegetariano','Vegano','Pesce','Staff','Bambino','Altro'].map(v=>`<option ${(g.menu||'Normale')===v?'selected':''}>${v}</option>`).join('')}
+        ${[['Normale',t('menu_normal')],['Vegetariano',t('menu_veg')],['Vegano',t('menu_vegan')],['Pesce',t('menu_fish')],['Staff',t('menu_staff')],['Bambino',t('menu_child')],['Altro',t('menu_other')]].map(([v,label])=>`<option value="${v}" ${(g.menu||'Normale')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
       <td style="font-size:12px;max-width:120px">${g.allergeni||'—'}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','intolleranze',this.textContent.trim())" style="min-width:80px">${g.intolleranze||''}</td>
