@@ -1051,7 +1051,7 @@ function loadAdminWeddings(){
           <div style="color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">${formatDate(w.data)}</div>
           <div style="font-size:13px;color:var(--gray);margin-bottom:6px">♡ ${gc} ospiti${w.location?' · '+w.location:''}</div>
           <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-            <button class="btn-sm" onclick="event.stopPropagation();loadWedding('${wid}',${JSON.stringify(w).replace(/'/g,"&#39;")})">Gestisci</button>
+            <button class="btn-sm" onclick="event.stopPropagation();loadWeddingById('${wid}')">Gestisci</button>
             <button class="btn-sm" onclick="event.stopPropagation();archiveWedding('${wid}')" style="color:var(--gray)">Archivia</button>
             <button class="btn-sm" onclick="event.stopPropagation();deleteWeddingConfirm('${wid}','${w.nome1} & ${w.nome2}')" style="color:var(--red)">Elimina</button>
           </div>`;
