@@ -1074,6 +1074,7 @@ function loadAdminWeddings(){
     if(snap.exists()){
       for(const [wid,w] of Object.entries(snap.val())){
         if(!w.archived)continue;
+        window._weddingCache[wid]=w;
         hasArchive=true;
         window._weddingCache[wid]=w;
         const card=document.createElement('div');
@@ -1089,6 +1090,14 @@ function loadAdminWeddings(){
     document.getElementById('empty-archive').style.display=hasArchive?'none':'block';
   });
 }
+
+window._weddingCache={};
+
+window.loadWeddingById=function(wid){
+  const w=window._weddingCache[wid];
+  if(w){loadWedding(wid,w);}
+  else{get(ref(db,'matrimoni/'+wid)).then(function(s){if(s.exists())loadWedding(wid,s.val());});}
+};
 
 window.archiveWedding=async function(wid){
   if(confirm('Archiviare questo matrimonio?')){await update(ref(db,`matrimoni/${wid}`),{archived:true});}
