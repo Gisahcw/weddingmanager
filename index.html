@@ -272,8 +272,51 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
 .fade-in{animation:fadeUp .5s ease both}
 
 /* ── RESPONSIVE ── */
+/* ── HAMBURGER ── */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:8px;
+  z-index:200;
+}
+.hamburger span{
+  display:block;
+  width:22px;
+  height:2px;
+  background:var(--cream);
+  transition:all .3s;
+}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+.mobile-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:150;
+}
+.mobile-overlay.active{display:block}
+
 @media(max-width:900px){
-  .sidebar{display:none}
+  .hamburger{display:flex}
+  .sidebar{
+    display:block;
+    position:fixed;
+    left:-240px;
+    top:62px;
+    bottom:0;
+    width:240px;
+    z-index:160;
+    transition:left .3s ease;
+    overflow-y:auto;
+  }
+  .sidebar.mobile-open{left:0}
   .dash-two-col{grid-template-columns:1fr}
   .rsvp-grid{grid-template-columns:1fr}
   .rsvp-full{grid-column:span 1}
@@ -378,6 +421,9 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
 <!-- ══ APP ══ -->
 <div id="s-app" style="display:none">
   <div class="topbar">
+    <button class="hamburger" onclick="toggleMobileMenu()" id="hamburger-btn">
+      <span></span><span></span><span></span>
+    </button>
     <div class="topbar-logo"><img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20GisaCompleto%20DefBianco.png" alt="Gisa"></div>
     <div class="topbar-right">
       <select class="lang-sel" onchange="setLang(this.value)" id="lang-sel">
@@ -389,6 +435,8 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
       <button class="btn-logout" onclick="doLogout()" id="btn-logout">Esci</button>
     </div>
   </div>
+  <!-- Mobile nav overlay -->
+  <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
   <div class="app-inner">
     <div class="sidebar">
       <div class="sidebar-section" id="sb-overview">PANORAMICA</div>
@@ -794,6 +842,28 @@ const T={
 };
 
 function t(key){return T[LANG][key]||T['it'][key]||key}
+
+window.toggleMobileMenu=function(){
+  const sidebar=document.querySelector('.sidebar');
+  const overlay=document.getElementById('mobile-overlay');
+  const btn=document.getElementById('hamburger-btn');
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('active');
+  btn.classList.toggle('open');
+};
+
+window.closeMobileMenu=function(){
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  document.getElementById('mobile-overlay').classList.remove('active');
+  document.getElementById('hamburger-btn').classList.remove('open');
+};
+
+// Close menu when nav item clicked on mobile
+const origShowView=window.showView;
+window.showView=function(name){
+  if(window.innerWidth<=900)closeMobileMenu();
+  origShowView(name);
+};
 
 window.setLang=function(l){
   LANG=l;
