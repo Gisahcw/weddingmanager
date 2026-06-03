@@ -622,7 +622,7 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
 
       <!-- FORNITORI -->
       <div id="view-fornitori" class="view-panel fade-in" style="display:none">
-        <div class="form-card">
+        <div class="form-card admin-only">
           <h4 data-t="add_vendor">Aggiungi Fornitore</h4>
           <div class="form-grid">
             <div class="ig"><label data-t="category">Categoria</label>
@@ -651,12 +651,12 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
           </div>
         </div>
         <div class="tw"><table>
-          <thead><tr>
+          <thead><tr id="vendors-thead">
             <th data-t="category">Cat.</th><th data-t="vendor_name">Nome</th>
             <th data-t="contact">Contatto</th><th data-t="contract_amount">Importo</th>
             <th class="admin-only" data-t="deposit_paid">Acconto</th>
             <th class="admin-only" data-t="due_date">Scadenza</th>
-            <th data-t="status">Stato</th><th data-t="notes">Note</th><th></th>
+            <th data-t="status">Stato</th><th data-t="notes">Note</th><th class="admin-only"></th>
           </tr></thead>
           <tbody id="tbody-fornitori"></tbody>
         </table></div>
