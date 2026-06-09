@@ -715,6 +715,60 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
   </div>
 </div>
 
+<!-- ══ MODAL: MODIFICA OSPITE ══ -->
+<div class="modal-overlay" id="modal-guest">
+  <div class="modal-box" style="width:640px">
+    <button class="modal-close" onclick="closeModal('modal-guest')">✕</button>
+    <h3 class="modal-title" data-t="edit_guest">Modifica Ospite</h3>
+    <input type="hidden" id="edit-guest-id">
+    <div class="form-grid" style="margin-bottom:16px">
+      <div class="ig"><label data-t="fname">Nome *</label><input id="eg-nome"></div>
+      <div class="ig"><label data-t="lname">Cognome *</label><input id="eg-cognome"></div>
+      <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="number" id="eg-tavolo" min="1"></div>
+      <div class="ig"><label data-t="phone">Telefono</label><input id="eg-tel"></div>
+      <div class="ig"><label>Email</label><input type="email" id="eg-email"></div>
+      <div class="ig"><label data-t="transfer">Transfer</label>
+        <select id="eg-transfer"><option value="No">No</option><option value="Sì">Sì</option></select></div>
+      <div class="ig"><label data-t="rsvp_stat">RSVP</label>
+        <select id="eg-rsvp">
+          <option value="In attesa">In attesa</option>
+          <option value="Confermato">Confermato</option>
+          <option value="Assente">Assente</option>
+        </select></div>
+      <div class="ig"><label data-t="menu">Menu</label>
+        <select id="eg-menu">
+          <option value="Normale">Normale</option>
+          <option value="Vegetariano">Vegetariano</option>
+          <option value="Vegano">Vegano</option>
+          <option value="Pesce">Pesce</option>
+          <option value="Staff">Staff</option>
+          <option value="Bambino">Bambino</option>
+          <option value="Altro">Altro</option>
+        </select></div>
+      <div class="ig span2">
+        <label data-t="allergens">Allergeni rapidi</label>
+        <div class="allerg-grid" id="eg-allerg-grid">
+          <label class="allerg-item"><input type="checkbox" value="Glutine" class="eg-allerg"> <span data-t="al_gluten">Glutine</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Lattosio" class="eg-allerg"> <span data-t="al_lactose">Lattosio</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Frutta secca" class="eg-allerg"> <span data-t="al_nuts">Frutta secca</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Crostacei" class="eg-allerg"> <span data-t="al_shellfish">Crostacei</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Uova" class="eg-allerg"> <span data-t="al_eggs">Uova</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Soia" class="eg-allerg"> <span data-t="al_soy">Soia</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Pesce" class="eg-allerg"> <span data-t="al_fish">Pesce</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Sesamo" class="eg-allerg"> <span data-t="al_sesame">Sesamo</span></label>
+        </div>
+      </div>
+      <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="eg-intoll"></div>
+      <div class="ig admin-only span2"><label data-t="private_note">★ Nota privata (admin)</label><input id="eg-nota-admin"></div>
+    </div>
+    <div style="display:flex;gap:12px">
+      <button class="btn-primary" onclick="saveGuestEdit()" style="flex:1" data-t="save">Salva modifiche</button>
+      <button class="btn-sm" onclick="closeModal('modal-guest')" style="padding:16px 24px" data-t="cancel">Annulla</button>
+    </div>
+    <div class="err" id="edit-guest-err"></div>
+  </div>
+</div>
+
 <!-- ══ MODAL: NUOVO MATRIMONIO ══ -->
 <div class="modal-overlay" id="modal-wedding">
   <div class="modal-box">
@@ -788,6 +842,7 @@ const T={
     wedding_location:'Location',pwd_spouses:'Password Sposi',create_wedding:'Crea Matrimonio',
     nav_archive:'Archivio',no_archive:'Nessun matrimonio archiviato',
     pdf_table:'PDF per tavolo',pdf_alpha:'PDF alfabetica',export_csv:'Esporta CSV',backup_xls:'Backup XLS',
+    edit_guest:'Modifica Ospite',save:'Salva modifiche',cancel:'Annulla',
     al_gluten:'Glutine',al_lactose:'Lattosio',al_nuts:'Frutta secca',al_shellfish:'Crostacei',
     al_eggs:'Uova',al_soy:'Soia',al_fish:'Pesce',al_sesame:'Sesamo',
     menu_normal:'Normale',menu_veg:'Vegetariano',menu_vegan:'Vegano',menu_fish:'Pesce',
@@ -827,6 +882,7 @@ const T={
     wedding_location:'Venue',pwd_spouses:'Couple password',create_wedding:'Create Wedding',
     nav_archive:'Archive',no_archive:'No archived weddings',
     pdf_table:'PDF by table',pdf_alpha:'PDF alphabetical',export_csv:'Export CSV',backup_xls:'Backup XLS',
+    edit_guest:'Edit Guest',save:'Save changes',cancel:'Cancel',
     al_gluten:'Gluten',al_lactose:'Lactose',al_nuts:'Tree nuts',al_shellfish:'Shellfish',
     al_eggs:'Eggs',al_soy:'Soy',al_fish:'Fish',al_sesame:'Sesame',
     menu_normal:'Standard',menu_veg:'Vegetarian',menu_vegan:'Vegan',menu_fish:'Fish',
@@ -1687,6 +1743,52 @@ window.showView=function(name){
 };
 
 window.closeModal=function(id){document.getElementById(id).classList.remove('active');};
+
+// ── EDIT GUEST MODAL ──
+window.openGuestEdit=function(id){
+  const g=guests[id];
+  if(!g)return;
+  document.getElementById('edit-guest-id').value=id;
+  document.getElementById('eg-nome').value=g.nome||'';
+  document.getElementById('eg-cognome').value=g.cognome||'';
+  document.getElementById('eg-tavolo').value=g.tavolo||'';
+  document.getElementById('eg-tel').value=g.tel||'';
+  document.getElementById('eg-email').value=g.email||'';
+  document.getElementById('eg-transfer').value=g.transfer||'No';
+  document.getElementById('eg-rsvp').value=g.rsvp||'In attesa';
+  document.getElementById('eg-menu').value=g.menu||'Normale';
+  document.getElementById('eg-intoll').value=g.intolleranze||'';
+  document.getElementById('eg-nota-admin').value=g.notaAdmin||'';
+  // Allergeni
+  const allergeniList=(g.allergeni||'').split(',').map(a=>a.trim()).filter(Boolean);
+  document.querySelectorAll('.eg-allerg').forEach(cb=>{
+    cb.checked=allergeniList.includes(cb.value);
+  });
+  document.getElementById('edit-guest-err').textContent='';
+  document.getElementById('modal-guest').classList.add('active');
+};
+
+window.saveGuestEdit=async function(){
+  const id=document.getElementById('edit-guest-id').value;
+  const nome=document.getElementById('eg-nome').value.trim();
+  const cognome=document.getElementById('eg-cognome').value.trim();
+  if(!nome||!cognome){document.getElementById('edit-guest-err').textContent='Nome e cognome obbligatori';return;}
+  const allergeni=Array.from(document.querySelectorAll('.eg-allerg:checked')).map(c=>c.value);
+  const updates={
+    nome,cognome,
+    tavolo:document.getElementById('eg-tavolo').value||'',
+    tel:document.getElementById('eg-tel').value.trim(),
+    email:document.getElementById('eg-email').value.trim(),
+    transfer:document.getElementById('eg-transfer').value,
+    rsvp:document.getElementById('eg-rsvp').value,
+    menu:document.getElementById('eg-menu').value,
+    allergeni:allergeni.join(', '),
+    intolleranze:document.getElementById('eg-intoll').value.trim(),
+    notaAdmin:document.getElementById('eg-nota-admin').value.trim()
+  };
+  await update(ref(db,`matrimoni/${CW_ID}/ospiti/${id}`),updates);
+  closeModal('modal-guest');
+};
 
 // ── UTILS ──
 function formatDate(d){
