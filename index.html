@@ -1386,6 +1386,12 @@ window.renderGuests=function(){
   arr.forEach(([id,g])=>{
     const rsvpB=g.rsvp==='Confermato'?'b-green':g.rsvp==='Assente'?'b-red':'b-gray';
     const tr=document.createElement('tr');
+    tr.style.cursor='pointer';
+    tr.addEventListener('click',function(e){
+      if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION'){
+        openGuestEdit(id);
+      }
+    });
     tr.innerHTML=`
       <td contenteditable="true" onblur="updateGuest('${id}','cognome',this.textContent.trim())">${g.cognome||''}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','nome',this.textContent.trim())">${g.nome||''}</td>
@@ -1507,6 +1513,12 @@ function renderBudget(){
     const diff=(b.prev||0)-(b.real||0);
     if(b.scadenza&&!b.paid){const d=new Date(b.scadenza);if((d-today)<=15*86400000&&d>=today)alerts.push(b);}
     const tr=document.createElement('tr');
+    tr.style.cursor='pointer';
+    tr.addEventListener('click',function(e){
+      if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION'){
+        openGuestEdit(id);
+      }
+    });
     tr.innerHTML=`
       <td contenteditable="true" onblur="updateBudgetItem('${id}','desc',this.textContent.trim())">${b.desc}</td>
       <td contenteditable="true" onblur="updateBudgetItem('${id}','prev',this.textContent.replace('€','').trim())">${(b.prev||0).toLocaleString('it-IT')}</td>
