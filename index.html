@@ -1016,7 +1016,7 @@ window.selectRsvp=function(v){
 }
 
 async function loadRsvpPage(wid){
-  const snap=await get(ref(db,`matrimoni/${wid}`));
+  const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
   if(!snap.exists())return;
   const w=snap.val();
   document.getElementById('rsvp-couple').textContent=`${w.nome1} & ${w.nome2}`;
@@ -1056,7 +1056,7 @@ window.submitRsvp=async function(){
 
 // ── CUCINA MODE ──
 async function loadKitchenPage(wid){
-  const snap=await get(ref(db,`matrimoni/${wid}`));
+  const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
   if(!snap.exists())return;
   const w=snap.val();
   document.getElementById('cucina-couple').textContent=`${w.nome1} & ${w.nome2} — ${formatDate(w.data)}`;
@@ -1171,6 +1171,7 @@ function loadAdminWeddings(){
     grid.innerHTML='';
     if(snap.exists()){
       for(const [wid,w] of Object.entries(snap.val())){
+        if(!w.pubblico&&w.nome1){update(ref(db,`matrimoni/${wid}/pubblico`),{nome1:w.nome1,nome2:w.nome2,data:w.data});}
         if(w.archived)continue;
         const gc=w.ospiti?Object.keys(w.ospiti).length:0;
         const card=document.createElement('div');
@@ -1667,7 +1668,7 @@ window.createWedding=async function(){
   try{
     const uc=await createUserWithEmailAndPassword(auth,email,pwd);
     const wRef=push(ref(db,'matrimoni'));
-    await set(wRef,{nome1:n1,nome2:n2,data:date,uid:uc.user.uid,email,location:loc,archived:false});
+    await set(wRef,{nome1:n1,nome2:n2,data:date,uid:uc.user.uid,email,location:loc,archived:false,pubblico:{nome1:n1,nome2:n2,data:date}});
     closeModal('modal-wedding');
     alert(`Matrimonio creato!
 
