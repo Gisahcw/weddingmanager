@@ -51,8 +51,9 @@ body{background:var(--cream);font-family:'Cormorant Garamond',serif;color:var(--
 .rsvp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;max-width:560px;margin-left:auto;margin-right:auto}
 .rsvp-full{grid-column:span 2}
 .rsvp-allergeni{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
-.allerg-cb{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
-.allerg-cb input{accent-color:var(--gold);width:14px;height:14px}
+.rsvp-allergeni .allerg-cb{display:flex!important;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;font-size:13px;cursor:pointer;margin:0;text-transform:none;letter-spacing:normal;color:var(--black);white-space:nowrap}
+.rsvp-allergeni .allerg-cb input{accent-color:var(--gold);width:15px;height:15px;flex:0 0 auto;margin:0}
+.rsvp-allergeni .allerg-cb span{flex:1 1 auto;font-size:13px;letter-spacing:normal;text-transform:none;color:var(--black)}
 .rsvp-confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
 .btn-rsvp-yes{background:var(--green);color:#fff;border:none;padding:14px;font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:opacity .3s}
 .btn-rsvp-yes:hover{opacity:.85}
