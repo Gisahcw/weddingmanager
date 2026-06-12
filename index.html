@@ -235,10 +235,19 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
 /* ── CHECKLIST (admin only) ── */
 .checklist-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--gray-l)}
 .checklist-item input[type=checkbox]{accent-color:var(--gold);width:16px;height:16px;cursor:pointer}
-.checklist-item .cl-text{flex:1;font-size:15px;transition:opacity .3s}
+.checklist-item .cl-text{flex:1;font-size:15px;transition:opacity .3s;cursor:text;border-radius:4px;padding:2px 4px}
+.checklist-item .cl-text:hover{background:var(--gray-l)}
 .checklist-item.done .cl-text{text-decoration:line-through;opacity:.4}
-.checklist-item .cl-date{font-size:11px;color:var(--gray);letter-spacing:1px;margin-right:8px}
-.checklist-item .cl-cat{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px}
+.checklist-item .cl-date{font-size:11px;color:var(--gray);letter-spacing:1px;margin-right:8px;cursor:pointer;border-radius:4px;padding:2px 4px}
+.checklist-item .cl-date:hover{background:var(--gray-l)}
+.checklist-item .cl-cat{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;cursor:pointer}
+.checklist-item.editing .cl-text,.checklist-item.editing .cl-cat,.checklist-item.editing .cl-date{display:none}
+.cl-edit-row{flex:1;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cl-edit-row input[type=text]{flex:2;min-width:140px;padding:6px 8px;border:1px solid var(--gold);border-radius:4px;font-size:14px;font-family:inherit}
+.cl-edit-row input[type=date]{padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px;font-size:13px;font-family:inherit}
+.cl-edit-row select{padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px;font-size:13px;font-family:inherit}
+.cl-edit-row .cl-save{background:var(--gold);color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px}
+.cl-edit-row .cl-cancel{background:none;border:1px solid var(--gray-l);padding:6px 10px;border-radius:4px;cursor:pointer;font-size:13px;color:var(--gray)}
 .cl-add-form{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:end}
 .cl-progress{height:6px;background:var(--gray-l);margin-bottom:20px}
 .cl-progress-fill{height:100%;background:var(--gold);transition:width .5s ease}
@@ -248,10 +257,18 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
 .timeline-list::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:1px;background:var(--gray-l)}
 .tl-item{position:relative;margin-bottom:16px}
 .tl-dot{position:absolute;left:-22px;top:4px;width:10px;height:10px;background:var(--gold);border-radius:50%}
-.tl-time{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
-.tl-text{font-size:15px;color:var(--black)}
+.tl-time{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:2px;cursor:pointer;display:inline-block;border-radius:4px;padding:1px 4px}
+.tl-time:hover{background:var(--gray-l)}
+.tl-text{font-size:15px;color:var(--black);cursor:text;border-radius:4px;padding:2px 4px}
+.tl-text:hover{background:var(--gray-l)}
 .tl-item.done .tl-dot{background:var(--green)}
 .tl-item.done .tl-text{text-decoration:line-through;opacity:.5}
+.tl-item.editing .tl-time,.tl-item.editing .tl-text{display:none}
+.tl-edit-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.tl-edit-row input[type=text]{flex:2;min-width:140px;padding:6px 8px;border:1px solid var(--gold);border-radius:4px;font-size:14px;font-family:inherit}
+.tl-edit-row input[type=time]{padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px;font-size:13px;font-family:inherit}
+.tl-edit-row .tl-save{background:var(--gold);color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px}
+.tl-edit-row .tl-cancel{background:none;border:1px solid var(--gray-l);padding:6px 10px;border-radius:4px;cursor:pointer;font-size:13px;color:var(--gray)}
 .tl-add-form{display:flex;gap:10px;margin-bottom:20px;align-items:end;flex-wrap:wrap}
 
 /* ── ARCHIVIO ── */
@@ -1656,6 +1673,18 @@ window.addChecklistItem=async function(){
 window.toggleChecklist=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/checklist/${id}`),{done:!done});};
 window.deleteChecklistItem=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/checklist/${id}`));};
 
+let clEditingId=null;
+window.editChecklistItem=function(id){clEditingId=id;renderChecklist();};
+window.cancelChecklistEdit=function(){clEditingId=null;renderChecklist();};
+window.saveChecklistItem=async function(id){
+  const text=document.getElementById('cl-edit-text-'+id).value.trim();
+  if(!text){alert('Inserisci un\'attività');return;}
+  const date=document.getElementById('cl-edit-date-'+id).value;
+  const cat=document.getElementById('cl-edit-cat-'+id).value;
+  clEditingId=null;
+  await update(ref(db,`matrimoni/${CW_ID}/checklist/${id}`),{text,date,cat});
+};
+
 function renderChecklist(){
   const entries=Object.entries(checklist).sort((a,b)=>(a[1].date||'z').localeCompare(b[1].date||'z'));
   const done=entries.filter(([,c])=>c.done).length;
@@ -1666,17 +1695,27 @@ function renderChecklist(){
   list.innerHTML='';
   document.getElementById('empty-checklist').style.display=entries.length===0?'block':'none';
   const catColors={'Fornitori':'b-gold','Ospiti':'b-green','Logistica':'b-blue','Documenti':'b-purple','Altro':'b-gray'};
+  const cats=['Fornitori','Ospiti','Logistica','Documenti','Altro'];
   entries.forEach(([id,c])=>{
     const div=document.createElement('div');
-    div.className='checklist-item'+(c.done?' done':'');
+    div.className='checklist-item'+(c.done?' done':'')+(clEditingId===id?' editing':'');
+    const safeText=(c.text||'').replace(/"/g,'&quot;');
     div.innerHTML=`
       <input type="checkbox" ${c.done?'checked':''} onchange="toggleChecklist('${id}',${c.done})">
-      <span class="cl-text">${c.text}</span>
-      <span class="badge ${catColors[c.cat]||'b-gray'} cl-cat">${c.cat}</span>
-      ${c.date?`<span class="cl-date">${c.date}</span>`:''}
+      <span class="cl-text" onclick="editChecklistItem('${id}')" title="Clicca per modificare">${c.text}</span>
+      <span class="badge ${catColors[c.cat]||'b-gray'} cl-cat" onclick="editChecklistItem('${id}')">${c.cat}</span>
+      ${c.date?`<span class="cl-date" onclick="editChecklistItem('${id}')">${c.date}</span>`:''}
+      ${clEditingId===id?`<div class="cl-edit-row">
+        <input type="text" id="cl-edit-text-${id}" value="${safeText}" onkeydown="if(event.key==='Enter')saveChecklistItem('${id}');if(event.key==='Escape')cancelChecklistEdit()">
+        <input type="date" id="cl-edit-date-${id}" value="${c.date||''}">
+        <select id="cl-edit-cat-${id}">${cats.map(k=>`<option value="${k}" ${c.cat===k?'selected':''}>${k}</option>`).join('')}</select>
+        <button class="cl-save" onclick="saveChecklistItem('${id}')">✓</button>
+        <button class="cl-cancel" onclick="cancelChecklistEdit()">✕</button>
+      </div>`:''}
       <button class="btn-icon" onclick="deleteChecklistItem('${id}')">✕</button>`;
     list.appendChild(div);
   });
+  if(clEditingId){const inp=document.getElementById('cl-edit-text-'+clEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
 }
 
 // ── TIMELINE ──
@@ -1690,6 +1729,17 @@ window.addTimelineItem=async function(){
 window.toggleTimeline=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{done:!done});};
 window.deleteTimelineItem=async function(id){await remove(ref(db,`matrimoni/${CW_ID}/timeline/${id}`));};
 
+let tlEditingId=null;
+window.editTimelineItem=function(id){tlEditingId=id;renderTimeline();};
+window.cancelTimelineEdit=function(){tlEditingId=null;renderTimeline();};
+window.saveTimelineItem=async function(id){
+  const txt=document.getElementById('tl-edit-txt-'+id).value.trim();
+  const ora=document.getElementById('tl-edit-ora-'+id).value;
+  if(!txt||!ora){alert('Orario e evento obbligatori');return;}
+  tlEditingId=null;
+  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{ora,txt});
+};
+
 function renderTimeline(){
   const entries=Object.entries(timeline).sort((a,b)=>a[1].ora.localeCompare(b[1].ora));
   const list=document.getElementById('timeline-list');
@@ -1697,17 +1747,25 @@ function renderTimeline(){
   document.getElementById('empty-timeline').style.display=entries.length===0?'block':'none';
   entries.forEach(([id,item])=>{
     const div=document.createElement('div');
-    div.className='tl-item'+(item.done?' done':'');
+    div.className='tl-item'+(item.done?' done':'')+(tlEditingId===id?' editing':'');
+    const safeTxt=(item.txt||'').replace(/"/g,'&quot;');
     div.innerHTML=`
       <div class="tl-dot"></div>
-      <div class="tl-time">${item.ora}</div>
+      <div class="tl-time" onclick="editTimelineItem('${id}')">${item.ora}</div>
       <div style="display:flex;align-items:center;gap:8px">
         <input type="checkbox" ${item.done?'checked':''} onchange="toggleTimeline('${id}',${item.done})" style="accent-color:var(--gold);width:14px;height:14px">
-        <div class="tl-text">${item.txt}</div>
+        <div class="tl-text" onclick="editTimelineItem('${id}')" title="Clicca per modificare">${item.txt}</div>
         <button class="btn-icon" onclick="deleteTimelineItem('${id}')" style="margin-left:auto">✕</button>
-      </div>`;
+      </div>
+      ${tlEditingId===id?`<div class="tl-edit-row">
+        <input type="time" id="tl-edit-ora-${id}" value="${item.ora||''}">
+        <input type="text" id="tl-edit-txt-${id}" value="${safeTxt}" onkeydown="if(event.key==='Enter')saveTimelineItem('${id}');if(event.key==='Escape')cancelTimelineEdit()">
+        <button class="tl-save" onclick="saveTimelineItem('${id}')">✓</button>
+        <button class="tl-cancel" onclick="cancelTimelineEdit()">✕</button>
+      </div>`:''}`;
     list.appendChild(div);
   });
+  if(tlEditingId){const inp=document.getElementById('tl-edit-txt-'+tlEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
 }
 
 // ── CREATE WEDDING ──
