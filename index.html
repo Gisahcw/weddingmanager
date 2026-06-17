@@ -193,6 +193,15 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
 .b-purple{background:var(--purple-l);color:var(--purple)}
 .b-teal{background:var(--teal-l);color:var(--teal)}
 .b-orange{background:var(--orange-l);color:var(--orange)}
+/* ── RSVP non riconosciuto ── */
+tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
+.rsvp-flag{position:relative;display:inline-flex;align-items:center;gap:4px;background:var(--orange-l);color:var(--orange);font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:10px;margin-left:8px;cursor:help;vertical-align:middle}
+.rsvp-flag::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--orange)}
+.rsvp-flag:hover .rsvp-tip{opacity:1;visibility:visible;transform:translateY(0)}
+.rsvp-tip{position:absolute;bottom:calc(100% + 8px);left:0;background:var(--black);color:#fff;font-size:11px;font-weight:400;letter-spacing:.3px;text-transform:none;padding:7px 11px;border-radius:6px;white-space:normal;width:max-content;max-width:240px;line-height:1.4;opacity:0;visibility:hidden;transform:translateY(4px);transition:all .2s;z-index:50;box-shadow:0 4px 16px rgba(0,0,0,.18);pointer-events:none}
+.rsvp-tip::after{content:'';position:absolute;top:100%;left:14px;border:5px solid transparent;border-top-color:var(--black)}
+.rsvp-ok{margin-left:6px;width:22px;height:22px;border:1px solid var(--gray-l);background:none;color:var(--gray);border-radius:50%;cursor:pointer;font-size:11px;vertical-align:middle;transition:all .2s;line-height:1}
+.rsvp-ok:hover{border-color:var(--green);color:var(--green);background:var(--green-l)}
 .btn-icon{background:none;border:1px solid var(--gray-l);width:28px;height:28px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--gray);transition:all .2s}
 .btn-icon:hover{border-color:var(--red);color:var(--red)}
 .btn-sm{background:transparent;border:1px solid var(--gray-l);color:var(--gray);padding:5px 12px;font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s}
@@ -591,7 +600,7 @@ td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
               <th data-t="table_n">Tavolo</th><th>RSVP</th>
               <th data-t="transfer">Transfer</th><th data-t="menu">Menu</th>
               <th data-t="allergens">Allergeni</th><th data-t="intolerances">Note</th>
-              <th class="admin-only" data-t="private_note">★ Admin</th><th></th>
+              <th class="admin-only" data-t="private_note">★ Admin</th><th class="admin-only"></th><th></th>
             </tr></thead>
             <tbody id="tbody-guests"></tbody>
           </table>
@@ -1438,6 +1447,7 @@ window.addGuest=async function(){
 };
 
 window.deleteGuest=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/ospiti/${id}`));};
+window.clearRsvpFlag=async function(id){await set(ref(db,`matrimoni/${CW_ID}/ospiti/${id}/source`),'verificato');};
 window.updateGuest=async function(id,field,value){await set(ref(db,`matrimoni/${CW_ID}/ospiti/${id}/${field}`),value);};
 
 window.renderGuests=function(){
@@ -1476,16 +1486,18 @@ window.renderGuests=function(){
   document.getElementById('empty-guests').style.display=all.length===0?'block':'none';
   arr.forEach(([id,g])=>{
     const rsvpB=g.rsvp==='Confermato'?'b-green':g.rsvp==='Assente'?'b-red':'b-gray';
+    const isUnmatched=g.source==='rsvp';
+    const rsvpFlag=isUnmatched?`<span class="rsvp-flag">RSVP<span class="rsvp-tip">${LANG==='en'?'RSVP not matched to your guest list — review and merge if needed':'RSVP non corrispondente alla lista — verifica ed eventualmente unisci'}</span></span><button class="rsvp-ok" onclick="event.stopPropagation();clearRsvpFlag('${id}')" title="${LANG==='en'?'Mark as verified':'Segna come verificato'}">✓</button>`:'';
     const tr=document.createElement('tr');
+    if(isUnmatched)tr.className='rsvp-unmatched';
     tr.style.cursor='pointer';
     tr.addEventListener('click',function(e){
       if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION'){
         openGuestEdit(id);
       }
     });
-    const rsvpFlag=g.source==='rsvp'?` <span class="badge b-orange" contenteditable="false" title="${LANG==='en'?'RSVP not matched to your guest list — review':'RSVP non corrispondente alla lista — da verificare'}" style="font-size:8px;letter-spacing:1px;padding:1px 5px;vertical-align:middle">RSVP</span>`:'';
     tr.innerHTML=`
-      <td contenteditable="true" onblur="updateGuest('${id}','cognome',(this.firstChild?this.firstChild.textContent:this.textContent).trim())">${g.cognome||''}${rsvpFlag}</td>
+      <td contenteditable="true" onblur="updateGuest('${id}','cognome',this.textContent.trim())">${g.cognome||''}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','nome',this.textContent.trim())">${g.nome||''}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','tavolo',this.textContent.trim())">${g.tavolo||''}</td>
       <td><select class="badge ${rsvpB}" onchange="updateGuest('${id}','rsvp',this.value);const m={Confermato:'b-green',Assente:'b-red','In attesa':'b-gray'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
@@ -1498,6 +1510,7 @@ window.renderGuests=function(){
       <td style="font-size:12px;max-width:120px">${g.allergeni||'—'}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','intolleranze',this.textContent.trim())" style="min-width:80px">${g.intolleranze||''}</td>
       <td class="admin-only" contenteditable="true" onblur="updateGuest('${id}','notaAdmin',this.textContent.trim())" style="color:var(--gray);font-size:12px;min-width:80px">${g.notaAdmin||''}</td>
+      <td class="admin-only" style="white-space:nowrap">${rsvpFlag}</td>
       <td><button class="btn-icon" onclick="deleteGuest('${id}')">✕</button></td>`;
     tbody.appendChild(tr);
   });
