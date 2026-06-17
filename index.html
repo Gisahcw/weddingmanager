@@ -1489,7 +1489,7 @@ window.renderGuests=function(){
     const isUnmatched=g.source==='rsvp';
     const rsvpFlag=isUnmatched?`<span class="rsvp-flag">RSVP<span class="rsvp-tip">${LANG==='en'?'RSVP not matched to your guest list — review and merge if needed':'RSVP non corrispondente alla lista — verifica ed eventualmente unisci'}</span></span><button class="rsvp-ok" onclick="event.stopPropagation();clearRsvpFlag('${id}')" title="${LANG==='en'?'Mark as verified':'Segna come verificato'}">✓</button>`:'';
     const tr=document.createElement('tr');
-    if(isUnmatched)tr.className='rsvp-unmatched';
+    if(isUnmatched&&IS_ADMIN)tr.className='rsvp-unmatched';
     tr.style.cursor='pointer';
     tr.addEventListener('click',function(e){
       if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION'){
