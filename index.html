@@ -1112,7 +1112,27 @@ window.submitRsvp=async function(){
     rsvp:rsvpSelection==='yes'?'Confermato':'Assente',
     tavolo:'',transfer:'No',notaAdmin:'',source:'rsvp'
   };
-  await push(ref(db,`matrimoni/${WID_PARAM}/ospiti`),guest);
+  // Cerca corrispondenza tra gli ospiti gia in lista (nome+cognome normalizzati)
+  const norm=s=>(s||'').trim().toLowerCase().replace(/\s+/g,' ');
+  const key=norm(nome)+'|'+norm(cognome);
+  let matchId=null;
+  try{
+    const allSnap=await get(ref(db,`matrimoni/${WID_PARAM}/ospiti`));
+    if(allSnap.exists()){
+      const all=allSnap.val();
+      for(const gid in all){
+        if(norm(all[gid].nome)+'|'+norm(all[gid].cognome)===key){matchId=gid;break;}
+      }
+    }
+  }catch(e){console.error('RSVP match lookup failed',e);}
+  if(matchId){
+    // Ospite gia in lista: sovrascrive tutto ma conserva il tavolo assegnato
+    const {tavolo,...fields}=guest;
+    await update(ref(db,`matrimoni/${WID_PARAM}/ospiti/${matchId}`),fields);
+  }else{
+    // Ospite non in lista: crea nuovo record (marcato source:'rsvp')
+    await push(ref(db,`matrimoni/${WID_PARAM}/ospiti`),guest);
+  }
   document.getElementById('rsvp-form-wrap').style.display='none';
   const thanks=document.getElementById('rsvp-thanks');
   thanks.style.display='block';
@@ -1463,8 +1483,9 @@ window.renderGuests=function(){
         openGuestEdit(id);
       }
     });
+    const rsvpFlag=g.source==='rsvp'?` <span class="badge b-orange" contenteditable="false" title="${LANG==='en'?'RSVP not matched to your guest list — review':'RSVP non corrispondente alla lista — da verificare'}" style="font-size:8px;letter-spacing:1px;padding:1px 5px;vertical-align:middle">RSVP</span>`:'';
     tr.innerHTML=`
-      <td contenteditable="true" onblur="updateGuest('${id}','cognome',this.textContent.trim())">${g.cognome||''}</td>
+      <td contenteditable="true" onblur="updateGuest('${id}','cognome',(this.firstChild?this.firstChild.textContent:this.textContent).trim())">${g.cognome||''}${rsvpFlag}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','nome',this.textContent.trim())">${g.nome||''}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','tavolo',this.textContent.trim())">${g.tavolo||''}</td>
       <td><select class="badge ${rsvpB}" onchange="updateGuest('${id}','rsvp',this.value);const m={Confermato:'b-green',Assente:'b-red','In attesa':'b-gray'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
