@@ -417,8 +417,8 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
         <div class="ig rsvp-full"><label id="rl-note">Note</label><input id="rsvp-note" id="rl-note-inp" placeholder="..."></div>
       </div>
       <div class="rsvp-confirm-btns">
-        <button class="btn-rsvp-yes" id="rsvp-yes-btn" onclick="selectRsvp('yes')" id="r-yes">✓ Confermo la presenza</button>
-        <button class="btn-rsvp-no" id="rsvp-no-btn" onclick="selectRsvp('no')" id="r-no">✕ Non potro essere presente</button>
+        <button class="btn-rsvp-yes" id="rsvp-yes-btn" onclick="selectRsvp('yes')">✓ Confermo la presenza</button>
+        <button class="btn-rsvp-no" id="rsvp-no-btn" onclick="selectRsvp('no')">✕ Non potrò essere presente</button>
       </div>
       <button class="btn-primary" onclick="submitRsvp()" id="r-send">Invia conferma</button>
       <div class="err" id="rsvp-err"></div>
@@ -1100,8 +1100,8 @@ async function loadRsvpPage(wid){
   const lang=w.lang||'it';
   LANG=lang;
   document.getElementById('rsvp-invite-text').textContent=t('rsvp_invite');
-  document.getElementById('r-yes').textContent='✓ '+( lang==='en'?'Confirm attendance':'Confermo la presenza');
-  document.getElementById('r-no').textContent='✕ '+(lang==='en'?"I wont be able to attend":'Non potro essere presente');
+  document.getElementById('rsvp-yes-btn').textContent='✓ '+( lang==='en'?'Confirm attendance':'Confermo la presenza');
+  document.getElementById('rsvp-no-btn').textContent='✕ '+(lang==='en'?"I won't be able to attend":'Non potrò essere presente');
   document.getElementById('r-send').textContent=lang==='en'?'Send confirmation':'Invia conferma';
 }
 
@@ -1127,17 +1127,23 @@ window.submitRsvp=async function(){
   let matchId=null;
   try{
     const allSnap=await get(ref(db,`matrimoni/${WID_PARAM}/ospiti`));
+    console.log('[RSVP DEBUG] wid:',WID_PARAM,'| ospiti trovati:',allSnap.exists()?Object.keys(allSnap.val()).length:0,'| cerco chiave:',key);
     if(allSnap.exists()){
       const all=allSnap.val();
       for(const gid in all){
-        if(norm(all[gid].nome)+'|'+norm(all[gid].cognome)===key){matchId=gid;break;}
+        const k=norm(all[gid].nome)+'|'+norm(all[gid].cognome);
+        console.log('[RSVP DEBUG] confronto con:',k);
+        if(k===key){matchId=gid;break;}
       }
     }
-  }catch(e){console.error('RSVP match lookup failed',e);}
+    console.log('[RSVP DEBUG] matchId risultante:',matchId);
+  }catch(e){console.error('[RSVP DEBUG] match lookup failed',e);}
   if(matchId){
-    // Ospite gia in lista: sovrascrive tutto ma conserva il tavolo assegnato
     const {tavolo,...fields}=guest;
-    await update(ref(db,`matrimoni/${WID_PARAM}/ospiti/${matchId}`),fields);
+    try{
+      await update(ref(db,`matrimoni/${WID_PARAM}/ospiti/${matchId}`),fields);
+      console.log('[RSVP DEBUG] UPDATE riuscito su',matchId);
+    }catch(e){console.error('[RSVP DEBUG] UPDATE fallito:',e);}
   }else{
     // Ospite non in lista: crea nuovo record (marcato source:'rsvp')
     await push(ref(db,`matrimoni/${WID_PARAM}/ospiti`),guest);
