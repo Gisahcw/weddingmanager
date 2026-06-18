@@ -1119,7 +1119,7 @@ window.submitRsvp=async function(){
     allergeni:allergeni.join(', '),
     intolleranze:document.getElementById('rsvp-note').value.trim(),
     rsvp:rsvpSelection==='yes'?'Confermato':'Assente',
-    tavolo:'',transfer:'No',notaAdmin:'',source:'rsvp'
+    tavolo:'',transfer:'No',notaAdmin:''
   };
   // Cerca corrispondenza tra gli ospiti gia in lista (nome+cognome normalizzati)
   const norm=s=>(s||'').trim().toLowerCase().replace(/\s+/g,' ');
@@ -1127,25 +1127,21 @@ window.submitRsvp=async function(){
   let matchId=null;
   try{
     const allSnap=await get(ref(db,`matrimoni/${WID_PARAM}/ospiti`));
-    console.log('[RSVP DEBUG] wid:',WID_PARAM,'| ospiti trovati:',allSnap.exists()?Object.keys(allSnap.val()).length:0,'| cerco chiave:',key);
     if(allSnap.exists()){
       const all=allSnap.val();
       for(const gid in all){
-        const k=norm(all[gid].nome)+'|'+norm(all[gid].cognome);
-        console.log('[RSVP DEBUG] confronto con:',k);
-        if(k===key){matchId=gid;break;}
+        if(norm(all[gid].nome)+'|'+norm(all[gid].cognome)===key){matchId=gid;break;}
       }
     }
-    console.log('[RSVP DEBUG] matchId risultante:',matchId);
-  }catch(e){console.error('[RSVP DEBUG] match lookup failed',e);}
+  }catch(e){console.error('RSVP match lookup failed',e);}
   if(matchId){
+    // Ospite gia in lista: aggiorna conservando il tavolo, nessun flag
     const {tavolo,...fields}=guest;
-    try{
-      await update(ref(db,`matrimoni/${WID_PARAM}/ospiti/${matchId}`),fields);
-      console.log('[RSVP DEBUG] UPDATE riuscito su',matchId);
-    }catch(e){console.error('[RSVP DEBUG] UPDATE fallito:',e);}
+    fields.source='verificato';
+    await update(ref(db,`matrimoni/${WID_PARAM}/ospiti/${matchId}`),fields);
   }else{
-    // Ospite non in lista: crea nuovo record (marcato source:'rsvp')
+    // Ospite non in lista: crea nuovo record marcato per la verifica
+    guest.source='rsvp';
     await push(ref(db,`matrimoni/${WID_PARAM}/ospiti`),guest);
   }
   document.getElementById('rsvp-form-wrap').style.display='none';
