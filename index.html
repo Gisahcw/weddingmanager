@@ -228,6 +228,11 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .guest-chip:active{cursor:grabbing;background:var(--gold-pale)}
 .guest-chip-name{flex:1}
 .guest-chip-menu{font-size:10px;color:var(--gray);margin-left:6px}
+.seat-num{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;background:var(--gold);color:#fff;border-radius:50%;font-size:10px;font-weight:600;margin-right:7px;flex-shrink:0}
+.seat-arrows{display:inline-flex;flex-direction:column;margin-left:6px;flex-shrink:0}
+.seat-arrow{border:none;background:none;color:var(--gray);cursor:pointer;font-size:8px;line-height:1;padding:1px 2px;border-radius:2px}
+.seat-arrow:hover:not(:disabled){color:var(--gold);background:var(--gold-pale)}
+.seat-arrow:disabled{opacity:.25;cursor:default}
 .unassigned-pool{background:white;border:1px solid var(--gray-l);padding:16px;margin-bottom:20px}
 .unassigned-pool h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;margin-bottom:10px}
 .pool-guests{display:flex;flex-wrap:wrap;gap:6px;min-height:40px;padding:8px;background:var(--cream-d)}
@@ -1551,10 +1556,15 @@ window.renderSeating=function(){
       <div class="table-capacity ${isFull?'full':''}">${tGuests.length}/${cap}</div>
     </div>
     <div class="table-guests" id="tg-${i}">
-      ${tGuests.sort((a,b)=>(a[1].cognome||'').localeCompare(b[1].cognome||'')).map(([gid,g])=>
+      ${tGuests.sort((a,b)=>seatOrder(a[1])-seatOrder(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||'')).map(([gid,g],idx,arr)=>
         `<div class="guest-chip" draggable="true" data-gid="${gid}" ondragstart="onDragStart(event,'${gid}')">
+          <span class="seat-num">${idx+1}</span>
           <span class="guest-chip-name">${g.cognome} ${g.nome}</span>
           <span class="guest-chip-menu badge ${menuBadge(g.menu)}" style="font-size:9px;padding:1px 5px">${(g.menu||'N').substring(0,3)}</span>
+          <span class="seat-arrows">
+            <button class="seat-arrow" onclick="event.stopPropagation();moveSeat('${gid}',-1)" ${idx===0?'disabled':''} title="Su">▲</button>
+            <button class="seat-arrow" onclick="event.stopPropagation();moveSeat('${gid}',1)" ${idx===arr.length-1?'disabled':''} title="Giù">▼</button>
+          </span>
         </div>`).join('')}
     </div>`;
     area.appendChild(card);
@@ -1570,16 +1580,41 @@ window.renderSeating=function(){
 };
 
 window.onDragStart=function(e,gid){dragGuest=gid;e.dataTransfer.setData('text/plain',gid);};
+// Sposta un ospite su/giu nell'ordine del proprio tavolo
+window.moveSeat=async function(gid,dir){
+  const tId=guests[gid]?guests[gid].tavolo:null;
+  if(!tId)return;
+  // Ospiti del tavolo nell'ordine corrente (posto, poi alfabetico come fallback)
+  const ordered=Object.entries(guests)
+    .filter(([,g])=>g.tavolo===tId)
+    .sort((a,b)=>seatOrder(a[1])-seatOrder(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||''));
+  const idx=ordered.findIndex(([id])=>id===gid);
+  const swap=idx+dir;
+  if(idx<0||swap<0||swap>=ordered.length)return;
+  // Scambia le posizioni e riscrive l'intero ordine (1..n) per coerenza
+  const reordered=ordered.map(([id])=>id);
+  [reordered[idx],reordered[swap]]=[reordered[swap],reordered[idx]];
+  const updates={};
+  reordered.forEach((id,i)=>{updates[`${id}/posto`]=i+1;});
+  await update(ref(db,`matrimoni/${CW_ID}/ospiti`),updates);
+};
+// Valore di ordinamento: posto se presente, altrimenti un numero alto (vanno in fondo)
+function seatOrder(g){return (typeof g.posto==='number')?g.posto:9999;}
 window.onDragOverPool=function(e){e.preventDefault();document.getElementById('pool-guests').classList.add('drag-over');};
 window.onDropPool=async function(e){
   e.preventDefault();
   document.getElementById('pool-guests').classList.remove('drag-over');
   const gid=e.dataTransfer.getData('text/plain');
-  if(gid)await updateGuest(gid,'tavolo','');
+  if(gid)await update(ref(db,`matrimoni/${CW_ID}/ospiti/${gid}`),{tavolo:'',posto:null});
 };
 window.onDropTable=async function(e,tId){
   const gid=e.dataTransfer.getData('text/plain');
-  if(gid)await updateGuest(gid,'tavolo',tId);
+  if(!gid)return;
+  // Se cambia tavolo, mettilo in fondo alla fila del nuovo tavolo
+  if(guests[gid] && guests[gid].tavolo!==tId){
+    const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
+    await update(ref(db,`matrimoni/${CW_ID}/ospiti/${gid}`),{tavolo:tId,posto:count+1});
+  }
 };
 window.autoAssign=async function(){
   const numT=seatingCfg.tables||10;
@@ -1589,7 +1624,7 @@ window.autoAssign=async function(){
   for(let i=1;i<=numT;i++){counts[i]=Object.values(guests).filter(g=>g.tavolo===String(i)).length;}
   for(const [gid] of unassigned){
     for(let i=1;i<=numT;i++){
-      if(counts[i]<cap){await updateGuest(gid,'tavolo',String(i));counts[i]++;break;}
+      if(counts[i]<cap){await update(ref(db,`matrimoni/${CW_ID}/ospiti/${gid}`),{tavolo:String(i),posto:counts[i]+1});counts[i]++;break;}
     }
   }
 };
