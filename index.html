@@ -556,6 +556,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
             <div class="ig"><label data-t="menu">Menu</label>
               <select id="g-menu">
                 <option value="Normale">Normale</option>
+                <option value="Carne">Carne</option>
                 <option value="Vegetariano">Vegetariano</option>
                 <option value="Vegano">Vegano</option>
                 <option value="Pesce">Pesce</option>
@@ -592,11 +593,13 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <select class="filter-sel" id="g-filter-menu" onchange="renderGuests()">
             <option value="">Tutti menu</option>
             <option value="Normale">Normale</option>
+            <option value="Carne">Carne</option>
             <option value="Vegetariano">Vegetariano</option>
             <option value="Vegano">Vegano</option>
             <option value="Pesce">Pesce</option>
             <option value="Staff">Staff</option>
             <option value="Bambino">Bambino</option>
+            <option value="Altro">Altro</option>
           </select>
           <button class="btn-sm" onclick="exportGuestsPDF('tavolo')" data-t="pdf_table">PDF per tavolo</button>
           <button class="btn-sm" onclick="exportGuestsPDF('alfa')" data-t="pdf_alpha">PDF alfabetica</button>
@@ -797,6 +800,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
       <div class="ig"><label data-t="menu">Menu</label>
         <select id="eg-menu">
           <option value="Normale">Normale</option>
+          <option value="Carne">Carne</option>
           <option value="Vegetariano">Vegetariano</option>
           <option value="Vegano">Vegano</option>
           <option value="Pesce">Pesce</option>
@@ -942,7 +946,7 @@ const T={
     edit_guest:'Modifica Ospite',edit_vendor:'Modifica Fornitore',save:'Salva modifiche',cancel:'Annulla',
     al_gluten:'Glutine',al_lactose:'Lattosio',al_nuts:'Frutta secca',al_shellfish:'Crostacei',
     al_eggs:'Uova',al_soy:'Soia',al_fish:'Pesce',al_sesame:'Sesamo',
-    menu_normal:'Normale',menu_veg:'Vegetariano',menu_vegan:'Vegano',menu_fish:'Pesce',
+    menu_normal:'Normale',menu_meat:'Carne',menu_veg:'Vegetariano',menu_vegan:'Vegano',menu_fish:'Pesce',
     menu_staff:'Staff',menu_child:'Bambino',menu_other:'Altro',
     days:'Giorni',hours:'Ore',mins:'Minuti',secs:'Secondi',
     confirmed:'Confermati',waiting:'In attesa',absent:'Assenti',
@@ -982,7 +986,7 @@ const T={
     edit_guest:'Edit Guest',edit_vendor:'Edit Vendor',save:'Save changes',cancel:'Cancel',
     al_gluten:'Gluten',al_lactose:'Lactose',al_nuts:'Tree nuts',al_shellfish:'Shellfish',
     al_eggs:'Eggs',al_soy:'Soy',al_fish:'Fish',al_sesame:'Sesame',
-    menu_normal:'Standard',menu_veg:'Vegetarian',menu_vegan:'Vegan',menu_fish:'Fish',
+    menu_normal:'Standard',menu_meat:'Meat',menu_veg:'Vegetarian',menu_vegan:'Vegan',menu_fish:'Fish',
     menu_staff:'Staff',menu_child:'Child',menu_other:'Other',
     days:'Days',hours:'Hours',mins:'Minutes',secs:'Seconds',
     confirmed:'Confirmed',waiting:'Pending',absent:'Absent',
@@ -1242,7 +1246,7 @@ function renderKitchen(gs,lang){
 }
 
 function menuBadge(m){
-  const map={Normale:'b-gray',Vegetariano:'b-green',Vegano:'b-teal',Pesce:'b-blue',Staff:'b-gray',Bambino:'b-orange',Altro:'b-gray'};
+  const map={Normale:'b-gray',Carne:'b-red',Vegetariano:'b-green',Vegano:'b-teal',Pesce:'b-blue',Staff:'b-gray',Bambino:'b-orange',Altro:'b-gray'};
   return map[m]||'b-gray';
 }
 // Normalizza il valore del campo tavolo: 'sposi'/'staff' (minuscolo) o numero, altrimenti vuoto coerente
@@ -1581,8 +1585,8 @@ window.renderGuests=function(){
         ${[['In attesa',t('rsvp_waiting')],['Confermato',t('rsvp_yes')],['Assente',t('rsvp_no')]].map(([v,label])=>`<option value="${v}" ${(g.rsvp||'In attesa')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
       <td><span class="badge ${g.transfer==='Sì'?'b-gold':'b-gray'}">${g.transfer==='Sì'?(LANG==='en'?'Yes':'Sì'):'No'}</span></td>
-      <td><select class="badge ${menuBadge(g.menu)}" onchange="updateGuest('${id}','menu',this.value);const mm={'Normale':'b-gray','Vegetariano':'b-green','Vegano':'b-teal','Pesce':'b-blue','Staff':'b-gray','Bambino':'b-orange','Altro':'b-gray'};this.className='badge '+(mm[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
-        ${[['Normale',t('menu_normal')],['Vegetariano',t('menu_veg')],['Vegano',t('menu_vegan')],['Pesce',t('menu_fish')],['Staff',t('menu_staff')],['Bambino',t('menu_child')],['Altro',t('menu_other')]].map(([v,label])=>`<option value="${v}" ${(g.menu||'Normale')===v?'selected':''}>${label}</option>`).join('')}
+      <td><select class="badge ${menuBadge(g.menu)}" onchange="updateGuest('${id}','menu',this.value);const mm={'Normale':'b-gray','Carne':'b-red','Vegetariano':'b-green','Vegano':'b-teal','Pesce':'b-blue','Staff':'b-gray','Bambino':'b-orange','Altro':'b-gray'};this.className='badge '+(mm[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
+        ${[['Normale',t('menu_normal')],['Carne',t('menu_meat')],['Vegetariano',t('menu_veg')],['Vegano',t('menu_vegan')],['Pesce',t('menu_fish')],['Staff',t('menu_staff')],['Bambino',t('menu_child')],['Altro',t('menu_other')]].map(([v,label])=>`<option value="${v}" ${(g.menu||'Normale')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
       <td style="font-size:12px;max-width:120px">${g.allergeni||'—'}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','intolleranze',this.textContent.trim())" style="min-width:80px">${g.intolleranze||''}</td>
