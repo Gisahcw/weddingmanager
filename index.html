@@ -562,6 +562,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
                 <option value="Pesce">Pesce</option>
                 <option value="Staff">Staff</option>
                 <option value="Bambino">Bambino</option>
+                <option value="Neonato">Neonato</option>
                 <option value="Altro">Altro</option>
               </select></div>
             <div class="ig span2">
@@ -603,6 +604,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
             <option value="Pesce">Pesce</option>
             <option value="Staff">Staff</option>
             <option value="Bambino">Bambino</option>
+            <option value="Neonato">Neonato</option>
             <option value="Altro">Altro</option>
           </select>
           <button class="btn-sm" onclick="exportGuestsPDF('tavolo')" data-t="pdf_table">PDF per tavolo</button>
@@ -810,6 +812,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <option value="Pesce">Pesce</option>
           <option value="Staff">Staff</option>
           <option value="Bambino">Bambino</option>
+          <option value="Neonato">Neonato</option>
           <option value="Altro">Altro</option>
         </select></div>
       <div class="ig span2">
@@ -955,7 +958,7 @@ const T={
     al_gluten:'Glutine',al_lactose:'Lattosio',al_nuts:'Frutta secca',al_shellfish:'Crostacei',
     al_eggs:'Uova',al_soy:'Soia',al_fish:'Pesce',al_sesame:'Sesamo',al_other:'Altro',
     menu_normal:'Normale',menu_meat:'Carne',menu_veg:'Vegetariano',menu_vegan:'Vegano',menu_fish:'Pesce',
-    menu_staff:'Staff',menu_child:'Bambino',menu_other:'Altro',
+    menu_staff:'Staff',menu_child:'Bambino',menu_baby:'Neonato',menu_other:'Altro',
     days:'Giorni',hours:'Ore',mins:'Minuti',secs:'Secondi',
     confirmed:'Confermati',waiting:'In attesa',absent:'Assenti',
     kitchen_title:'Lista Cucina — Per il Catering',
@@ -995,7 +998,7 @@ const T={
     al_gluten:'Gluten',al_lactose:'Lactose',al_nuts:'Tree nuts',al_shellfish:'Shellfish',
     al_eggs:'Eggs',al_soy:'Soy',al_fish:'Fish',al_sesame:'Sesame',al_other:'Other',
     menu_normal:'Standard',menu_meat:'Meat',menu_veg:'Vegetarian',menu_vegan:'Vegan',menu_fish:'Fish',
-    menu_staff:'Staff',menu_child:'Child',menu_other:'Other',
+    menu_staff:'Staff',menu_child:'Child',menu_baby:'Baby',menu_other:'Other',
     days:'Days',hours:'Hours',mins:'Minutes',secs:'Seconds',
     confirmed:'Confirmed',waiting:'Pending',absent:'Absent',
     kitchen_title:'Kitchen List — For Catering',
@@ -1254,7 +1257,7 @@ function renderKitchen(gs,lang){
 }
 
 function menuBadge(m){
-  const map={Normale:'b-gray',Carne:'b-red',Vegetariano:'b-green',Vegano:'b-teal',Pesce:'b-blue',Staff:'b-gray',Bambino:'b-orange',Altro:'b-gray'};
+  const map={Normale:'b-gray',Carne:'b-red',Vegetariano:'b-green',Vegano:'b-teal',Pesce:'b-blue',Staff:'b-gray',Bambino:'b-orange',Neonato:'b-gold',Altro:'b-gray'};
   return map[m]||'b-gray';
 }
 // Normalizza il valore del campo tavolo: 'sposi'/'staff' (minuscolo) o numero, altrimenti vuoto coerente
@@ -1290,9 +1293,26 @@ window.exportKitchenPDF=async function(){
   confirmed.forEach(g=>{const t=g.tavolo||'—';if(!byTable[t])byTable[t]=[];byTable[t].push(g);});
   const sorted=Object.keys(byTable).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
   const so=g=>(typeof g.posto==='number')?g.posto:9999;
+  // Riepilogo totali per la cucina
+  const countMenu=(m)=>confirmed.filter(g=>(g.menu||'Normale')===m).length;
+  const tot=confirmed.length;
+  const neonati=confirmed.filter(g=>(g.menu||'')==='Neonato').length;
+  const porzioni=tot-neonati;
+  const conAllergie=confirmed.filter(g=>(g.allergeni&&g.allergeni.trim()&&g.allergeni.trim()!=='—')).length;
+  const menuTypes=[['Normale','Normale'],['Carne','Carne'],['Vegetariano','Vegetariano'],['Vegano','Vegano'],['Pesce','Pesce'],['Bambino','Bambino'],['Staff','Staff'],['Altro','Altro']];
   const L=lang==='en'
-    ?{title:'Kitchen List',table:'Table',guests:'guests',ln:'Last name',fn:'First name',menu:'Menu',al:'Allergens',no:'Notes'}
-    :{title:'Lista Cucina',table:'Tavolo',guests:'ospiti',ln:'Cognome',fn:'Nome',menu:'Menu',al:'Allergeni',no:'Note'};
+    ?{title:'Kitchen List',table:'Table',guests:'guests',ln:'Last name',fn:'First name',menu:'Menu',al:'Allergens',no:'Notes',summary:'Summary',total:'Portions to prepare',withAllerg:'With allergies/intolerances',babies:'of which babies (no portion)'}
+    :{title:'Lista Cucina',table:'Tavolo',guests:'ospiti',ln:'Cognome',fn:'Nome',menu:'Menu',al:'Allergeni',no:'Note',summary:'Riepilogo',total:'Porzioni da preparare',withAllerg:'Con allergie/intolleranze',babies:'di cui neonati (no porzione)'};
+  const menuLabels=lang==='en'
+    ?{Normale:'Standard',Carne:'Meat',Vegetariano:'Vegetarian',Vegano:'Vegan',Pesce:'Fish',Bambino:'Child',Staff:'Staff',Altro:'Other'}
+    :{Normale:'Normale',Carne:'Carne',Vegetariano:'Vegetariano',Vegano:'Vegano',Pesce:'Pesce',Bambino:'Bambino',Staff:'Staff',Altro:'Altro'};
+  const summaryCells=menuTypes.map(([key])=>{const n=countMenu(key);return n>0?`<td style="border:1px solid #ccc;padding:8px 12px;text-align:center"><div style="font-size:22px;font-weight:bold">${n}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#666">${menuLabels[key]}</div></td>`:'';}).filter(Boolean).join('');
+  const babyLine=neonati>0?` · ${L.babies}: <strong>${neonati}</strong>`:'';
+  const summaryBlock=`
+    <div style="background:#faf7f2;border:1px solid #e5ddd0;border-radius:6px;padding:16px 20px;margin-bottom:26px">
+      <div style="font-family:serif;font-size:16px;margin-bottom:12px;color:#1a1a1a">${L.summary} — ${L.total}: <strong>${porzioni}</strong> · ${L.withAllerg}: <strong>${conAllergie}</strong>${babyLine}</div>
+      <table style="border-collapse:collapse"><tr>${summaryCells}</tr></table>
+    </div>`;
   const body=sorted.map(table=>`
     <h2 style="font-family:serif;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin-top:22px">${tableLabel(table,lang)} <span style="font-weight:400;color:#888;font-size:14px">(${byTable[table].length} ${L.guests})</span></h2>
     <table style="width:100%;border-collapse:collapse;font-size:12px">
@@ -1306,6 +1326,7 @@ window.exportKitchenPDF=async function(){
         <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:70px"><br>
         <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin-top:8px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)}</div>
       </div>
+      ${summaryBlock}
       ${body}
       <script>window.onload=function(){window.print();}<\/script>
     </body></html>`);
@@ -1563,6 +1584,7 @@ window.renderGuests=function(){
   const veg=all.filter(g=>g.menu==='Vegetariano').length;
   const vegan=all.filter(g=>g.menu==='Vegano').length;
   const bambini=all.filter(g=>g.menu==='Bambino').length;
+  const neonati=all.filter(g=>g.menu==='Neonato').length;
   const altro=all.filter(g=>g.menu==='Altro').length;
   const allerg=all.filter(g=>g.allergeni&&g.allergeni.length>0).length;
   document.getElementById('ospiti-stats').innerHTML=`
@@ -1575,6 +1597,7 @@ window.renderGuests=function(){
     <div class="stat-i green"><div class="sn">${veg}</div><div class="sl">Vegetariani</div></div>
     <div class="stat-i teal"><div class="sn">${vegan}</div><div class="sl">Vegani</div></div>
     <div class="stat-i orange"><div class="sn">${bambini}</div><div class="sl">Bambini</div></div>
+    <div class="stat-i gold"><div class="sn">${neonati}</div><div class="sl">${t('menu_baby')}</div></div>
     <div class="stat-i purple"><div class="sn">${allerg}</div><div class="sl">Allergeni</div></div>
     <div class="stat-i"><div class="sn">${altro}</div><div class="sl">${t('menu_other')}</div></div>`;
 
@@ -1601,8 +1624,8 @@ window.renderGuests=function(){
         ${[['In attesa',t('rsvp_waiting')],['Confermato',t('rsvp_yes')],['Assente',t('rsvp_no')]].map(([v,label])=>`<option value="${v}" ${(g.rsvp||'In attesa')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
       <td><span class="badge ${g.transfer==='Sì'?'b-gold':'b-gray'}">${g.transfer==='Sì'?(LANG==='en'?'Yes':'Sì'):'No'}</span></td>
-      <td><select class="badge ${menuBadge(g.menu)}" onchange="updateGuest('${id}','menu',this.value);const mm={'Normale':'b-gray','Carne':'b-red','Vegetariano':'b-green','Vegano':'b-teal','Pesce':'b-blue','Staff':'b-gray','Bambino':'b-orange','Altro':'b-gray'};this.className='badge '+(mm[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
-        ${[['Normale',t('menu_normal')],['Carne',t('menu_meat')],['Vegetariano',t('menu_veg')],['Vegano',t('menu_vegan')],['Pesce',t('menu_fish')],['Staff',t('menu_staff')],['Bambino',t('menu_child')],['Altro',t('menu_other')]].map(([v,label])=>`<option value="${v}" ${(g.menu||'Normale')===v?'selected':''}>${label}</option>`).join('')}
+      <td><select class="badge ${menuBadge(g.menu)}" onchange="updateGuest('${id}','menu',this.value);const mm={'Normale':'b-gray','Carne':'b-red','Vegetariano':'b-green','Vegano':'b-teal','Pesce':'b-blue','Staff':'b-gray','Bambino':'b-orange','Neonato':'b-gold','Altro':'b-gray'};this.className='badge '+(mm[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
+        ${[['Normale',t('menu_normal')],['Carne',t('menu_meat')],['Vegetariano',t('menu_veg')],['Vegano',t('menu_vegan')],['Pesce',t('menu_fish')],['Staff',t('menu_staff')],['Bambino',t('menu_child')],['Neonato',t('menu_baby')],['Altro',t('menu_other')]].map(([v,label])=>`<option value="${v}" ${(g.menu||'Normale')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
       <td style="font-size:12px;max-width:120px">${g.allergeni||'—'}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','intolleranze',this.textContent.trim())" style="min-width:80px">${g.intolleranze||''}</td>
