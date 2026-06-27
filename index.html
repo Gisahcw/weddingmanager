@@ -448,6 +448,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
         <button class="lang-btn active" onclick="setCucinaLang('it',this)">🇮🇹 IT</button>
         <button class="lang-btn" onclick="setCucinaLang('en',this)">🇬🇧 EN</button>
       </div>
+      <button id="cucina-pdf-btn" onclick="exportKitchenPDF()" style="background:var(--gold);color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase">⤓ <span id="cucina-pdf-label">Scarica PDF</span></button>
       <span id="cucina-couple" style="color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase"></span>
     </div>
   </div>
@@ -506,7 +507,10 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
             <div style="color:var(--cream);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px" data-t="countdown_label">Al matrimonio</div>
             <div class="countdown-units" id="countdown-units"></div>
           </div>
-          <div class="cd-wedding" id="dash-wedding-date"></div>
+          <div class="cd-wedding-wrap" style="display:flex;align-items:center;gap:10px">
+            <div class="cd-wedding" id="dash-wedding-date"></div>
+            <button class="admin-only" id="edit-date-btn" onclick="editWeddingDate()" title="Modifica data" style="background:none;border:1px solid var(--cream);color:var(--cream);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:13px;flex-shrink:0">✎</button>
+          </div>
         </div>
         <div class="kpi-grid" id="dash-kpi"></div>
         <div class="dash-two-col">
@@ -626,7 +630,6 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           </div>
           <button class="btn-add" onclick="saveSeatingConfig()" data-t="save_config">Salva config</button>
           <button class="btn-sm" onclick="autoAssign()" data-t="auto_assign">Auto-assegna non assegnati</button>
-          <button class="btn-sm" onclick="exportGuestsPDF('tavolo')" data-t="seating_pdf">PDF tavoli</button>
         </div>
         <div class="unassigned-pool">
           <h4 data-t="unassigned">Non assegnati (<span id="unassigned-count">0</span>)</h4>
@@ -913,7 +916,7 @@ const T={
     private_note:'★ Nota admin',add_btn:'+ Aggiungi',no_guests:'Nessun ospite aggiunto',
     rsvp_waiting:'In attesa',rsvp_yes:'Confermato',rsvp_no:'Assente',
     num_tables:'N° tavoli',seats_per_table:'Posti per tavolo',
-    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',seating_pdf:'PDF tavoli',
+    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',
     total_budget:'Budget Totale:',expense_item:'Voce di spesa',planned:'Previsto',
     actual:'Effettivo',diff:'Differenza',due_date:'Scadenza',no_budget:'Nessuna voce',
     add_vendor:'Aggiungi Fornitore',category:'Categoria',vendor_name:'Nome',
@@ -953,7 +956,7 @@ const T={
     private_note:'★ Admin note',add_btn:'+ Add',no_guests:'No guests added',
     rsvp_waiting:'Pending',rsvp_yes:'Confirmed',rsvp_no:'Absent',
     num_tables:'N° tables',seats_per_table:'Seats per table',
-    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',seating_pdf:'Tables PDF',
+    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',
     total_budget:'Total Budget:',expense_item:'Expense',planned:'Planned',
     actual:'Actual',diff:'Difference',due_date:'Due date',no_budget:'No items',
     add_vendor:'Add Vendor',category:'Category',vendor_name:'Name',
@@ -1225,12 +1228,49 @@ function renderKitchen(gs,lang){
     bodyEl.appendChild(sec);
   });
   document.getElementById('cucina-title').textContent=lang==='en'?'Kitchen List':'Lista Cucina';
+  const pdfLbl=document.getElementById('cucina-pdf-label');
+  if(pdfLbl)pdfLbl.textContent=lang==='en'?'Download PDF':'Scarica PDF';
 }
 
 function menuBadge(m){
   const map={Normale:'b-gray',Vegetariano:'b-green',Vegano:'b-teal',Pesce:'b-blue',Staff:'b-gray',Bambino:'b-orange',Altro:'b-gray'};
   return map[m]||'b-gray';
 }
+
+// Esporta la lista cucina in PDF stampabile (per tavolo, ordinata per posto)
+window.exportKitchenPDF=async function(){
+  if(!WID_PARAM)return;
+  const lang=LANG||'it';
+  const pSnap=await get(ref(db,`matrimoni/${WID_PARAM}/pubblico`));
+  const w=pSnap.exists()?pSnap.val():{};
+  const gSnap=await get(ref(db,`matrimoni/${WID_PARAM}/ospiti`));
+  const gs=gSnap.exists()?gSnap.val():{};
+  const confirmed=Object.values(gs).filter(g=>g.rsvp==='Confermato'||!g.rsvp);
+  const byTable={};
+  confirmed.forEach(g=>{const t=g.tavolo||'—';if(!byTable[t])byTable[t]=[];byTable[t].push(g);});
+  const sorted=Object.keys(byTable).sort((a,b)=>a==='—'?1:b==='—'?-1:parseInt(a)-parseInt(b));
+  const so=g=>(typeof g.posto==='number')?g.posto:9999;
+  const L=lang==='en'
+    ?{title:'Kitchen List',table:'Table',guests:'guests',ln:'Last name',fn:'First name',menu:'Menu',al:'Allergens',no:'Notes'}
+    :{title:'Lista Cucina',table:'Tavolo',guests:'ospiti',ln:'Cognome',fn:'Nome',menu:'Menu',al:'Allergeni',no:'Note'};
+  const body=sorted.map(table=>`
+    <h2 style="font-family:serif;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin-top:22px">${L.table} ${table} <span style="font-weight:400;color:#888;font-size:14px">(${byTable[table].length} ${L.guests})</span></h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <tr style="background:#f5f0e8"><th style="width:30px;border:1px solid #ccc;padding:5px">#</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.ln}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.fn}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.menu}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.al}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.no}</th></tr>
+      ${byTable[table].sort((a,b)=>so(a)-so(b)||(a.cognome||'').localeCompare(b.cognome||'')).map((g,i)=>`<tr><td style="text-align:center;font-weight:bold;border:1px solid #ccc;padding:5px">${i+1}</td><td style="border:1px solid #ccc;padding:5px">${g.cognome||''}</td><td style="border:1px solid #ccc;padding:5px">${g.nome||''}</td><td style="border:1px solid #ccc;padding:5px">${g.menu||'Normale'}</td><td style="border:1px solid #ccc;padding:5px">${g.allergeni||'—'}</td><td style="border:1px solid #ccc;padding:5px">${g.intolleranze||'—'}</td></tr>`).join('')}
+    </table>`).join('');
+  const win=window.open('','_blank');
+  win.document.write(`<html><head><title>${L.title} — ${w.nome1||''} & ${w.nome2||''}</title></head>
+    <body style="font-family:Arial,sans-serif;padding:30px;color:#1a1a1a">
+      <div style="text-align:center;margin-bottom:20px">
+        <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:70px"><br>
+        <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin-top:8px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)}</div>
+      </div>
+      ${body}
+      <script>window.onload=function(){window.print();}<\/script>
+    </body></html>`);
+  win.document.close();
+};
 
 // ── AUTH ──
 window.doLogin=async function(){
@@ -1842,6 +1882,21 @@ function renderTimeline(){
 }
 
 // ── CREATE WEDDING ──
+// Modifica la data di un matrimonio gia creato (solo admin)
+window.editWeddingDate=async function(){
+  if(!IS_ADMIN||!CW_ID)return;
+  const current=(CW_DATA&&CW_DATA.data)?CW_DATA.data:'';
+  const nuova=prompt('Nuova data del matrimonio (formato AAAA-MM-GG):',current);
+  if(nuova===null)return; // annullato
+  const v=nuova.trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){alert('Formato non valido. Usa AAAA-MM-GG, es. 2026-10-10');return;}
+  await update(ref(db,`matrimoni/${CW_ID}`),{data:v});
+  await update(ref(db,`matrimoni/${CW_ID}/pubblico`),{data:v});
+  CW_DATA.data=v;
+  document.getElementById('dash-wedding-date').textContent=formatDate(v);
+  startCountdown(v);
+};
+
 window.createWedding=async function(){
   const n1=document.getElementById('m-n1').value.trim();
   const n2=document.getElementById('m-n2').value.trim();
