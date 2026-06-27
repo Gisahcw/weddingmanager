@@ -371,6 +371,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
+<datalist id="tavoli-list"></datalist>
 
 <!-- ══ LOGIN ══ -->
 <div id="s-login" class="active">
@@ -541,7 +542,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <div class="form-grid">
             <div class="ig"><label data-t="fname">Nome *</label><input id="g-nome" placeholder="Marco"></div>
             <div class="ig"><label data-t="lname">Cognome *</label><input id="g-cognome" placeholder="Rossi"></div>
-            <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="number" id="g-tavolo" placeholder="1" min="1"></div>
+            <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="text" id="g-tavolo" placeholder="1" list="tavoli-list" autocomplete="off"></div>
             <div class="ig"><label data-t="phone">Telefono</label><input id="g-tel" placeholder="+39 333..."></div>
             <div class="ig"><label>Email</label><input type="email" id="g-email" placeholder="email@..."></div>
             <div class="ig"><label data-t="transfer">Transfer</label>
@@ -627,6 +628,12 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <div class="ig" style="flex:0 0 auto">
             <label data-t="seats_per_table">Posti per tavolo</label>
             <input type="number" id="seat-capacity" value="10" min="1" max="30" style="width:80px" onchange="renderSeating()">
+          </div>
+          <div class="ig" style="flex:0 0 auto">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="seat-sposi" onchange="renderSeating()" style="accent-color:var(--gold)"> <span data-t="table_sposi">Tavolo Sposi</span></label>
+          </div>
+          <div class="ig" style="flex:0 0 auto">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="seat-staff" onchange="renderSeating()" style="accent-color:var(--gold)"> <span data-t="table_staff">Tavolo Staff</span></label>
           </div>
           <button class="btn-add" onclick="saveSeatingConfig()" data-t="save_config">Salva config</button>
           <button class="btn-sm" onclick="autoAssign()" data-t="auto_assign">Auto-assegna non assegnati</button>
@@ -774,7 +781,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
     <div class="form-grid" style="margin-bottom:16px">
       <div class="ig"><label data-t="fname">Nome *</label><input id="eg-nome"></div>
       <div class="ig"><label data-t="lname">Cognome *</label><input id="eg-cognome"></div>
-      <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="number" id="eg-tavolo" min="1"></div>
+      <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="text" id="eg-tavolo" list="tavoli-list" autocomplete="off"></div>
       <div class="ig"><label data-t="phone">Telefono</label><input id="eg-tel"></div>
       <div class="ig"><label>Email</label><input type="email" id="eg-email"></div>
       <div class="ig"><label data-t="transfer">Transfer</label>
@@ -916,7 +923,7 @@ const T={
     private_note:'★ Nota admin',add_btn:'+ Aggiungi',no_guests:'Nessun ospite aggiunto',
     rsvp_waiting:'In attesa',rsvp_yes:'Confermato',rsvp_no:'Assente',
     num_tables:'N° tavoli',seats_per_table:'Posti per tavolo',
-    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',
+    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',table_sposi:'Tavolo Sposi',table_staff:'Tavolo Staff',
     total_budget:'Budget Totale:',expense_item:'Voce di spesa',planned:'Previsto',
     actual:'Effettivo',diff:'Differenza',due_date:'Scadenza',no_budget:'Nessuna voce',
     add_vendor:'Aggiungi Fornitore',category:'Categoria',vendor_name:'Nome',
@@ -956,7 +963,7 @@ const T={
     private_note:'★ Admin note',add_btn:'+ Add',no_guests:'No guests added',
     rsvp_waiting:'Pending',rsvp_yes:'Confirmed',rsvp_no:'Absent',
     num_tables:'N° tables',seats_per_table:'Seats per table',
-    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',
+    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',table_sposi:'Couple table',table_staff:'Staff table',
     total_budget:'Total Budget:',expense_item:'Expense',planned:'Planned',
     actual:'Actual',diff:'Difference',due_date:'Due date',no_budget:'No items',
     add_vendor:'Add Vendor',category:'Category',vendor_name:'Name',
@@ -1205,12 +1212,12 @@ function renderKitchen(gs,lang){
   });
   const bodyEl=document.getElementById('cucina-body');
   bodyEl.innerHTML='';
-  const sorted=Object.keys(byTable).sort((a,b)=>a==='—'?1:b==='—'?-1:parseInt(a)-parseInt(b));
+  const sorted=Object.keys(byTable).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
   sorted.forEach(table=>{
     const gs=byTable[table];
     const sec=document.createElement('div');
     sec.className='cucina-table-section';
-    sec.innerHTML=`<div class="cucina-table-title">${lang==='en'?'Table':'Tavolo'} ${table} <span style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gray);font-weight:400">(${gs.length} ${lang==='en'?'guests':'ospiti'})</span></div>
+    sec.innerHTML=`<div class="cucina-table-title">${tableLabel(table,lang)} <span style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gray);font-weight:400">(${gs.length} ${lang==='en'?'guests':'ospiti'})</span></div>
     <table><thead><tr>
       <th style="width:32px">#</th>
       <th>${lang==='en'?'Last name':'Cognome'}</th>
@@ -1236,6 +1243,25 @@ function menuBadge(m){
   const map={Normale:'b-gray',Vegetariano:'b-green',Vegano:'b-teal',Pesce:'b-blue',Staff:'b-gray',Bambino:'b-orange',Altro:'b-gray'};
   return map[m]||'b-gray';
 }
+// Normalizza il valore del campo tavolo: 'sposi'/'staff' (minuscolo) o numero, altrimenti vuoto coerente
+window.normalizeTable=function(v){
+  const s=(v||'').trim().toLowerCase();
+  if(s==='sposi'||s==='sposo'||s==='sposa')return 'sposi';
+  if(s==='staff')return 'staff';
+  return (v||'').trim();
+}
+// Ordina le chiavi tavolo: Sposi e Staff in cima, poi numerici, poi non assegnati in fondo
+function tableSortKey(t){
+  if(t==='sposi')return -2;
+  if(t==='staff')return -1;
+  if(t==='—'||t==='Non assegnato')return 99999;
+  const n=parseInt(t);return isNaN(n)?99998:n;
+}
+function tableLabel(t,lang){
+  if(t==='sposi')return lang==='en'?'Couple table':'Tavolo Sposi';
+  if(t==='staff')return lang==='en'?'Staff table':'Tavolo Staff';
+  return (lang==='en'?'Table ':'Tavolo ')+t;
+}
 
 // Esporta la lista cucina in PDF stampabile (per tavolo, ordinata per posto)
 window.exportKitchenPDF=async function(){
@@ -1248,13 +1274,13 @@ window.exportKitchenPDF=async function(){
   const confirmed=Object.values(gs).filter(g=>g.rsvp==='Confermato'||!g.rsvp);
   const byTable={};
   confirmed.forEach(g=>{const t=g.tavolo||'—';if(!byTable[t])byTable[t]=[];byTable[t].push(g);});
-  const sorted=Object.keys(byTable).sort((a,b)=>a==='—'?1:b==='—'?-1:parseInt(a)-parseInt(b));
+  const sorted=Object.keys(byTable).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
   const so=g=>(typeof g.posto==='number')?g.posto:9999;
   const L=lang==='en'
     ?{title:'Kitchen List',table:'Table',guests:'guests',ln:'Last name',fn:'First name',menu:'Menu',al:'Allergens',no:'Notes'}
     :{title:'Lista Cucina',table:'Tavolo',guests:'ospiti',ln:'Cognome',fn:'Nome',menu:'Menu',al:'Allergeni',no:'Note'};
   const body=sorted.map(table=>`
-    <h2 style="font-family:serif;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin-top:22px">${L.table} ${table} <span style="font-weight:400;color:#888;font-size:14px">(${byTable[table].length} ${L.guests})</span></h2>
+    <h2 style="font-family:serif;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin-top:22px">${tableLabel(table,lang)} <span style="font-weight:400;color:#888;font-size:14px">(${byTable[table].length} ${L.guests})</span></h2>
     <table style="width:100%;border-collapse:collapse;font-size:12px">
       <tr style="background:#f5f0e8"><th style="width:30px;border:1px solid #ccc;padding:5px">#</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.ln}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.fn}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.menu}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.al}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.no}</th></tr>
       ${byTable[table].sort((a,b)=>so(a)-so(b)||(a.cognome||'').localeCompare(b.cognome||'')).map((g,i)=>`<tr><td style="text-align:center;font-weight:bold;border:1px solid #ccc;padding:5px">${i+1}</td><td style="border:1px solid #ccc;padding:5px">${g.cognome||''}</td><td style="border:1px solid #ccc;padding:5px">${g.nome||''}</td><td style="border:1px solid #ccc;padding:5px">${g.menu||'Normale'}</td><td style="border:1px solid #ccc;padding:5px">${g.allergeni||'—'}</td><td style="border:1px solid #ccc;padding:5px">${g.intolleranze||'—'}</td></tr>`).join('')}
@@ -1400,7 +1426,7 @@ function loadWedding(wid,w){
   const L3=onValue(ref(db,`matrimoni/${wid}/fornitori`),(s)=>{vendors=s.exists()?s.val():{};renderVendors();renderDashboard();});
   const L4=onValue(ref(db,`matrimoni/${wid}/checklist`),(s)=>{checklist=s.exists()?s.val():{};renderChecklist();});
   const L5=onValue(ref(db,`matrimoni/${wid}/timeline`),(s)=>{timeline=s.exists()?s.val():{};renderTimeline();});
-  const L6=onValue(ref(db,`matrimoni/${wid}/seating`),(s)=>{if(s.exists()){seatingCfg=s.val();document.getElementById('seat-num-tables').value=seatingCfg.tables||10;document.getElementById('seat-capacity').value=seatingCfg.capacity||10;}renderSeating();});
+  const L6=onValue(ref(db,`matrimoni/${wid}/seating`),(s)=>{if(s.exists()){seatingCfg=s.val();document.getElementById('seat-num-tables').value=seatingCfg.tables||10;document.getElementById('seat-capacity').value=seatingCfg.capacity||10;document.getElementById('seat-sposi').checked=!!seatingCfg.sposi;document.getElementById('seat-staff').checked=!!seatingCfg.staff;}renderSeating();});
   LS=[L1,L2,L3,L4,L5,L6];
   showView('dashboard');
 }
@@ -1477,7 +1503,7 @@ window.addGuest=async function(){
   const allergeni=Array.from(document.querySelectorAll('#allerg-form input:checked')).map(c=>c.value);
   const g={
     nome,cognome,
-    tavolo:document.getElementById('g-tavolo').value||'',
+    tavolo:window.normalizeTable(document.getElementById('g-tavolo').value),
     tel:document.getElementById('g-tel').value.trim(),
     email:document.getElementById('g-email').value.trim(),
     transfer:document.getElementById('g-transfer').value,
@@ -1548,7 +1574,7 @@ window.renderGuests=function(){
     tr.innerHTML=`
       <td contenteditable="true" onblur="updateGuest('${id}','cognome',this.textContent.trim())">${g.cognome||''}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','nome',this.textContent.trim())">${g.nome||''}</td>
-      <td contenteditable="true" onblur="updateGuest('${id}','tavolo',this.textContent.trim())">${g.tavolo||''}</td>
+      <td contenteditable="true" onblur="updateGuest('${id}','tavolo',normalizeTable(this.textContent))">${g.tavolo||''}</td>
       <td><select class="badge ${rsvpB}" onchange="updateGuest('${id}','rsvp',this.value);const m={Confermato:'b-green',Assente:'b-red','In attesa':'b-gray'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
         ${[['In attesa',t('rsvp_waiting')],['Confermato',t('rsvp_yes')],['Assente',t('rsvp_no')]].map(([v,label])=>`<option value="${v}" ${(g.rsvp||'In attesa')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
@@ -1568,7 +1594,7 @@ window.renderGuests=function(){
 
 // ── SEATING ──
 window.saveSeatingConfig=async function(){
-  const cfg={tables:parseInt(document.getElementById('seat-num-tables').value)||10,capacity:parseInt(document.getElementById('seat-capacity').value)||10};
+  const cfg={tables:parseInt(document.getElementById('seat-num-tables').value)||10,capacity:parseInt(document.getElementById('seat-capacity').value)||10,sposi:document.getElementById('seat-sposi').checked,staff:document.getElementById('seat-staff').checked};
   seatingCfg=cfg;
   await set(ref(db,`matrimoni/${CW_ID}/seating`),cfg);
   renderSeating();
@@ -1580,24 +1606,26 @@ window.renderSeating=function(){
   const numT=seatingCfg.tables||10;
   const cap=seatingCfg.capacity||10;
   const allGuests=Object.entries(guests);
-  const assigned={};
   area.innerHTML='';
-  for(let i=1;i<=numT;i++){
-    const tId=String(i);
+  // Legge i flag: dalla config salvata o dai checkbox correnti
+  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
+  const showStaff=document.getElementById('seat-staff')?document.getElementById('seat-staff').checked:!!seatingCfg.staff;
+  // Costruisce una card tavolo (cap=null => capacita libera, nessun limite)
+  function buildCard(tId,label,capLimit){
     const tGuests=allGuests.filter(([,g])=>g.tavolo===tId);
-    assigned[tId]=tGuests;
     const card=document.createElement('div');
     card.className='table-card';
     card.dataset.table=tId;
     card.ondragover=e=>{e.preventDefault();card.classList.add('drag-over');};
     card.ondragleave=()=>card.classList.remove('drag-over');
     card.ondrop=e=>{e.preventDefault();card.classList.remove('drag-over');onDropTable(e,tId);};
-    const isFull=tGuests.length>=cap;
+    const isFull=capLimit!==null && tGuests.length>=capLimit;
+    const capLabel=capLimit!==null?`${tGuests.length}/${capLimit}`:`${tGuests.length}`;
     card.innerHTML=`<div class="table-card-head">
-      <div class="table-card-name">Tavolo ${i}</div>
-      <div class="table-capacity ${isFull?'full':''}">${tGuests.length}/${cap}</div>
+      <div class="table-card-name">${label}</div>
+      <div class="table-capacity ${isFull?'full':''}">${capLabel}</div>
     </div>
-    <div class="table-guests" id="tg-${i}">
+    <div class="table-guests" id="tg-${tId}">
       ${tGuests.sort((a,b)=>seatOrder(a[1])-seatOrder(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||'')).map(([gid,g],idx,arr)=>
         `<div class="guest-chip" draggable="true" data-gid="${gid}" ondragstart="onDragStart(event,'${gid}')">
           <span class="seat-num">${idx+1}</span>
@@ -1611,8 +1639,23 @@ window.renderSeating=function(){
     </div>`;
     area.appendChild(card);
   }
+  // Tavoli speciali (capacita libera) prima dei numerici
+  if(showSposi)buildCard('sposi',LANG==='en'?'Couple table':'Tavolo Sposi',null);
+  if(showStaff)buildCard('staff',LANG==='en'?'Staff table':'Tavolo Staff',null);
+  for(let i=1;i<=numT;i++){
+    buildCard(String(i),(LANG==='en'?'Table ':'Tavolo ')+i,cap);
+  }
   // Pool
   const unassigned=allGuests.filter(([,g])=>!g.tavolo||g.tavolo==='');
+  // Aggiorna il datalist con le opzioni tavolo disponibili (sposi/staff + numerici)
+  const dl=document.getElementById('tavoli-list');
+  if(dl){
+    let opts='';
+    if(showSposi)opts+='<option value="sposi">Tavolo Sposi</option>';
+    if(showStaff)opts+='<option value="staff">Tavolo Staff</option>';
+    for(let i=1;i<=numT;i++)opts+=`<option value="${i}">Tavolo ${i}</option>`;
+    dl.innerHTML=opts;
+  }
   document.getElementById('unassigned-count').textContent=unassigned.length;
   pool.innerHTML=unassigned.map(([gid,g])=>
     `<div class="guest-chip" draggable="true" data-gid="${gid}" ondragstart="onDragStart(event,'${gid}')" style="margin:0">
@@ -1968,9 +2011,9 @@ window.exportGuestsPDF=function(mode){
     const so=g=>(typeof g.posto==='number')?g.posto:9999;
     const byTable={};
     Object.values(guests).forEach(g=>{const t=g.tavolo||'Non assegnato';if(!byTable[t])byTable[t]=[];byTable[t].push(g);});
-    const sorted=Object.keys(byTable).sort((a,b)=>a==='Non assegnato'?1:b==='Non assegnato'?-1:parseInt(a)-parseInt(b));
+    const sorted=Object.keys(byTable).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
     body=sorted.map(table=>`
-      <h3 style="margin-top:24px;border-bottom:2px solid #1a1a1a;padding-bottom:6px">Tavolo ${table} (${byTable[table].length} ospiti)</h3>
+      <h3 style="margin-top:24px;border-bottom:2px solid #1a1a1a;padding-bottom:6px">${table==='Non assegnato'?'Non assegnato':tableLabel(table,'it')} (${byTable[table].length} ospiti)</h3>
       <table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:12px">
         <tr style="background:#f5f0e8"><th style="width:32px">#</th><th>Cognome</th><th>Nome</th><th>Menu</th><th>Allergeni</th><th>Note</th></tr>
         ${byTable[table].sort((a,b)=>so(a)-so(b)||(a.cognome||'').localeCompare(b.cognome||'')).map((g,i)=>`<tr><td style="text-align:center;font-weight:bold">${i+1}</td><td>${g.cognome}</td><td>${g.nome}</td><td>${g.menu||'Normale'}</td><td>${g.allergeni||'—'}</td><td>${g.intolleranze||'—'}</td></tr>`).join('')}
@@ -2090,7 +2133,7 @@ window.saveGuestEdit=async function(){
   const allergeni=Array.from(document.querySelectorAll('.eg-allerg:checked')).map(c=>c.value);
   const updates={
     nome,cognome,
-    tavolo:document.getElementById('eg-tavolo').value||'',
+    tavolo:window.normalizeTable(document.getElementById('eg-tavolo').value),
     tel:document.getElementById('eg-tel').value.trim(),
     email:document.getElementById('eg-email').value.trim(),
     transfer:document.getElementById('eg-transfer').value,
