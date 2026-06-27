@@ -575,6 +575,10 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
                 <label class="allerg-item"><input type="checkbox" value="Soia"> <span data-t="al_soy">Soia</span></label>
                 <label class="allerg-item"><input type="checkbox" value="Pesce"> <span data-t="al_fish">Pesce</span></label>
                 <label class="allerg-item"><input type="checkbox" value="Sesamo"> <span data-t="al_sesame">Sesamo</span></label>
+                <label class="allerg-item"><input type="checkbox" id="allerg-altro-cb" value="__altro__" onchange="document.getElementById('allerg-altro-wrap').style.display=this.checked?'block':'none';if(this.checked)document.getElementById('allerg-altro-txt').focus()"> <span data-t="al_other">Altro</span></label>
+              </div>
+              <div id="allerg-altro-wrap" style="display:none;margin-top:8px">
+                <input id="allerg-altro-txt" placeholder="Specifica (es. melanzane, nichel...)" style="width:100%">
               </div>
             </div>
             <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="g-intoll" placeholder="es. senza glutine..."></div>
@@ -819,6 +823,10 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <label class="allerg-item"><input type="checkbox" value="Soia" class="eg-allerg"> <span data-t="al_soy">Soia</span></label>
           <label class="allerg-item"><input type="checkbox" value="Pesce" class="eg-allerg"> <span data-t="al_fish">Pesce</span></label>
           <label class="allerg-item"><input type="checkbox" value="Sesamo" class="eg-allerg"> <span data-t="al_sesame">Sesamo</span></label>
+          <label class="allerg-item"><input type="checkbox" id="eg-allerg-altro-cb" value="__altro__" class="eg-allerg" onchange="document.getElementById('eg-allerg-altro-wrap').style.display=this.checked?'block':'none'"> <span data-t="al_other">Altro</span></label>
+        </div>
+        <div id="eg-allerg-altro-wrap" style="display:none;margin-top:8px">
+          <input id="eg-allerg-altro-txt" placeholder="Specifica (es. melanzane, nichel...)" style="width:100%">
         </div>
       </div>
       <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="eg-intoll"></div>
@@ -945,7 +953,7 @@ const T={
     pdf_table:'PDF per tavolo',pdf_alpha:'PDF alfabetica',export_csv:'Esporta CSV',backup_xls:'Backup XLS',tl_pdf:'PDF',tl_xls:'Excel',tl_csv:'CSV',
     edit_guest:'Modifica Ospite',edit_vendor:'Modifica Fornitore',save:'Salva modifiche',cancel:'Annulla',
     al_gluten:'Glutine',al_lactose:'Lattosio',al_nuts:'Frutta secca',al_shellfish:'Crostacei',
-    al_eggs:'Uova',al_soy:'Soia',al_fish:'Pesce',al_sesame:'Sesamo',
+    al_eggs:'Uova',al_soy:'Soia',al_fish:'Pesce',al_sesame:'Sesamo',al_other:'Altro',
     menu_normal:'Normale',menu_meat:'Carne',menu_veg:'Vegetariano',menu_vegan:'Vegano',menu_fish:'Pesce',
     menu_staff:'Staff',menu_child:'Bambino',menu_other:'Altro',
     days:'Giorni',hours:'Ore',mins:'Minuti',secs:'Secondi',
@@ -985,7 +993,7 @@ const T={
     pdf_table:'PDF by table',pdf_alpha:'PDF alphabetical',export_csv:'Export CSV',backup_xls:'Backup XLS',tl_pdf:'PDF',tl_xls:'Excel',tl_csv:'CSV',
     edit_guest:'Edit Guest',edit_vendor:'Edit Vendor',save:'Save changes',cancel:'Cancel',
     al_gluten:'Gluten',al_lactose:'Lactose',al_nuts:'Tree nuts',al_shellfish:'Shellfish',
-    al_eggs:'Eggs',al_soy:'Soy',al_fish:'Fish',al_sesame:'Sesame',
+    al_eggs:'Eggs',al_soy:'Soy',al_fish:'Fish',al_sesame:'Sesame',al_other:'Other',
     menu_normal:'Standard',menu_meat:'Meat',menu_veg:'Vegetarian',menu_vegan:'Vegan',menu_fish:'Fish',
     menu_staff:'Staff',menu_child:'Child',menu_other:'Other',
     days:'Days',hours:'Hours',mins:'Minutes',secs:'Seconds',
@@ -1506,7 +1514,9 @@ window.addGuest=async function(){
   const nome=document.getElementById('g-nome').value.trim();
   const cognome=document.getElementById('g-cognome').value.trim();
   if(!nome||!cognome){alert('Nome e cognome obbligatori');return;}
-  const allergeni=Array.from(document.querySelectorAll('#allerg-form input:checked')).map(c=>c.value);
+  const allergeni=Array.from(document.querySelectorAll('#allerg-form input:checked')).map(c=>c.value).filter(v=>v!=='__altro__');
+  const altroTxt=document.getElementById('allerg-altro-cb').checked?document.getElementById('allerg-altro-txt').value.trim():'';
+  if(altroTxt)allergeni.push(altroTxt);
   const g={
     nome,cognome,
     tavolo:window.normalizeTable(document.getElementById('g-tavolo').value),
@@ -1525,6 +1535,8 @@ window.addGuest=async function(){
   document.getElementById('g-menu').value='Normale';
   document.getElementById('g-rsvp').value='In attesa';
   document.querySelectorAll('#allerg-form input').forEach(c=>c.checked=false);
+  document.getElementById('allerg-altro-txt').value='';
+  document.getElementById('allerg-altro-wrap').style.display='none';
 };
 
 window.deleteGuest=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/ospiti/${id}`));};
@@ -1547,9 +1559,11 @@ window.renderGuests=function(){
   const wait=all.filter(g=>!g.rsvp||g.rsvp==='In attesa').length;
   const abs=all.filter(g=>g.rsvp==='Assente').length;
   const transfer=all.filter(g=>g.transfer==='Sì').length;
+  const carne=all.filter(g=>g.menu==='Carne').length;
   const veg=all.filter(g=>g.menu==='Vegetariano').length;
   const vegan=all.filter(g=>g.menu==='Vegano').length;
   const bambini=all.filter(g=>g.menu==='Bambino').length;
+  const altro=all.filter(g=>g.menu==='Altro').length;
   const allerg=all.filter(g=>g.allergeni&&g.allergeni.length>0).length;
   document.getElementById('ospiti-stats').innerHTML=`
     <div class="stat-i"><div class="sn">${all.length}</div><div class="sl">Totale</div></div>
@@ -1557,10 +1571,12 @@ window.renderGuests=function(){
     <div class="stat-i"><div class="sn">${wait}</div><div class="sl">${t('waiting')}</div></div>
     <div class="stat-i red"><div class="sn">${abs}</div><div class="sl">${t('absent')}</div></div>
     <div class="stat-i gold"><div class="sn">${transfer}</div><div class="sl">Transfer</div></div>
+    <div class="stat-i red"><div class="sn">${carne}</div><div class="sl">${t('menu_meat')}</div></div>
     <div class="stat-i green"><div class="sn">${veg}</div><div class="sl">Vegetariani</div></div>
     <div class="stat-i teal"><div class="sn">${vegan}</div><div class="sl">Vegani</div></div>
     <div class="stat-i orange"><div class="sn">${bambini}</div><div class="sl">Bambini</div></div>
-    <div class="stat-i purple"><div class="sn">${allerg}</div><div class="sl">Allergeni</div></div>`;
+    <div class="stat-i purple"><div class="sn">${allerg}</div><div class="sl">Allergeni</div></div>
+    <div class="stat-i"><div class="sn">${altro}</div><div class="sl">${t('menu_other')}</div></div>`;
 
   const tbody=document.getElementById('tbody-guests');
   tbody.innerHTML='';
@@ -2124,9 +2140,18 @@ window.openGuestEdit=function(id){
   document.getElementById('eg-nota-admin').value=g.notaAdmin||'';
   // Allergeni
   const allergeniList=(g.allergeni||'').split(',').map(a=>a.trim()).filter(Boolean);
+  const standard=['Glutine','Lattosio','Frutta secca','Crostacei','Uova','Soia','Pesce','Sesamo'];
   document.querySelectorAll('.eg-allerg').forEach(cb=>{
+    if(cb.value==='__altro__')return;
     cb.checked=allergeniList.includes(cb.value);
   });
+  // Allergeni non standard -> campo Altro
+  const custom=allergeniList.filter(a=>!standard.includes(a));
+  const altroCb=document.getElementById('eg-allerg-altro-cb');
+  const altroTxt=document.getElementById('eg-allerg-altro-txt');
+  const altroWrap=document.getElementById('eg-allerg-altro-wrap');
+  if(custom.length){altroCb.checked=true;altroTxt.value=custom.join(', ');altroWrap.style.display='block';}
+  else{altroCb.checked=false;altroTxt.value='';altroWrap.style.display='none';}
   document.getElementById('edit-guest-err').textContent='';
   document.getElementById('modal-guest').classList.add('active');
 };
@@ -2136,7 +2161,9 @@ window.saveGuestEdit=async function(){
   const nome=document.getElementById('eg-nome').value.trim();
   const cognome=document.getElementById('eg-cognome').value.trim();
   if(!nome||!cognome){document.getElementById('edit-guest-err').textContent='Nome e cognome obbligatori';return;}
-  const allergeni=Array.from(document.querySelectorAll('.eg-allerg:checked')).map(c=>c.value);
+  const allergeni=Array.from(document.querySelectorAll('.eg-allerg:checked')).map(c=>c.value).filter(v=>v!=='__altro__');
+  const egAltro=document.getElementById('eg-allerg-altro-cb').checked?document.getElementById('eg-allerg-altro-txt').value.trim():'';
+  if(egAltro)egAltro.split(',').map(s=>s.trim()).filter(Boolean).forEach(a=>allergeni.push(a));
   const updates={
     nome,cognome,
     tavolo:window.normalizeTable(document.getElementById('eg-tavolo').value),
