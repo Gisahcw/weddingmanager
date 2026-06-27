@@ -215,7 +215,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .empty-state .ei{font-size:38px;margin-bottom:14px;opacity:.3}
 
 /* ── SEATING ── */
-.seating-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap}
+.seating-controls{display:flex;gap:14px;margin-bottom:20px;align-items:flex-end;flex-wrap:wrap}
 .seating-area{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .table-card{background:white;border:1px solid var(--gray-l);padding:16px;position:relative}
 .table-card.drag-over{border-color:var(--gold);background:var(--gold-pale)}
@@ -630,10 +630,12 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
             <input type="number" id="seat-capacity" value="10" min="1" max="30" style="width:80px" onchange="renderSeating()">
           </div>
           <div class="ig" style="flex:0 0 auto">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="seat-sposi" onchange="renderSeating()" style="accent-color:var(--gold)"> <span data-t="table_sposi">Tavolo Sposi</span></label>
+            <label data-t="table_sposi">Tavolo Sposi</label>
+            <div style="height:38px;display:flex;align-items:center"><input type="checkbox" id="seat-sposi" onchange="renderSeating()" style="accent-color:var(--gold);width:20px;height:20px;cursor:pointer"></div>
           </div>
           <div class="ig" style="flex:0 0 auto">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="seat-staff" onchange="renderSeating()" style="accent-color:var(--gold)"> <span data-t="table_staff">Tavolo Staff</span></label>
+            <label data-t="table_staff">Tavolo Staff</label>
+            <div style="height:38px;display:flex;align-items:center"><input type="checkbox" id="seat-staff" onchange="renderSeating()" style="accent-color:var(--gold);width:20px;height:20px;cursor:pointer"></div>
           </div>
           <button class="btn-add" onclick="saveSeatingConfig()" data-t="save_config">Salva config</button>
           <button class="btn-sm" onclick="autoAssign()" data-t="auto_assign">Auto-assegna non assegnati</button>
