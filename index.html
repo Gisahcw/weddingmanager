@@ -1216,7 +1216,9 @@ function renderKitchen(gs,lang){
     if(g.allergeni)g.allergeni.split(',').forEach(a=>{const k=a.trim();if(k)allergenCounts[k]=(allergenCounts[k]||0)+1});
   });
   const statsEl=document.getElementById('cucina-stats');
+  const staffTavolo=confirmed.filter(g=>g.tavolo==='staff').length;
   statsEl.innerHTML=`<div class="c-stat"><div class="n">${confirmed.length}</div><div class="l">${lang==='en'?'Total':'Totale'}</div></div>`
+    +(staffTavolo>0?`<div class="c-stat"><div class="n">${staffTavolo}</div><div class="l">${lang==='en'?'Staff table':'Tavolo Staff'}</div></div>`:'')
     +Object.entries(menuCounts).map(([m,n])=>`<div class="c-stat"><div class="n">${n}</div><div class="l">${m}</div></div>`).join('')
     +(Object.keys(allergenCounts).length?Object.entries(allergenCounts).map(([a,n])=>`<div class="c-stat"><div class="n">${n}</div><div class="l">${a}</div></div>`).join(''):'');
 
@@ -1293,25 +1295,31 @@ window.exportKitchenPDF=async function(){
   confirmed.forEach(g=>{const t=g.tavolo||'—';if(!byTable[t])byTable[t]=[];byTable[t].push(g);});
   const sorted=Object.keys(byTable).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
   const so=g=>(typeof g.posto==='number')?g.posto:9999;
-  // Riepilogo totali per la cucina
-  const countMenu=(m)=>confirmed.filter(g=>(g.menu||'Normale')===m).length;
+  // Riepilogo completo come nella vista a schermo: ogni menu + ogni allergene/intolleranza
+  const menuCounts={};
+  const allergenCounts={};
+  confirmed.forEach(g=>{
+    const m=g.menu||'Normale';
+    menuCounts[m]=(menuCounts[m]||0)+1;
+    if(g.allergeni)g.allergeni.split(',').forEach(a=>{const k=a.trim();if(k)allergenCounts[k]=(allergenCounts[k]||0)+1});
+  });
   const tot=confirmed.length;
   const neonati=confirmed.filter(g=>(g.menu||'')==='Neonato').length;
   const porzioni=tot-neonati;
-  const conAllergie=confirmed.filter(g=>(g.allergeni&&g.allergeni.trim()&&g.allergeni.trim()!=='—')).length;
-  const menuTypes=[['Normale','Normale'],['Carne','Carne'],['Vegetariano','Vegetariano'],['Vegano','Vegano'],['Pesce','Pesce'],['Bambino','Bambino'],['Staff','Staff'],['Altro','Altro']];
   const L=lang==='en'
-    ?{title:'Kitchen List',table:'Table',guests:'guests',ln:'Last name',fn:'First name',menu:'Menu',al:'Allergens',no:'Notes',summary:'Summary',total:'Portions to prepare',withAllerg:'With allergies/intolerances',babies:'of which babies (no portion)'}
-    :{title:'Lista Cucina',table:'Tavolo',guests:'ospiti',ln:'Cognome',fn:'Nome',menu:'Menu',al:'Allergeni',no:'Note',summary:'Riepilogo',total:'Porzioni da preparare',withAllerg:'Con allergie/intolleranze',babies:'di cui neonati (no porzione)'};
-  const menuLabels=lang==='en'
-    ?{Normale:'Standard',Carne:'Meat',Vegetariano:'Vegetarian',Vegano:'Vegan',Pesce:'Fish',Bambino:'Child',Staff:'Staff',Altro:'Other'}
-    :{Normale:'Normale',Carne:'Carne',Vegetariano:'Vegetariano',Vegano:'Vegano',Pesce:'Pesce',Bambino:'Bambino',Staff:'Staff',Altro:'Altro'};
-  const summaryCells=menuTypes.map(([key])=>{const n=countMenu(key);return n>0?`<td style="border:1px solid #ccc;padding:8px 12px;text-align:center"><div style="font-size:22px;font-weight:bold">${n}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#666">${menuLabels[key]}</div></td>`:'';}).filter(Boolean).join('');
-  const babyLine=neonati>0?` · ${L.babies}: <strong>${neonati}</strong>`:'';
+    ?{title:'Kitchen List',table:'Table',guests:'guests',ln:'Last name',fn:'First name',menu:'Menu',al:'Allergens',no:'Notes',total:'Total',portions:'portions',babies:'babies, no portion'}
+    :{title:'Lista Cucina',table:'Tavolo',guests:'ospiti',ln:'Cognome',fn:'Nome',menu:'Menu',al:'Allergeni',no:'Note',total:'Totale',portions:'porzioni',babies:'neonati, no porzione'};
+  const cell=(n,label)=>`<div style="border:1px solid #ddd;border-radius:4px;padding:8px 10px;text-align:center;min-width:64px;background:#fff"><div style="font-size:20px;font-weight:bold;color:#1a1a1a">${n}</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-top:2px">${label}</div></div>`;
+  let cells=cell(tot,L.total);
+  const staffTavolo=confirmed.filter(g=>g.tavolo==='staff').length;
+  if(staffTavolo>0)cells+=cell(staffTavolo,lang==='en'?'Staff table':'Tavolo Staff');
+  Object.entries(menuCounts).forEach(([m,n])=>{cells+=cell(n,m);});
+  Object.entries(allergenCounts).forEach(([a,n])=>{cells+=cell(n,a);});
+  const babyNote=neonati>0?`<div style="font-size:11px;color:#888;margin-top:10px">${porzioni} ${L.portions} · ${neonati} ${L.babies}</div>`:'';
   const summaryBlock=`
-    <div style="background:#faf7f2;border:1px solid #e5ddd0;border-radius:6px;padding:16px 20px;margin-bottom:26px">
-      <div style="font-family:serif;font-size:16px;margin-bottom:12px;color:#1a1a1a">${L.summary} — ${L.total}: <strong>${porzioni}</strong> · ${L.withAllerg}: <strong>${conAllergie}</strong>${babyLine}</div>
-      <table style="border-collapse:collapse"><tr>${summaryCells}</tr></table>
+    <div style="background:#faf7f2;border:1px solid #e5ddd0;border-radius:6px;padding:14px 18px;margin-bottom:26px">
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${cells}</div>
+      ${babyNote}
     </div>`;
   const body=sorted.map(table=>`
     <h2 style="font-family:serif;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin-top:22px">${tableLabel(table,lang)} <span style="font-weight:400;color:#888;font-size:14px">(${byTable[table].length} ${L.guests})</span></h2>
