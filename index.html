@@ -278,6 +278,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .tl-text:hover{background:var(--gray-l)}
 .tl-item.done .tl-dot{background:var(--green)}
 .tl-item.done .tl-text{text-decoration:line-through;opacity:.5}
+.tl-cat-badge{font-size:9px;letter-spacing:1px;text-transform:uppercase;background:var(--gold-pale);color:var(--gold);padding:2px 7px;border-radius:10px;white-space:nowrap}
 .tl-item.editing .tl-time,.tl-item.editing .tl-text{display:none}
 .tl-edit-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
 .tl-edit-row input[type=text]{flex:2;min-width:140px;padding:6px 8px;border:1px solid var(--gold);border-radius:4px;font-size:14px;font-family:inherit}
@@ -737,9 +738,35 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
               <button class="btn-sm" onclick="exportTimelineCSV()" data-t="tl_csv">CSV</button>
             </div>
           </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 14px">
+            <label data-t="tl_view_cat" style="font-size:12px;color:var(--gray);letter-spacing:1px;text-transform:uppercase">Timeline</label>
+            <select id="tl-cat-filter" onchange="renderTimeline()" style="padding:6px 10px;border:1px solid var(--gold);border-radius:4px;font-family:inherit;font-size:13px">
+              <option value="__all__">Tutte</option>
+              <option value="Generale">Generale</option>
+              <option value="Chiesa">Chiesa</option>
+              <option value="Musica">Musica</option>
+              <option value="Fiori">Fiori</option>
+              <option value="Sposa">Sposa</option>
+              <option value="Sposo">Sposo</option>
+              <option value="Foto/Video">Foto/Video</option>
+              <option value="Catering">Catering</option>
+            </select>
+          </div>
           <div class="tl-add-form">
             <div class="ig"><label data-t="time">Orario</label><input type="time" id="tl-ora" style="width:110px"></div>
             <div class="ig" style="flex:1"><label data-t="event">Evento</label><input id="tl-txt" placeholder="es. Cerimonia in chiesa"></div>
+            <div class="ig"><label data-t="tl_cat">Categoria</label>
+              <select id="tl-cat" style="padding:8px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit">
+                <option value="Generale">Generale</option>
+                <option value="Chiesa">Chiesa</option>
+                <option value="Musica">Musica</option>
+                <option value="Fiori">Fiori</option>
+                <option value="Sposa">Sposa</option>
+                <option value="Sposo">Sposo</option>
+                <option value="Foto/Video">Foto/Video</option>
+                <option value="Catering">Catering</option>
+              </select>
+            </div>
             <div class="ig" style="align-self:end"><button class="btn-add" onclick="addTimelineItem()" data-t="add_btn">+ Aggiungi</button></div>
           </div>
         </div>
@@ -955,7 +982,7 @@ const T={
     wedding_date:'Data Matrimonio',email_spouses:'Email Sposi',
     wedding_location:'Location',pwd_spouses:'Password Sposi',create_wedding:'Crea Matrimonio',
     nav_archive:'Archivio',no_archive:'Nessun matrimonio archiviato',
-    pdf_table:'PDF per tavolo',pdf_alpha:'PDF alfabetica',export_csv:'Esporta CSV',backup_xls:'Backup XLS',tl_pdf:'PDF',tl_xls:'Excel',tl_csv:'CSV',
+    pdf_table:'PDF per tavolo',pdf_alpha:'PDF alfabetica',export_csv:'Esporta CSV',backup_xls:'Backup XLS',tl_pdf:'PDF',tl_xls:'Excel',tl_csv:'CSV',tl_cat:'Categoria',tl_view_cat:'Timeline',
     edit_guest:'Modifica Ospite',edit_vendor:'Modifica Fornitore',save:'Salva modifiche',cancel:'Annulla',
     al_gluten:'Glutine',al_lactose:'Lattosio',al_nuts:'Frutta secca',al_shellfish:'Crostacei',
     al_eggs:'Uova',al_soy:'Soia',al_fish:'Pesce',al_sesame:'Sesamo',al_other:'Altro',
@@ -995,7 +1022,7 @@ const T={
     wedding_date:'Wedding date',email_spouses:'Couple email',
     wedding_location:'Venue',pwd_spouses:'Couple password',create_wedding:'Create Wedding',
     nav_archive:'Archive',no_archive:'No archived weddings',
-    pdf_table:'PDF by table',pdf_alpha:'PDF alphabetical',export_csv:'Export CSV',backup_xls:'Backup XLS',tl_pdf:'PDF',tl_xls:'Excel',tl_csv:'CSV',
+    pdf_table:'PDF by table',pdf_alpha:'PDF alphabetical',export_csv:'Export CSV',backup_xls:'Backup XLS',tl_pdf:'PDF',tl_xls:'Excel',tl_csv:'CSV',tl_cat:'Category',tl_view_cat:'Timeline',
     edit_guest:'Edit Guest',edit_vendor:'Edit Vendor',save:'Save changes',cancel:'Cancel',
     al_gluten:'Gluten',al_lactose:'Lactose',al_nuts:'Tree nuts',al_shellfish:'Shellfish',
     al_eggs:'Eggs',al_soy:'Soy',al_fish:'Fish',al_sesame:'Sesame',al_other:'Other',
@@ -2039,7 +2066,8 @@ window.addTimelineItem=async function(){
   const txt=document.getElementById('tl-txt').value.trim();
   const ora=document.getElementById('tl-ora').value;
   if(!txt||!ora){alert('Orario e evento obbligatori');return;}
-  await push(ref(db,`matrimoni/${CW_ID}/timeline`),{ora,txt,done:false});
+  const cat=document.getElementById('tl-cat').value||'Generale';
+  await push(ref(db,`matrimoni/${CW_ID}/timeline`),{ora,txt,done:false,cat});
   document.getElementById('tl-txt').value='';document.getElementById('tl-ora').value='';
 };
 window.toggleTimeline=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{done:!done});};
@@ -2052,12 +2080,19 @@ window.saveTimelineItem=async function(id){
   const txt=document.getElementById('tl-edit-txt-'+id).value.trim();
   const ora=document.getElementById('tl-edit-ora-'+id).value;
   if(!txt||!ora){alert('Orario e evento obbligatori');return;}
+  const catEl=document.getElementById('tl-edit-cat-'+id);
+  const cat=catEl?catEl.value:undefined;
   tlEditingId=null;
-  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{ora,txt});
+  const upd={ora,txt};if(cat!==undefined)upd.cat=cat;
+  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),upd);
 };
 
 function renderTimeline(){
-  const entries=Object.entries(timeline).sort((a,b)=>a[1].ora.localeCompare(b[1].ora));
+  const cats=['Generale','Chiesa','Musica','Fiori','Sposa','Sposo','Foto/Video','Catering'];
+  const filterEl=document.getElementById('tl-cat-filter');
+  const filter=filterEl?filterEl.value:'__all__';
+  let entries=Object.entries(timeline).sort((a,b)=>(a[1].ora||'').localeCompare(b[1].ora||''));
+  if(filter!=='__all__')entries=entries.filter(([,it])=>(it.cat||'Generale')===filter);
   const list=document.getElementById('timeline-list');
   list.innerHTML='';
   document.getElementById('empty-timeline').style.display=entries.length===0?'block':'none';
@@ -2065,17 +2100,21 @@ function renderTimeline(){
     const div=document.createElement('div');
     div.className='tl-item'+(item.done?' done':'')+(tlEditingId===id?' editing':'');
     const safeTxt=(item.txt||'').replace(/"/g,'&quot;');
+    const itemCat=item.cat||'Generale';
+    const catBadge=(filter==='__all__')?`<span class="tl-cat-badge">${itemCat}</span>`:'';
     div.innerHTML=`
       <div class="tl-dot"></div>
       <div class="tl-time" onclick="editTimelineItem('${id}')">${item.ora}</div>
       <div style="display:flex;align-items:center;gap:8px">
         <input type="checkbox" ${item.done?'checked':''} onchange="toggleTimeline('${id}',${item.done})" style="accent-color:var(--gold);width:14px;height:14px">
         <div class="tl-text" onclick="editTimelineItem('${id}')" title="Clicca per modificare">${item.txt}</div>
+        ${catBadge}
         <button class="btn-icon" onclick="deleteTimelineItem('${id}')" style="margin-left:auto">✕</button>
       </div>
       ${tlEditingId===id?`<div class="tl-edit-row">
         <input type="time" id="tl-edit-ora-${id}" value="${item.ora||''}">
         <input type="text" id="tl-edit-txt-${id}" value="${safeTxt}" onkeydown="if(event.key==='Enter')saveTimelineItem('${id}');if(event.key==='Escape')cancelTimelineEdit()">
+        <select id="tl-edit-cat-${id}">${cats.map(c=>`<option value="${c}" ${itemCat===c?'selected':''}>${c}</option>`).join('')}</select>
         <button class="tl-save" onclick="saveTimelineItem('${id}')">✓</button>
         <button class="tl-cancel" onclick="cancelTimelineEdit()">✕</button>
       </div>`:''}`;
@@ -2194,26 +2233,36 @@ function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=doc
 
 // ── TIMELINE EXPORTS ──
 function timelineSorted(){
-  return Object.values(timeline).sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
+  const filterEl=document.getElementById('tl-cat-filter');
+  const filter=filterEl?filterEl.value:'__all__';
+  let arr=Object.values(timeline);
+  if(filter!=='__all__')arr=arr.filter(it=>(it.cat||'Generale')===filter);
+  return arr.sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
+}
+// Etichetta della timeline attualmente filtrata (per intestazioni export)
+function timelineActiveCat(){
+  const filterEl=document.getElementById('tl-cat-filter');
+  const f=filterEl?filterEl.value:'__all__';
+  return f==='__all__'?'Completa':f;
 }
 
 window.exportTimelineCSV=function(){
-  const rows=[['Orario','Evento','Stato']];
-  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',item.done?'Fatto':'Da fare']));
+  const rows=[['Orario','Evento','Categoria','Stato']];
+  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',item.cat||'Generale',item.done?'Fatto':'Da fare']));
   const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}),'timeline.csv');
 };
 
 window.exportTimelineXLS=function(){
-  const headers=['Orario','Evento','Stato'];
-  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Stato':item.done?'Fatto':'Da fare'}));
+  const headers=['Orario','Evento','Categoria','Stato'];
+  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Categoria':item.cat||'Generale','Stato':item.done?'Fatto':'Da fare'}));
   const ws=XLSX.utils.json_to_sheet(rows,{header:headers});
   const range=XLSX.utils.decode_range(ws['!ref']);
   for(let c=range.s.c;c<=range.e.c;c++){
     const cell=ws[XLSX.utils.encode_cell({r:0,c:c})];
     if(cell){cell.s={font:{bold:true},fill:{fgColor:{rgb:'F7F0D8'}}};}
   }
-  ws['!cols']=[{wch:12},{wch:48},{wch:14}];
+  ws['!cols']=[{wch:12},{wch:48},{wch:16},{wch:14}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Timeline');
   XLSX.writeFile(wb,'timeline.xlsx');
@@ -2224,10 +2273,11 @@ window.exportTimelinePDF=function(){
   const couple=CW_DATA?`${CW_DATA.nome1} & ${CW_DATA.nome2}`:'';
   const date=CW_DATA?formatDate(CW_DATA.data):'';
   const logo='https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png';
+  const showCat=timelineActiveCat()==='Completa';
   const rows=timelineSorted().map(item=>`
       <tr>
         <td style="white-space:nowrap;font-weight:600;color:#b08d57;padding:14px 16px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:15px">${item.ora||'—'}</td>
-        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}</td>
+        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${item.cat||'Generale'}</span>`:''}</td>
       </tr>`).join('');
   w.document.write(`<html><head><title>${couple} — Timeline</title><style>
     body{font-family:Georgia,'Times New Roman',serif;margin:48px;color:#1a1a1a}
@@ -2240,7 +2290,7 @@ window.exportTimelinePDF=function(){
     @media print{body{margin:24px}}
   </style></head><body>
     <div class="head"><img src="${logo}" alt="Gisa"><h1>${couple}</h1><div class="sub">${date}</div></div>
-    <div class="tl-title">Timeline del Giorno</div>
+    <div class="tl-title">Timeline del Giorno${timelineActiveCat()!=='Completa'?' — '+timelineActiveCat():''}</div>
     <table>${rows||'<tr><td style="text-align:center;color:#8a8a8a;padding:24px">Nessun evento</td></tr>'}</table>
   </body></html>`);
   w.document.close();
