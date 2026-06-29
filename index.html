@@ -648,6 +648,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           </div>
           <button class="btn-add" onclick="saveSeatingConfig()" data-t="save_config">Salva config</button>
           <button class="btn-sm" onclick="autoAssign()" data-t="auto_assign">Auto-assegna non assegnati</button>
+          <button class="btn-sm" onclick="exportSeatingChartPDF()" data-t="seating_chart_pdf">Piantina PDF</button>
         </div>
         <div class="unassigned-pool">
           <h4 data-t="unassigned">Non assegnati (<span id="unassigned-count">0</span>)</h4>
@@ -940,7 +941,7 @@ const T={
     private_note:'★ Nota admin',add_btn:'+ Aggiungi',no_guests:'Nessun ospite aggiunto',
     rsvp_waiting:'In attesa',rsvp_yes:'Confermato',rsvp_no:'Assente',
     num_tables:'N° tavoli',seats_per_table:'Posti per tavolo',
-    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',table_sposi:'Tavolo Sposi',table_staff:'Tavolo Staff',
+    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',table_sposi:'Tavolo Sposi',table_staff:'Tavolo Staff',seating_chart_pdf:'Piantina PDF',
     total_budget:'Budget Totale:',expense_item:'Voce di spesa',planned:'Previsto',
     actual:'Effettivo',diff:'Differenza',due_date:'Scadenza',no_budget:'Nessuna voce',
     add_vendor:'Aggiungi Fornitore',category:'Categoria',vendor_name:'Nome',
@@ -980,7 +981,7 @@ const T={
     private_note:'★ Admin note',add_btn:'+ Add',no_guests:'No guests added',
     rsvp_waiting:'Pending',rsvp_yes:'Confirmed',rsvp_no:'Absent',
     num_tables:'N° tables',seats_per_table:'Seats per table',
-    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',table_sposi:'Couple table',table_staff:'Staff table',
+    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',table_sposi:'Couple table',table_staff:'Staff table',seating_chart_pdf:'Layout PDF',
     total_budget:'Total Budget:',expense_item:'Expense',planned:'Planned',
     actual:'Actual',diff:'Difference',due_date:'Due date',no_budget:'No items',
     add_vendor:'Add Vendor',category:'Category',vendor_name:'Name',
@@ -1281,6 +1282,57 @@ function tableLabel(t,lang){
   if(t==='staff')return lang==='en'?'Staff table':'Tavolo Staff';
   return (lang==='en'?'Table ':'Tavolo ')+t;
 }
+
+// Esporta la piantina dei tavoli in PDF (forma + numeri posto). Predisposta per piu forme, per ora solo tondo.
+window.exportSeatingChartPDF=function(){
+  if(!CW_ID)return;
+  const w=CW_DATA||{};
+  const numT=seatingCfg.tables||10;
+  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
+  const showStaff=document.getElementById('seat-staff')?document.getElementById('seat-staff').checked:!!seatingCfg.staff;
+  const so=g=>(typeof g.posto==='number')?g.posto:9999;
+  // Elenco tavoli da disegnare nell'ordine corretto
+  const tableIds=[];
+  if(showSposi)tableIds.push('sposi');
+  if(showStaff)tableIds.push('staff');
+  for(let i=1;i<=numT;i++)tableIds.push(String(i));
+  // Disegna un tavolo tondo come SVG: cerchio centrale + posti numerati attorno
+  function drawTable(tId){
+    const occupanti=Object.entries(guests)
+      .filter(([,g])=>g.tavolo===tId)
+      .sort((a,b)=>so(a[1])-so(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||''));
+    if(!occupanti.length)return '';
+    const label=(tId==='sposi')?'Sposi':(tId==='staff')?'Staff':tId;
+    const n=occupanti.length;
+    const cx=150,cy=150,rTable=70,rSeat=14,rOrbit=rTable+30;
+    // posti in cerchio, partendo dall'alto (ore 12) in senso orario
+    let seats='';
+    occupanti.forEach((o,idx)=>{
+      const ang=(-90+(360/n)*idx)*Math.PI/180;
+      const sx=cx+rOrbit*Math.cos(ang);
+      const sy=cy+rOrbit*Math.sin(ang);
+      seats+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${rSeat}" fill="#fff" stroke="#b08d57" stroke-width="1"/>`
+        +`<text x="${sx.toFixed(1)}" y="${(sy+3.5).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:bold;fill:#1a1a1a">${idx+1}</text>`;
+    });
+    return `<div style="display:inline-block;width:300px;text-align:center;vertical-align:top;margin-bottom:10px;page-break-inside:avoid">
+      <svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="${cx}" cy="${cy}" r="${rTable}" fill="#faf7f2" stroke="#b08d57" stroke-width="1.5"/>
+        <text x="${cx}" y="${cy-4}" text-anchor="middle" style="font-size:15px;font-weight:bold;fill:#1a1a1a">${label==='Sposi'||label==='Staff'?label:'Tavolo '+label}</text>
+        <text x="${cx}" y="${cy+16}" text-anchor="middle" style="font-size:11px;fill:#888">${n} ospiti</text>
+        ${seats}
+      </svg></div>`;
+  }
+  const charts=tableIds.map(drawTable).filter(Boolean).join('');
+  const win=window.open('','_blank');
+  win.document.write(`<html><head><title>Piantina Tavoli — ${w.nome1||''} & ${w.nome2||''}</title></head>
+    <body style="font-family:Arial,sans-serif;padding:24px;color:#1a1a1a;text-align:center">
+      <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:64px"><br>
+      <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin:8px 0 20px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)} · Piantina Tavoli</div>
+      <div>${charts}</div>
+      <script>window.onload=function(){window.print();}<\/script>
+    </body></html>`);
+  win.document.close();
+};
 
 // Esporta la lista cucina in PDF stampabile (per tavolo, ordinata per posto)
 window.exportKitchenPDF=async function(){
