@@ -226,6 +226,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .table-guests{min-height:60px;display:flex;flex-direction:column;gap:4px}
 .guest-chip{background:var(--cream-d);padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;cursor:grab;transition:background .2s}
 .guest-chip:active{cursor:grabbing;background:var(--gold-pale)}
+.guest-chip.chip-drop-target{border-top:3px solid var(--gold);background:var(--gold-pale)}
 .guest-chip-name{flex:1}
 .guest-chip-menu{font-size:10px;color:var(--gray);margin-left:6px}
 .seat-num{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;background:var(--gold);color:#fff;border-radius:50%;font-size:10px;font-weight:600;margin-right:7px;flex-shrink:0}
@@ -1305,15 +1306,38 @@ window.exportSeatingChartPDF=function(){
     const label=(tId==='sposi')?'Sposi':(tId==='staff')?'Staff':tId;
     const n=occupanti.length;
     const cx=150,cy=150,rTable=70,rSeat=14,rOrbit=rTable+30;
-    // posti in cerchio, partendo dall'alto (ore 12) in senso orario
     let seats='';
-    occupanti.forEach((o,idx)=>{
-      const ang=(-90+(360/n)*idx)*Math.PI/180;
-      const sx=cx+rOrbit*Math.cos(ang);
-      const sy=cy+rOrbit*Math.sin(ang);
-      seats+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${rSeat}" fill="#fff" stroke="#b08d57" stroke-width="1"/>`
-        +`<text x="${sx.toFixed(1)}" y="${(sy+3.5).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:bold;fill:#1a1a1a">${idx+1}</text>`;
-    });
+    if(tId==='sposi'&&n>=2){
+      // Sposi (posti 1 e 2) affiancati in alto; gli altri distribuiti sull'arco inferiore
+      const posList=[];
+      // posto 1: leggermente a sinistra del centro-alto; posto 2: a destra
+      const spread=22; // distanza orizzontale tra i due sposi
+      posList.push({x:cx-spread,y:cy-rOrbit});
+      posList.push({x:cx+spread,y:cy-rOrbit});
+      // restanti ospiti lungo l'arco inferiore (da destra-alto a sinistra-alto passando dal basso)
+      const rest=n-2;
+      if(rest>0){
+        const startA=-40, endA=220; // archi in gradi (esclude la zona alta degli sposi)
+        for(let k=0;k<rest;k++){
+          const a=(startA+(endA-startA)*(rest===1?0.5:k/(rest-1)))*Math.PI/180;
+          posList.push({x:cx+rOrbit*Math.cos(a), y:cy-rOrbit*Math.sin(a)});
+        }
+      }
+      occupanti.forEach((o,idx)=>{
+        const p=posList[idx];
+        seats+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${rSeat}" fill="#fff" stroke="#b08d57" stroke-width="1"/>`
+          +`<text x="${p.x.toFixed(1)}" y="${(p.y+3.5).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:bold;fill:#1a1a1a">${idx+1}</text>`;
+      });
+    }else{
+      // posti in cerchio, partendo dall'alto (ore 12) in senso orario
+      occupanti.forEach((o,idx)=>{
+        const ang=(-90+(360/n)*idx)*Math.PI/180;
+        const sx=cx+rOrbit*Math.cos(ang);
+        const sy=cy+rOrbit*Math.sin(ang);
+        seats+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${rSeat}" fill="#fff" stroke="#b08d57" stroke-width="1"/>`
+          +`<text x="${sx.toFixed(1)}" y="${(sy+3.5).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:bold;fill:#1a1a1a">${idx+1}</text>`;
+      });
+    }
     return `<div style="display:inline-block;width:300px;text-align:center;vertical-align:top;margin-bottom:10px;page-break-inside:avoid">
       <svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
         <circle cx="${cx}" cy="${cy}" r="${rTable}" fill="#faf7f2" stroke="#b08d57" stroke-width="1.5"/>
@@ -1732,7 +1756,7 @@ window.renderSeating=function(){
     </div>
     <div class="table-guests" id="tg-${tId}">
       ${tGuests.sort((a,b)=>seatOrder(a[1])-seatOrder(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||'')).map(([gid,g],idx,arr)=>
-        `<div class="guest-chip" draggable="true" data-gid="${gid}" ondragstart="onDragStart(event,'${gid}')">
+        `<div class="guest-chip" draggable="true" data-gid="${gid}" data-table="${tId}" ondragstart="onDragStart(event,'${gid}')" ondragover="onChipDragOver(event)" ondragleave="onChipDragLeave(event)" ondrop="onChipDrop(event,'${gid}','${tId}')">
           <span class="seat-num">${idx+1}</span>
           <span class="guest-chip-name">${g.cognome} ${g.nome}</span>
           <span class="guest-chip-menu badge ${menuBadge(g.menu)}" style="font-size:9px;padding:1px 5px">${(g.menu||'N').substring(0,3)}</span>
@@ -1770,6 +1794,37 @@ window.renderSeating=function(){
 };
 
 window.onDragStart=function(e,gid){dragGuest=gid;e.dataTransfer.setData('text/plain',gid);};
+// Riordino dentro al tavolo per trascinamento (drop di un chip sopra un altro dello stesso tavolo)
+window.onChipDragOver=function(e){
+  const srcT=guests[dragGuest]?guests[dragGuest].tavolo:null;
+  const chip=e.currentTarget;
+  if(srcT && chip.dataset.table===srcT && chip.dataset.gid!==dragGuest){
+    e.preventDefault(); // consente il drop solo se stesso tavolo
+    chip.classList.add('chip-drop-target');
+  }
+};
+window.onChipDragLeave=function(e){e.currentTarget.classList.remove('chip-drop-target');};
+window.onChipDrop=async function(e,targetGid,tId){
+  e.preventDefault();
+  e.stopPropagation(); // evita che parta anche onDropTable della card
+  e.currentTarget.classList.remove('chip-drop-target');
+  const movedGid=dragGuest;
+  if(!movedGid||movedGid===targetGid)return;
+  if(!guests[movedGid]||guests[movedGid].tavolo!==tId)return; // solo stesso tavolo
+  // Ordine corrente del tavolo
+  const ordered=Object.entries(guests)
+    .filter(([,g])=>g.tavolo===tId)
+    .sort((a,b)=>seatOrder(a[1])-seatOrder(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||''))
+    .map(([id])=>id);
+  const from=ordered.indexOf(movedGid);
+  const to=ordered.indexOf(targetGid);
+  if(from<0||to<0)return;
+  ordered.splice(from,1);          // rimuove l'ospite trascinato
+  ordered.splice(to,0,movedGid);   // lo reinserisce nella posizione del target
+  const updates={};
+  ordered.forEach((id,i)=>{updates[`${id}/posto`]=i+1;});
+  await update(ref(db,`matrimoni/${CW_ID}/ospiti`),updates);
+};
 // Sposta un ospite su/giu nell'ordine del proprio tavolo
 window.moveSeat=async function(gid,dir){
   const tId=guests[gid]?guests[gid].tavolo:null;
