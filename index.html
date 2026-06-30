@@ -1248,14 +1248,31 @@ function renderKitchen(gs,lang){
     if(g.allergeni)g.allergeni.split(',').forEach(a=>{const k=a.trim();if(k)allergenCounts[k]=(allergenCounts[k]||0)+1});
   });
   const statsEl=document.getElementById('cucina-stats');
-  const customCounts={};
-  confirmed.forEach(g=>{if(isCustomTable(g.tavolo))customCounts[g.tavolo]=(customCounts[g.tavolo]||0)+1;});
-  let customCells='';
-  Object.entries(customCounts).forEach(([tid,n])=>{customCells+=`<div class="c-stat"><div class="n">${n}</div><div class="l">${window.customTableNames[tid]||tid}</div></div>`;});
-  statsEl.innerHTML=`<div class="c-stat"><div class="n">${confirmed.length}</div><div class="l">${lang==='en'?'Total':'Totale'}</div></div>`
-    +customCells
-    +Object.entries(menuCounts).map(([m,n])=>`<div class="c-stat"><div class="n">${n}</div><div class="l">${m}</div></div>`).join('')
-    +(Object.keys(allergenCounts).length?Object.entries(allergenCounts).map(([a,n])=>`<div class="c-stat"><div class="n">${n}</div><div class="l">${a}</div></div>`).join(''):'');
+  // Dettaglio menu per ciascun tavolo (totale + ripartizione menu)
+  const byTableAll={};
+  confirmed.forEach(g=>{const t=g.tavolo||'—';if(!byTableAll[t])byTableAll[t]=[];byTableAll[t].push(g);});
+  const menuBreakdown=(arr)=>{const c={};arr.forEach(g=>{const m=g.menu||'Normale';c[m]=(c[m]||0)+1;});return Object.entries(c).map(([m,n])=>`${n} ${m.toLowerCase()}`).join(', ');};
+  const tableKeys=Object.keys(byTableAll).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
+  const T=lang==='en'?{menu:'Menu',allerg:'Allergies / Intolerances',tables:'Tables',total:'Total'}:{menu:'Menu',allerg:'Allergie / Intolleranze',tables:'Tavoli',total:'Totale'};
+  const sectionTitle=(txt)=>`<div style="grid-column:1/-1;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin:14px 0 4px;font-weight:600">${txt}</div>`;
+  const stat=(n,l)=>`<div class="c-stat"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  let html=stat(confirmed.length,T.total);
+  // SEZIONE MENU
+  html+=sectionTitle(T.menu);
+  html+=Object.entries(menuCounts).map(([m,n])=>stat(n,m)).join('');
+  // SEZIONE ALLERGIE
+  if(Object.keys(allergenCounts).length){
+    html+=sectionTitle(T.allerg);
+    html+=Object.entries(allergenCounts).map(([a,n])=>stat(n,a)).join('');
+  }
+  // SEZIONE TAVOLI (totale + dettaglio menu per tavolo)
+  html+=sectionTitle(T.tables);
+  html+=tableKeys.map(t=>{
+    const arr=byTableAll[t];
+    const label=(t==='—')?(lang==='en'?'Unassigned':'Non assegnati'):tableLabel(t,lang);
+    return `<div class="c-stat" style="text-align:left"><div class="n" style="font-size:18px">${label}: ${arr.length}</div><div class="l" style="text-transform:none;letter-spacing:0;font-size:11px">${menuBreakdown(arr)}</div></div>`;
+  }).join('');
+  statsEl.innerHTML=html;
 
   // Tables
   const byTable={};
@@ -1302,10 +1319,15 @@ window.customTableNames={};
 function isCustomTable(t){return t==='staff'||(typeof t==='string'&&t.indexOf('ct_')===0);}
 // Normalizza il valore del campo tavolo
 window.normalizeTable=function(v){
-  const s=(v||'').trim().toLowerCase();
+  const raw=(v||'').trim();
+  const s=raw.toLowerCase();
   if(s==='sposi'||s==='sposo'||s==='sposa')return 'sposi';
   if(s==='staff')return 'staff';
-  return (v||'').trim();
+  // Se corrisponde al NOME di un tavolo personalizzato, riconverti nel suo id
+  for(const id in window.customTableNames){
+    if((window.customTableNames[id]||'').trim().toLowerCase()===s)return id;
+  }
+  return raw;
 }
 // Ordina le chiavi tavolo: Sposi, poi tavoli personalizzati, poi numerici, poi non assegnati
 function tableSortKey(t){
@@ -1422,17 +1444,25 @@ window.exportKitchenPDF=async function(){
     ?{title:'Kitchen List',table:'Table',guests:'guests',ln:'Last name',fn:'First name',menu:'Menu',al:'Allergens',no:'Notes',total:'Total',portions:'portions',babies:'babies, no portion'}
     :{title:'Lista Cucina',table:'Tavolo',guests:'ospiti',ln:'Cognome',fn:'Nome',menu:'Menu',al:'Allergeni',no:'Note',total:'Totale',portions:'porzioni',babies:'neonati, no porzione'};
   const cell=(n,label)=>`<div style="border:1px solid #ddd;border-radius:4px;padding:8px 10px;text-align:center;min-width:64px;background:#fff"><div style="font-size:20px;font-weight:bold;color:#1a1a1a">${n}</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-top:2px">${label}</div></div>`;
-  let cells=cell(tot,L.total);
-  const customCounts={};
-  confirmed.forEach(g=>{if(isCustomTable(g.tavolo))customCounts[g.tavolo]=(customCounts[g.tavolo]||0)+1;});
-  Object.entries(customCounts).forEach(([tid,n])=>{cells+=cell(n,window.customTableNames[tid]||tid);});
-  Object.entries(menuCounts).forEach(([m,n])=>{cells+=cell(n,m);});
-  Object.entries(allergenCounts).forEach(([a,n])=>{cells+=cell(n,a);});
-  const babyNote=neonati>0?`<div style="font-size:11px;color:#888;margin-top:10px">${porzioni} ${L.portions} · ${neonati} ${L.babies}</div>`:'';
+  const T=lang==='en'?{menu:'Menu',allerg:'Allergies / Intolerances',tables:'Tables'}:{menu:'Menu',allerg:'Allergie / Intolleranze',tables:'Tavoli'};
+  const secT=(txt)=>`<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;font-weight:bold;margin:14px 0 6px">${txt}</div>`;
+  // ripartizione menu per tavolo
+  const menuBreakdown=(arr)=>{const c={};arr.forEach(g=>{const m=g.menu||'Normale';c[m]=(c[m]||0)+1;});return Object.entries(c).map(([m,n])=>`${n} ${m.toLowerCase()}`).join(', ');};
+  let menuCells=Object.entries(menuCounts).map(([m,n])=>cell(n,m)).join('');
+  let allergCells=Object.entries(allergenCounts).map(([a,n])=>cell(n,a)).join('');
+  let tableCells=sorted.map(t=>{
+    const arr=byTable[t];
+    const label=(t==='—')?(lang==='en'?'Unassigned':'Non assegnati'):tableLabel(t,lang);
+    return `<div style="border:1px solid #ddd;border-radius:4px;padding:8px 10px;min-width:120px;background:#fff"><div style="font-size:14px;font-weight:bold;color:#1a1a1a">${label}: ${arr.length}</div><div style="font-size:10px;color:#888;margin-top:2px">${menuBreakdown(arr)}</div></div>`;
+  }).join('');
+  const babyNote=neonati>0?`<div style="font-size:11px;color:#888;margin-top:8px">${porzioni} ${L.portions} · ${neonati} ${L.babies}</div>`:'';
   const summaryBlock=`
-    <div style="background:#faf7f2;border:1px solid #e5ddd0;border-radius:6px;padding:14px 18px;margin-bottom:26px">
-      <div style="display:flex;flex-wrap:wrap;gap:8px">${cells}</div>
+    <div style="background:#faf7f2;border:1px solid #e5ddd0;border-radius:6px;padding:14px 18px;margin-bottom:26px;text-align:left">
+      <div style="font-size:13px"><strong>${L.total}: ${tot}</strong></div>
+      ${secT(T.menu)}<div style="display:flex;flex-wrap:wrap;gap:8px">${menuCells}</div>
       ${babyNote}
+      ${allergCells?secT(T.allerg)+`<div style="display:flex;flex-wrap:wrap;gap:8px">${allergCells}</div>`:''}
+      ${secT(T.tables)}<div style="display:flex;flex-wrap:wrap;gap:8px">${tableCells}</div>
     </div>`;
   const body=sorted.map(table=>`
     <h2 style="font-family:serif;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin-top:22px">${tableLabel(table,lang)} <span style="font-weight:400;color:#888;font-size:14px">(${byTable[table].length} ${L.guests})</span></h2>
@@ -1757,7 +1787,7 @@ window.renderGuests=function(){
     tr.innerHTML=`
       <td contenteditable="true" onblur="updateGuest('${id}','cognome',this.textContent.trim())">${g.cognome||''}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','nome',this.textContent.trim())">${g.nome||''}</td>
-      <td contenteditable="true" onblur="updateGuest('${id}','tavolo',normalizeTable(this.textContent))">${g.tavolo||''}</td>
+      <td contenteditable="true" onblur="updateGuest('${id}','tavolo',normalizeTable(this.textContent))">${(g.tavolo&&(g.tavolo==='sposi'||isCustomTable(g.tavolo)))?tableLabel(g.tavolo,LANG):(g.tavolo||'')}</td>
       <td><select class="badge ${rsvpB}" onchange="updateGuest('${id}','rsvp',this.value);const m={Confermato:'b-green',Assente:'b-red','In attesa':'b-gray'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
         ${[['In attesa',t('rsvp_waiting')],['Confermato',t('rsvp_yes')],['Assente',t('rsvp_no')]].map(([v,label])=>`<option value="${v}" ${(g.rsvp||'In attesa')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
@@ -1885,7 +1915,7 @@ window.renderSeating=function(){
   if(dl){
     let opts='';
     if(showSposi)opts+='<option value="sposi">Tavolo Sposi</option>';
-    customTables.forEach(ct=>opts+=`<option value="${ct.id}">${ct.nome}</option>`);
+    customTables.forEach(ct=>opts+=`<option value="${ct.nome}">${ct.nome}</option>`);
     for(let i=1;i<=numT;i++)opts+=`<option value="${i}">Tavolo ${i}</option>`;
     dl.innerHTML=opts;
   }
@@ -2395,7 +2425,7 @@ window.openGuestEdit=function(id){
   document.getElementById('edit-guest-id').value=id;
   document.getElementById('eg-nome').value=g.nome||'';
   document.getElementById('eg-cognome').value=g.cognome||'';
-  document.getElementById('eg-tavolo').value=g.tavolo||'';
+  document.getElementById('eg-tavolo').value=(g.tavolo&&(g.tavolo==='sposi'||isCustomTable(g.tavolo)))?tableLabel(g.tavolo,LANG):(g.tavolo||'');
   document.getElementById('eg-tel').value=g.tel||'';
   document.getElementById('eg-email').value=g.email||'';
   document.getElementById('eg-transfer').value=g.transfer||'No';
