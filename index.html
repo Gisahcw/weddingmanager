@@ -1341,6 +1341,12 @@ function tableLabel(t,lang){
   if(isCustomTable(t))return window.customTableNames[t]||(t==='staff'?'Staff':t);
   return (lang==='en'?'Table ':'Tavolo ')+t;
 }
+// Etichetta leggibile del tavolo per export/liste (numero o nome, mai l'id interno)
+window.tavoloLabel=function(t){
+  if(!t)return '';
+  if(t==='sposi'||isCustomTable(t))return tableLabel(t,'it');
+  return t;
+};
 
 // Esporta la piantina dei tavoli in PDF (forma + numeri posto). Predisposta per piu forme, per ora solo tondo.
 window.exportSeatingChartPDF=function(){
@@ -2279,7 +2285,7 @@ window.copyKitchenLink=function(){navigator.clipboard.writeText(window._kitchenU
 
 window.exportGuestsCSV=function(){
   let rows=[['Cognome','Nome','Tavolo','RSVP','Transfer','Menu','Allergeni','Intolleranze','Tel','Email']];
-  Object.values(guests).forEach(function(g){rows.push([g.cognome||'',g.nome||'',g.tavolo||'',g.rsvp||'In attesa',g.transfer||'No',g.menu||'Normale',g.allergeni||'',g.intolleranze||'',g.tel||'',g.email||'']);});
+  Object.values(guests).forEach(function(g){rows.push([g.cognome||'',g.nome||'',window.tavoloLabel(g.tavolo),g.rsvp||'In attesa',g.transfer||'No',g.menu||'Normale',g.allergeni||'',g.intolleranze||'',g.tel||'',g.email||'']);});
   const csv=rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}), 'ospiti.csv');
 };
@@ -2288,7 +2294,7 @@ window.exportGuestsXLS=function(){
   const headers=['Cognome','Nome','Tavolo','RSVP','Transfer','Menu','Allergeni','Intolleranze','Tel','Email','Nota Admin'];
   const rows=Object.values(guests).sort(function(a,b){return (a.cognome||'').localeCompare(b.cognome||'');}).map(function(g){
     return {
-      'Cognome':g.cognome||'','Nome':g.nome||'','Tavolo':g.tavolo||'',
+      'Cognome':g.cognome||'','Nome':g.nome||'','Tavolo':window.tavoloLabel(g.tavolo),
       'RSVP':g.rsvp||'In attesa','Transfer':g.transfer||'No','Menu':g.menu||'Normale',
       'Allergeni':g.allergeni||'','Intolleranze':g.intolleranze||'',
       'Tel':g.tel||'','Email':g.email||'','Nota Admin':g.notaAdmin||''
@@ -2328,7 +2334,7 @@ window.exportGuestsPDF=function(mode){
     const sorted=Object.values(guests).sort((a,b)=>a.cognome.localeCompare(b.cognome));
     body=`<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:12px">
       <tr style="background:#f5f0e8"><th>Cognome</th><th>Nome</th><th>Tavolo</th><th>RSVP</th><th>Menu</th><th>Transfer</th><th>Allergeni</th></tr>
-      ${sorted.map(g=>`<tr><td>${g.cognome}</td><td>${g.nome}</td><td>${g.tavolo||'—'}</td><td>${g.rsvp||'In attesa'}</td><td>${g.menu||'Normale'}</td><td>${g.transfer||'No'}</td><td>${g.allergeni||'—'}</td></tr>`).join('')}
+      ${sorted.map(g=>`<tr><td>${g.cognome}</td><td>${g.nome}</td><td>${window.tavoloLabel(g.tavolo)||'—'}</td><td>${g.rsvp||'In attesa'}</td><td>${g.menu||'Normale'}</td><td>${g.transfer||'No'}</td><td>${g.allergeni||'—'}</td></tr>`).join('')}
     </table>`;
   }
   w.document.write(`<html><head><title>${couple} — Lista Ospiti</title><style>body{font-family:Georgia,serif;margin:30px;color:#1a1a1a}h1{font-size:24px;margin-bottom:4px}h2{font-size:14px;color:#8a8a8a;font-weight:400;margin-bottom:24px}@media print{body{margin:15px}}</style></head><body><h1>${couple}</h1><h2>${date} — ${mode==='tavolo'?'Lista per Tavolo':'Lista Alfabetica'}</h2>${body}</body></html>`);
