@@ -2236,7 +2236,7 @@ window.saveTimelineItem=async function(id){
 };
 
 function tlCat(c){const v=c||'Generale';return v==='Fiori'?'Flower Designer':v;}
-function renderTimeline(){
+window.renderTimeline=function(){
   const cats=['Generale','Chiesa','Musica','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Catering'];
   const filterEl=document.getElementById('tl-cat-filter');
   const filter=filterEl?filterEl.value:'__all__';
