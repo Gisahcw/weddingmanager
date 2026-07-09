@@ -720,8 +720,8 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <thead><tr id="vendors-thead">
             <th data-t="category">Cat.</th><th data-t="vendor_name">Nome</th>
             <th data-t="contact">Contatto</th><th data-t="contract_amount">Importo</th>
-            <th class="admin-only" data-t="deposit_paid">Acconto</th>
-            <th class="admin-only" data-t="due_date">Scadenza</th>
+            <th data-t="deposit_paid">Acconto</th>
+            <th data-t="due_date">Scadenza</th>
             <th data-t="status">Stato</th><th data-t="notes">Note</th><th class="admin-only"></th>
           </tr></thead>
           <tbody id="tbody-fornitori"></tbody>
@@ -747,10 +747,15 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
               <option value="Generale">Generale</option>
               <option value="Chiesa">Chiesa</option>
               <option value="Musica">Musica</option>
-              <option value="Fiori">Fiori</option>
+              <option value="Flower Designer">Flower Designer</option>
+              <option value="Make-up">Make-up</option>
+                <option value="Hair Stylist">Hair Stylist</option>
               <option value="Sposa">Sposa</option>
               <option value="Sposo">Sposo</option>
+              <option value="Auto Sposi">Auto Sposi</option>
               <option value="Foto/Video">Foto/Video</option>
+              <option value="Light Designer">Light Designer</option>
+              <option value="Animazione Bambini">Animazione Bambini</option>
               <option value="Catering">Catering</option>
             </select>
           </div>
@@ -762,10 +767,15 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
                 <option value="Generale">Generale</option>
                 <option value="Chiesa">Chiesa</option>
                 <option value="Musica">Musica</option>
-                <option value="Fiori">Fiori</option>
+                <option value="Flower Designer">Flower Designer</option>
+                <option value="Make-up">Make-up</option>
+                <option value="Hair Stylist">Hair Stylist</option>
                 <option value="Sposa">Sposa</option>
                 <option value="Sposo">Sposo</option>
+                <option value="Auto Sposi">Auto Sposi</option>
                 <option value="Foto/Video">Foto/Video</option>
+                <option value="Light Designer">Light Designer</option>
+                <option value="Animazione Bambini">Animazione Bambini</option>
                 <option value="Catering">Catering</option>
               </select>
             </div>
@@ -893,7 +903,16 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
       <div class="ig"><label data-t="vendor_name">Nome Fornitore</label><input id="ev-nome"></div>
       <div class="ig"><label data-t="contact">Contatto</label><input id="ev-cont" placeholder="tel / email"></div>
       <div class="ig"><label data-t="contract_amount">Importo (€)</label><input type="number" id="ev-imp" placeholder="0"></div>
-      <div class="ig admin-only"><label data-t="deposit_paid">Acconto pagato (€)</label><input type="number" id="ev-acc" placeholder="0"></div>
+      <div class="ig admin-only span2">
+        <label data-t="deposits">Acconti versati</label>
+        <div id="ev-acconti-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="ev-new-acc-importo" placeholder="Importo €" style="width:120px;padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px">
+          <input type="date" id="ev-new-acc-data" style="padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px">
+          <button type="button" class="btn-sm" onclick="addAccontoRow()" data-t="add_deposit">+ Acconto</button>
+          <span id="ev-acconti-tot" style="margin-left:auto;font-size:13px;color:var(--gray)"></span>
+        </div>
+      </div>
       <div class="ig admin-only"><label data-t="due_date">Scadenza saldo</label><input type="date" id="ev-scad"></div>
       <div class="ig"><label data-t="status">Stato</label>
         <select id="ev-stato">
@@ -975,7 +994,7 @@ const T={
     total_budget:'Budget Totale:',expense_item:'Voce di spesa',planned:'Previsto',
     actual:'Effettivo',diff:'Differenza',due_date:'Scadenza',no_budget:'Nessuna voce',
     add_vendor:'Aggiungi Fornitore',category:'Categoria',vendor_name:'Nome',
-    contact:'Contatto',contract_amount:'Importo',deposit_paid:'Acconto',
+    contact:'Contatto',contract_amount:'Importo',deposit_paid:'Acconto',deposits:'Acconti versati',add_deposit:'+ Acconto',
     status:'Stato',notes:'Note',no_vendors:'Nessun fornitore',
     st_contact:'Da contattare',st_confirmed:'Confermato',st_deposit:'Acconto pagato',st_paid:'Saldato',
     timeline_title:'Timeline del Giorno',time:'Orario',event:'Evento',no_timeline:'Nessun evento',
@@ -1015,7 +1034,7 @@ const T={
     total_budget:'Total Budget:',expense_item:'Expense',planned:'Planned',
     actual:'Actual',diff:'Difference',due_date:'Due date',no_budget:'No items',
     add_vendor:'Add Vendor',category:'Category',vendor_name:'Name',
-    contact:'Contact',contract_amount:'Amount',deposit_paid:'Deposit',
+    contact:'Contact',contract_amount:'Amount',deposit_paid:'Deposit',deposits:'Deposits paid',add_deposit:'+ Deposit',
     status:'Status',notes:'Notes',no_vendors:'No vendors',
     st_contact:'To contact',st_confirmed:'Confirmed',st_deposit:'Deposit paid',st_paid:'Paid in full',
     timeline_title:'Day Timeline',time:'Time',event:'Event',no_timeline:'No events',
@@ -2068,11 +2087,12 @@ function renderBudget(){
 window.addVendor=async function(){
   const nome=document.getElementById('f-nome').value.trim();
   if(!nome){alert('Nome obbligatorio');return;}
+  const primoAcc=parseFloat(document.getElementById('f-acc').value)||0;
   const v={
     cat:document.getElementById('f-cat').value,nome,
     contatto:document.getElementById('f-cont').value.trim(),
     importo:parseFloat(document.getElementById('f-imp').value)||0,
-    acconto:parseFloat(document.getElementById('f-acc').value)||0,
+    acconti:primoAcc>0?[{importo:primoAcc,data:''}]:[],
     scadenza:document.getElementById('f-scad').value,
     stato:document.getElementById('f-stato').value,
     note:document.getElementById('f-note').value.trim()
@@ -2084,6 +2104,14 @@ window.deleteVendor=async function(id){if(confirm('Eliminare?'))await remove(ref
 window.updateVendor=async function(id,f,v){await set(ref(db,`matrimoni/${CW_ID}/fornitori/${id}/${f}`),isNaN(v)?v:parseFloat(v)||0);};
 window.updateVendorText=async function(id,f,v){await set(ref(db,`matrimoni/${CW_ID}/fornitori/${id}/${f}`),v);};
 
+// Totale acconti versati: somma la lista 'acconti' + eventuale vecchio campo singolo 'acconto'
+function accontiTotal(v){
+  let tot=0;
+  if(Array.isArray(v.acconti))v.acconti.forEach(a=>{tot+=parseFloat(a.importo)||0;});
+  else if(v.acconto)tot+=parseFloat(v.acconto)||0; // retrocompatibilita
+  return tot;
+}
+
 function renderVendors(){
   const entries=Object.entries(vendors);
   const tbody=document.getElementById('tbody-fornitori');
@@ -2094,26 +2122,33 @@ function renderVendors(){
       'Da contattare':'b-gray','Confermato':'b-green',
       'Acconto pagato':'b-gold','Saldato':'b-teal'
     }[v.stato]||'b-gray';
-    const saldo=v.importo&&v.acconto?v.importo-v.acconto:null;
+    const accTot=accontiTotal(v);
+    const saldo=v.importo&&accTot?v.importo-accTot:null;
+    const canEdit=IS_ADMIN;
+    const ce=canEdit?'contenteditable="true"':''; // celle editabili solo per admin
     const tr=document.createElement('tr');
-    tr.style.cursor='pointer';
-    tr.addEventListener('click',(e)=>{
-      if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION'&&e.target.getAttribute('contenteditable')!=='true'){
-        openVendorEdit(id);
-      }
-    });
+    if(canEdit){
+      tr.style.cursor='pointer';
+      tr.addEventListener('click',(e)=>{
+        if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION'&&e.target.getAttribute('contenteditable')!=='true'){
+          openVendorEdit(id);
+        }
+      });
+    }
+    // Stato: modificabile (select) per admin, badge statico per sposi
+    const statoCell=canEdit
+      ?`<td><select class="badge ${sb}" onchange="updateVendorText('${id}','stato',this.value);const m={'Da contattare':'b-gray','Confermato':'b-green','Acconto pagato':'b-gold','Saldato':'b-teal'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">${['Da contattare','Confermato','Acconto pagato','Saldato'].map(s=>`<option ${v.stato===s?'selected':''}>${s}</option>`).join('')}</select></td>`
+      :`<td><span class="badge ${sb}" style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">${v.stato||'Da contattare'}</span></td>`;
     tr.innerHTML=`
       <td><span class="badge b-gray" style="font-size:10px">${v.cat}</span></td>
-      <td contenteditable="true" onblur="updateVendorText('${id}','nome',this.textContent.trim())" style="font-weight:500">${v.nome}</td>
-      <td contenteditable="true" onblur="updateVendorText('${id}','contatto',this.textContent.trim())" style="font-size:12px">${v.contatto||'—'}</td>
+      <td ${ce} onblur="updateVendorText('${id}','nome',this.textContent.trim())" style="font-weight:500">${v.nome}</td>
+      <td ${ce} onblur="updateVendorText('${id}','contatto',this.textContent.trim())" style="font-size:12px">${v.contatto||'—'}</td>
       <td>€ ${(v.importo||0).toLocaleString('it-IT')}</td>
-      <td class="admin-only" style="font-size:12px">${v.acconto?'€ '+v.acconto.toLocaleString('it-IT'):'—'}${saldo?' <span style="color:var(--orange);font-size:11px">(saldo: €'+saldo.toLocaleString('it-IT')+')</span>':''}</td>
-      <td class="admin-only" style="font-size:12px;color:${v.scadenza&&new Date(v.scadenza)-new Date()<15*86400000?'var(--red)':'inherit'}">${v.scadenza||'—'}</td>
-      <td><select class="badge ${sb}" onchange="updateVendorText('${id}','stato',this.value);const m={'Da contattare':'b-gray','Confermato':'b-green','Acconto pagato':'b-gold','Saldato':'b-teal'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
-        ${['Da contattare','Confermato','Acconto pagato','Saldato'].map(s=>`<option ${v.stato===s?'selected':''}>${s}</option>`).join('')}
-      </select></td>
-      <td contenteditable="true" onblur="updateVendorText('${id}','note',this.textContent.trim())" style="font-size:12px;min-width:80px">${v.note||''}</td>
-      <td><button class="btn-icon" onclick="deleteVendor('${id}')">✕</button></td>`;
+      <td style="font-size:12px">${accTot?'€ '+accTot.toLocaleString('it-IT'):'—'}${saldo?' <span style="color:var(--orange);font-size:11px">(saldo: €'+saldo.toLocaleString('it-IT')+')</span>':''}</td>
+      <td style="font-size:12px;color:${v.scadenza&&new Date(v.scadenza)-new Date()<15*86400000?'var(--red)':'inherit'}">${v.scadenza||'—'}</td>
+      ${statoCell}
+      <td ${ce} onblur="updateVendorText('${id}','note',this.textContent.trim())" style="font-size:12px;min-width:80px">${v.note||''}</td>
+      <td class="admin-only"><button class="btn-icon" onclick="deleteVendor('${id}')">✕</button></td>`;
     tbody.appendChild(tr);
   });
   if(!IS_ADMIN)document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');
@@ -2200,12 +2235,13 @@ window.saveTimelineItem=async function(id){
   await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),upd);
 };
 
+function tlCat(c){const v=c||'Generale';return v==='Fiori'?'Flower Designer':v;}
 function renderTimeline(){
-  const cats=['Generale','Chiesa','Musica','Fiori','Sposa','Sposo','Foto/Video','Catering'];
+  const cats=['Generale','Chiesa','Musica','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Catering'];
   const filterEl=document.getElementById('tl-cat-filter');
   const filter=filterEl?filterEl.value:'__all__';
   let entries=Object.entries(timeline).sort((a,b)=>(a[1].ora||'').localeCompare(b[1].ora||''));
-  if(filter!=='__all__')entries=entries.filter(([,it])=>(it.cat||'Generale')===filter);
+  if(filter!=='__all__')entries=entries.filter(([,it])=>tlCat(it.cat)===filter);
   const list=document.getElementById('timeline-list');
   list.innerHTML='';
   document.getElementById('empty-timeline').style.display=entries.length===0?'block':'none';
@@ -2213,7 +2249,7 @@ function renderTimeline(){
     const div=document.createElement('div');
     div.className='tl-item'+(item.done?' done':'')+(tlEditingId===id?' editing':'');
     const safeTxt=(item.txt||'').replace(/"/g,'&quot;');
-    const itemCat=item.cat||'Generale';
+    const itemCat=tlCat(item.cat);
     const catBadge=(filter==='__all__')?`<span class="tl-cat-badge">${itemCat}</span>`:'';
     div.innerHTML=`
       <div class="tl-dot"></div>
@@ -2349,7 +2385,7 @@ function timelineSorted(){
   const filterEl=document.getElementById('tl-cat-filter');
   const filter=filterEl?filterEl.value:'__all__';
   let arr=Object.values(timeline);
-  if(filter!=='__all__')arr=arr.filter(it=>(it.cat||'Generale')===filter);
+  if(filter!=='__all__')arr=arr.filter(it=>tlCat(it.cat)===filter);
   return arr.sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
 }
 // Etichetta della timeline attualmente filtrata (per intestazioni export)
@@ -2361,14 +2397,14 @@ function timelineActiveCat(){
 
 window.exportTimelineCSV=function(){
   const rows=[['Orario','Evento','Categoria','Stato']];
-  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',item.cat||'Generale',item.done?'Fatto':'Da fare']));
+  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',tlCat(item.cat),item.done?'Fatto':'Da fare']));
   const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}),'timeline.csv');
 };
 
 window.exportTimelineXLS=function(){
   const headers=['Orario','Evento','Categoria','Stato'];
-  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Categoria':item.cat||'Generale','Stato':item.done?'Fatto':'Da fare'}));
+  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Categoria':tlCat(item.cat),'Stato':item.done?'Fatto':'Da fare'}));
   const ws=XLSX.utils.json_to_sheet(rows,{header:headers});
   const range=XLSX.utils.decode_range(ws['!ref']);
   for(let c=range.s.c;c<=range.e.c;c++){
@@ -2390,7 +2426,7 @@ window.exportTimelinePDF=function(){
   const rows=timelineSorted().map(item=>`
       <tr>
         <td style="white-space:nowrap;font-weight:600;color:#b08d57;padding:14px 16px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:15px">${item.ora||'—'}</td>
-        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${item.cat||'Generale'}</span>`:''}</td>
+        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${tlCat(item.cat)}</span>`:''}</td>
       </tr>`).join('');
   w.document.write(`<html><head><title>${couple} — Timeline</title><style>
     body{font-family:Georgia,'Times New Roman',serif;margin:48px;color:#1a1a1a}
@@ -2482,6 +2518,7 @@ window.saveGuestEdit=async function(){
 };
 
 // ── EDIT VENDOR MODAL ──
+let evAcconti=[]; // stato temporaneo della lista acconti in modifica
 window.openVendorEdit=function(id){
   const v=vendors[id];
   if(!v)return;
@@ -2490,13 +2527,43 @@ window.openVendorEdit=function(id){
   document.getElementById('ev-nome').value=v.nome||'';
   document.getElementById('ev-cont').value=v.contatto||'';
   document.getElementById('ev-imp').value=v.importo||'';
-  document.getElementById('ev-acc').value=v.acconto||'';
   document.getElementById('ev-scad').value=v.scadenza||'';
   document.getElementById('ev-stato').value=v.stato||'Da contattare';
   document.getElementById('ev-note').value=v.note||'';
+  // Carica gli acconti: usa l'array se presente, altrimenti migra il vecchio campo singolo
+  if(Array.isArray(v.acconti))evAcconti=v.acconti.map(a=>({importo:parseFloat(a.importo)||0,data:a.data||''}));
+  else if(v.acconto)evAcconti=[{importo:parseFloat(v.acconto)||0,data:''}];
+  else evAcconti=[];
+  renderAccontiEditor();
   document.getElementById('edit-vendor-err').textContent='';
   document.getElementById('modal-vendor').classList.add('active');
 };
+
+function renderAccontiEditor(){
+  const list=document.getElementById('ev-acconti-list');
+  if(!list)return;
+  if(!evAcconti.length){list.innerHTML='<div style="font-size:12px;color:var(--gray)">Nessun acconto registrato</div>';}
+  else{
+    list.innerHTML=evAcconti.map((a,i)=>`<div style="display:flex;align-items:center;gap:10px;font-size:13px;background:var(--cream-d);padding:5px 10px;border-radius:4px">
+      <span style="font-weight:600">€ ${(a.importo||0).toLocaleString('it-IT')}</span>
+      <span style="color:var(--gray)">${a.data||'senza data'}</span>
+      <button type="button" onclick="removeAccontoRow(${i})" style="margin-left:auto;border:none;background:none;color:var(--gray);cursor:pointer;font-size:14px">✕</button>
+    </div>`).join('');
+  }
+  const tot=evAcconti.reduce((s,a)=>s+(parseFloat(a.importo)||0),0);
+  document.getElementById('ev-acconti-tot').textContent='Totale versato: € '+tot.toLocaleString('it-IT');
+}
+
+window.addAccontoRow=function(){
+  const imp=parseFloat(document.getElementById('ev-new-acc-importo').value)||0;
+  const data=document.getElementById('ev-new-acc-data').value;
+  if(imp<=0){alert('Inserisci un importo valido');return;}
+  evAcconti.push({importo:imp,data});
+  document.getElementById('ev-new-acc-importo').value='';
+  document.getElementById('ev-new-acc-data').value='';
+  renderAccontiEditor();
+};
+window.removeAccontoRow=function(i){evAcconti.splice(i,1);renderAccontiEditor();};
 
 window.saveVendorEdit=async function(){
   const id=document.getElementById('edit-vendor-id').value;
@@ -2507,7 +2574,8 @@ window.saveVendorEdit=async function(){
     nome,
     contatto:document.getElementById('ev-cont').value.trim(),
     importo:parseFloat(document.getElementById('ev-imp').value)||0,
-    acconto:parseFloat(document.getElementById('ev-acc').value)||0,
+    acconti:evAcconti,
+    acconto:null, // rimuove il vecchio campo singolo dopo la migrazione
     scadenza:document.getElementById('ev-scad').value||'',
     stato:document.getElementById('ev-stato').value,
     note:document.getElementById('ev-note').value.trim()
