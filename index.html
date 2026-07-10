@@ -1654,6 +1654,8 @@ function loadWedding(wid,w){
     (seatingCfg.customTables||[]).forEach(t=>{window.customTableNames[t.id]=t.nome;});
     renderCustomTableChips();
     renderSeating();
+    // La lista ospiti mostra i nomi dei tavoli: ridisegnala ora che la mappa nomi e pronta
+    if(typeof renderGuests==='function')renderGuests();
   });
   LS=[L1,L2,L3,L4,L5,L6];
   showView('dashboard');
