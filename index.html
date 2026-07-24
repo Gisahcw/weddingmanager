@@ -235,6 +235,10 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .seat-arrow:hover:not(:disabled){color:var(--gold);background:var(--gold-pale)}
 .seat-arrow:disabled{opacity:.25;cursor:default}
 .unassigned-pool{background:white;border:1px solid var(--gray-l);padding:16px;margin-bottom:20px}
+/* ── PIANTINA LOCATION ── */
+.piantina-marker{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid var(--gold);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);user-select:none;touch-action:none;white-space:nowrap}
+.piantina-marker .pm-label{font-size:11px;font-weight:600;color:var(--black);letter-spacing:.5px}
+.piantina-marker .pm-count{font-size:10px;background:var(--gold);color:#fff;border-radius:10px;padding:1px 6px;font-weight:600}
 .unassigned-pool h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;margin-bottom:10px}
 .pool-guests{display:flex;flex-wrap:wrap;gap:6px;min-height:40px;padding:8px;background:var(--cream-d)}
 .pool-guests.drag-over{background:var(--gold-pale)}
@@ -659,6 +663,28 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <div class="pool-guests" id="pool-guests" ondragover="onDragOverPool(event)" ondrop="onDropPool(event)"></div>
         </div>
         <div class="seating-area" id="seating-area"></div>
+
+        <!-- PIANTINA LOCATION -->
+        <div class="piantina-section" style="margin-top:32px;border-top:1px solid var(--gray-l);padding-top:24px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+            <h4 data-t="floorplan" style="margin:0;font-family:'Playfair Display',serif;font-size:17px;font-weight:400">Piantina della Location</h4>
+            <div class="admin-only" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input id="piantina-url" placeholder="Incolla il link dell'immagine (.jpg/.png)" style="width:280px;padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:12px">
+              <button class="btn-sm" onclick="savePiantinaUrl()" data-t="load_floorplan">Carica</button>
+              <button class="btn-sm" onclick="removePiantina()" data-t="remove_floorplan">Rimuovi</button>
+            </div>
+          </div>
+          <div class="admin-only" id="piantina-hint" style="font-size:12px;color:var(--gray);margin-bottom:12px">
+            Trascina i tavoli sulla piantina per posizionarli come nella sala reale.
+          </div>
+          <div id="piantina-wrap" style="position:relative;display:inline-block;max-width:100%;border:1px solid var(--gray-l);border-radius:6px;overflow:hidden;background:var(--cream-d)">
+            <img id="piantina-img" src="" alt="Piantina location" style="display:block;max-width:100%;height:auto">
+            <div id="piantina-markers" style="position:absolute;inset:0"></div>
+          </div>
+          <div id="piantina-empty" style="padding:30px;text-align:center;color:var(--gray);font-size:13px;background:var(--cream-d);border-radius:6px">
+            Nessuna piantina caricata.
+          </div>
+        </div>
       </div>
 
       <!-- BUDGET (admin only) -->
@@ -990,7 +1016,7 @@ const T={
     private_note:'★ Nota admin',add_btn:'+ Aggiungi',no_guests:'Nessun ospite aggiunto',
     rsvp_waiting:'In attesa',rsvp_yes:'Confermato',rsvp_no:'Assente',
     num_tables:'N° tavoli',seats_per_table:'Posti per tavolo',
-    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',table_sposi:'Tavolo Sposi',table_staff:'Tavolo Staff',seating_chart_pdf:'Piantina PDF',custom_tables:'Tavoli personalizzati',add_custom_table:'+ Aggiungi',
+    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',table_sposi:'Tavolo Sposi',table_staff:'Tavolo Staff',seating_chart_pdf:'Piantina PDF',custom_tables:'Tavoli personalizzati',add_custom_table:'+ Aggiungi',floorplan:'Piantina della Location',load_floorplan:'Carica',remove_floorplan:'Rimuovi',
     total_budget:'Budget Totale:',expense_item:'Voce di spesa',planned:'Previsto',
     actual:'Effettivo',diff:'Differenza',due_date:'Scadenza',no_budget:'Nessuna voce',
     add_vendor:'Aggiungi Fornitore',category:'Categoria',vendor_name:'Nome',
@@ -1030,7 +1056,7 @@ const T={
     private_note:'★ Admin note',add_btn:'+ Add',no_guests:'No guests added',
     rsvp_waiting:'Pending',rsvp_yes:'Confirmed',rsvp_no:'Absent',
     num_tables:'N° tables',seats_per_table:'Seats per table',
-    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',table_sposi:'Couple table',table_staff:'Staff table',seating_chart_pdf:'Layout PDF',custom_tables:'Custom tables',add_custom_table:'+ Add',
+    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',table_sposi:'Couple table',table_staff:'Staff table',seating_chart_pdf:'Layout PDF',custom_tables:'Custom tables',add_custom_table:'+ Add',floorplan:'Venue Floor Plan',load_floorplan:'Load',remove_floorplan:'Remove',
     total_budget:'Total Budget:',expense_item:'Expense',planned:'Planned',
     actual:'Actual',diff:'Difference',due_date:'Due date',no_budget:'No items',
     add_vendor:'Add Vendor',category:'Category',vendor_name:'Name',
@@ -1890,6 +1916,123 @@ function renderCustomTableChips(){
   wrap.innerHTML=list.map(t=>`<span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--gold);border-radius:14px;padding:3px 10px;font-size:12px">${t.nome}<button onclick="removeCustomTable('${t.id}')" style="border:none;background:none;color:var(--gray);cursor:pointer;font-size:13px;padding:0;line-height:1">✕</button></span>`).join('');
 }
 
+// ── PIANTINA LOCATION ──
+window.savePiantinaUrl=async function(){
+  const url=(document.getElementById('piantina-url').value||'').trim();
+  if(!url){alert('Incolla il link di un\'immagine');return;}
+  seatingCfg.piantina=url;
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicPiantina();
+  renderPiantina();
+};
+window.removePiantina=async function(){
+  if(!confirm('Rimuovere la piantina? Le posizioni dei tavoli andranno perse.'))return;
+  delete seatingCfg.piantina;
+  seatingCfg.posizioni={};
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicPiantina();
+  renderPiantina();
+};
+// Sincronizza piantina e posizioni nel nodo pubblico (per la vista sposi)
+async function syncPublicPiantina(){
+  await set(ref(db,`matrimoni/${CW_ID}/pubblico/piantina`),{
+    url:seatingCfg.piantina||'',
+    posizioni:seatingCfg.posizioni||{}
+  });
+}
+// Salva la posizione (in %) di un tavolo sulla piantina
+async function savePiantinaPos(tId,xPct,yPct){
+  if(!seatingCfg.posizioni)seatingCfg.posizioni={};
+  seatingCfg.posizioni[tId]={x:Math.round(xPct*10)/10,y:Math.round(yPct*10)/10};
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicPiantina();
+}
+
+window.renderPiantina=function(){
+  const wrap=document.getElementById('piantina-wrap');
+  const empty=document.getElementById('piantina-empty');
+  const img=document.getElementById('piantina-img');
+  const markers=document.getElementById('piantina-markers');
+  const hint=document.getElementById('piantina-hint');
+  if(!wrap)return;
+  const url=seatingCfg.piantina||'';
+  const urlInput=document.getElementById('piantina-url');
+  if(urlInput&&document.activeElement!==urlInput)urlInput.value=url;
+  if(!url){
+    wrap.style.display='none';empty.style.display='block';
+    if(hint)hint.style.display='none';
+    return;
+  }
+  wrap.style.display='inline-block';empty.style.display='none';
+  if(hint)hint.style.display=IS_ADMIN?'block':'none';
+  if(img.getAttribute('src')!==url)img.src=url;
+  // Elenco tavoli con almeno un ospite, come nella griglia
+  const numT=seatingCfg.tables||10;
+  const showSposi=!!seatingCfg.sposi;
+  const customTables=seatingCfg.customTables||[];
+  const ids=[];
+  if(showSposi)ids.push('sposi');
+  customTables.forEach(ct=>ids.push(ct.id));
+  for(let i=1;i<=numT;i++)ids.push(String(i));
+  const pos=seatingCfg.posizioni||{};
+  markers.innerHTML='';
+  ids.forEach((tId,idx)=>{
+    const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
+    if(count===0)return; // mostra solo i tavoli occupati
+    const p=pos[tId]||{x:5+(idx%10)*9, y:6+Math.floor(idx/10)*12}; // posizione iniziale a griglia
+    const label=(tId==='sposi')?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):tId;
+    const m=document.createElement('div');
+    m.className='piantina-marker';
+    m.dataset.tid=tId;
+    m.style.left=p.x+'%';
+    m.style.top=p.y+'%';
+    m.title=label+' — '+count+' ospiti';
+    m.innerHTML=`<span class="pm-label">${label}</span><span class="pm-count">${count}</span>`;
+    if(IS_ADMIN){
+      m.style.cursor='grab';
+      m.addEventListener('pointerdown',startMarkerDrag);
+    }
+    markers.appendChild(m);
+  });
+};
+
+// Trascinamento marker sulla piantina (solo admin)
+let dragMarker=null;
+function startMarkerDrag(e){
+  if(!IS_ADMIN)return;
+  e.preventDefault();
+  dragMarker=e.currentTarget;
+  dragMarker.style.cursor='grabbing';
+  dragMarker.setPointerCapture(e.pointerId);
+  dragMarker.addEventListener('pointermove',onMarkerDrag);
+  dragMarker.addEventListener('pointerup',endMarkerDrag,{once:true});
+}
+function onMarkerDrag(e){
+  if(!dragMarker)return;
+  const wrap=document.getElementById('piantina-wrap');
+  const r=wrap.getBoundingClientRect();
+  let x=((e.clientX-r.left)/r.width)*100;
+  let y=((e.clientY-r.top)/r.height)*100;
+  x=Math.max(0,Math.min(100,x));
+  y=Math.max(0,Math.min(100,y));
+  dragMarker.style.left=x+'%';
+  dragMarker.style.top=y+'%';
+}
+async function endMarkerDrag(e){
+  if(!dragMarker)return;
+  const m=dragMarker;
+  m.removeEventListener('pointermove',onMarkerDrag);
+  m.style.cursor='grab';
+  dragMarker=null;
+  const wrap=document.getElementById('piantina-wrap');
+  const r=wrap.getBoundingClientRect();
+  let x=((e.clientX-r.left)/r.width)*100;
+  let y=((e.clientY-r.top)/r.height)*100;
+  x=Math.max(0,Math.min(100,x));
+  y=Math.max(0,Math.min(100,y));
+  await savePiantinaPos(m.dataset.tid,x,y);
+}
+
 window.renderSeating=function(){
   const area=document.getElementById('seating-area');
   const pool=document.getElementById('pool-guests');
@@ -1952,6 +2095,7 @@ window.renderSeating=function(){
       <span class="guest-chip-name">${g.cognome} ${g.nome}</span>
       <span class="guest-chip-menu" style="font-size:10px;color:var(--gray)">${g.menu||''}</span>
     </div>`).join('');
+  renderPiantina();
 };
 
 window.onDragStart=function(e,gid){dragGuest=gid;e.dataTransfer.setData('text/plain',gid);};
