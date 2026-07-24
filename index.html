@@ -236,6 +236,9 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .seat-arrow:disabled{opacity:.25;cursor:default}
 .unassigned-pool{background:white;border:1px solid var(--gray-l);padding:16px;margin-bottom:20px}
 /* ── PIANTINA LOCATION ── */
+.pt-btn{background:none;border:1px solid var(--gray-l);color:var(--gray);padding:6px 16px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.pt-btn:hover{border-color:var(--gold);color:var(--gold)}
+.pt-btn.active{background:var(--gold);border-color:var(--gold);color:#fff}
 .piantina-marker{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid var(--gold);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);user-select:none;touch-action:none;white-space:nowrap}
 .piantina-marker .pm-label{font-size:11px;font-weight:600;color:var(--black);letter-spacing:.5px}
 .piantina-marker .pm-count{font-size:10px;background:var(--gold);color:#fff;border-radius:10px;padding:1px 6px;font-weight:600}
@@ -668,11 +671,18 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
         <div class="piantina-section" style="margin-top:32px;border-top:1px solid var(--gray-l);padding-top:24px">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
             <h4 data-t="floorplan" style="margin:0;font-family:'Playfair Display',serif;font-size:17px;font-weight:400">Piantina della Location</h4>
-            <div class="admin-only" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-              <input id="piantina-url" placeholder="Incolla il link dell'immagine (.jpg/.png)" style="width:280px;padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:12px">
-              <button class="btn-sm" onclick="savePiantinaUrl()" data-t="load_floorplan">Carica</button>
-              <button class="btn-sm" onclick="removePiantina()" data-t="remove_floorplan">Rimuovi</button>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <span class="admin-only" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <input id="piantina-url" placeholder="Incolla il link dell'immagine (.jpg/.png)" style="width:280px;padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:12px">
+                <button class="btn-sm" onclick="savePiantinaUrl()" data-t="load_floorplan">Carica</button>
+                <button class="btn-sm" onclick="removePiantina()" data-t="remove_floorplan">Rimuovi</button>
+              </span>
+              <button class="btn-sm" id="piantina-export-btn" onclick="exportPiantinaPDF()" data-t="export_floorplan">⤓ PDF</button>
             </div>
+          </div>
+          <div class="piantina-tabs" style="display:flex;gap:8px;margin-bottom:14px">
+            <button class="pt-btn active" id="pt-principale" onclick="switchPiantinaScenario('principale')" data-t="scenario_main">Principale</button>
+            <button class="pt-btn" id="pt-planB" onclick="switchPiantinaScenario('planB')" data-t="scenario_b">Piano B</button>
           </div>
           <div class="admin-only" id="piantina-hint" style="font-size:12px;color:var(--gray);margin-bottom:12px">
             Trascina i tavoli sulla piantina per posizionarli come nella sala reale.
@@ -1019,7 +1029,7 @@ const T={
     private_note:'★ Nota admin',add_btn:'+ Aggiungi',no_guests:'Nessun ospite aggiunto',
     rsvp_waiting:'In attesa',rsvp_yes:'Confermato',rsvp_no:'Assente',
     num_tables:'N° tavoli',seats_per_table:'Posti per tavolo',
-    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',table_sposi:'Tavolo Sposi',table_staff:'Tavolo Staff',seating_chart_pdf:'Piantina PDF',custom_tables:'Tavoli personalizzati',add_custom_table:'+ Aggiungi',floorplan:'Piantina della Location',load_floorplan:'Carica',remove_floorplan:'Rimuovi',
+    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',table_sposi:'Tavolo Sposi',table_staff:'Tavolo Staff',seating_chart_pdf:'Piantina PDF',custom_tables:'Tavoli personalizzati',add_custom_table:'+ Aggiungi',floorplan:'Piantina della Location',load_floorplan:'Carica',remove_floorplan:'Rimuovi',export_floorplan:'⤓ PDF',scenario_main:'Principale',scenario_b:'Piano B',
     total_budget:'Budget Totale:',expense_item:'Voce di spesa',planned:'Previsto',
     actual:'Effettivo',diff:'Differenza',due_date:'Scadenza',no_budget:'Nessuna voce',
     add_vendor:'Aggiungi Fornitore',category:'Categoria',vendor_name:'Nome',
@@ -1059,7 +1069,7 @@ const T={
     private_note:'★ Admin note',add_btn:'+ Add',no_guests:'No guests added',
     rsvp_waiting:'Pending',rsvp_yes:'Confirmed',rsvp_no:'Absent',
     num_tables:'N° tables',seats_per_table:'Seats per table',
-    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',table_sposi:'Couple table',table_staff:'Staff table',seating_chart_pdf:'Layout PDF',custom_tables:'Custom tables',add_custom_table:'+ Add',floorplan:'Venue Floor Plan',load_floorplan:'Load',remove_floorplan:'Remove',
+    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',table_sposi:'Couple table',table_staff:'Staff table',seating_chart_pdf:'Layout PDF',custom_tables:'Custom tables',add_custom_table:'+ Add',floorplan:'Venue Floor Plan',load_floorplan:'Load',remove_floorplan:'Remove',export_floorplan:'⤓ PDF',scenario_main:'Principale',scenario_b:'Piano B',
     total_budget:'Total Budget:',expense_item:'Expense',planned:'Planned',
     actual:'Actual',diff:'Difference',due_date:'Due date',no_budget:'No items',
     add_vendor:'Add Vendor',category:'Category',vendor_name:'Name',
@@ -1681,6 +1691,7 @@ function loadWedding(wid,w){
     }
     window.customTableNames={};
     (seatingCfg.customTables||[]).forEach(t=>{window.customTableNames[t.id]=t.nome;});
+    ensurePiantine(); // migra la vecchia piantina singola nel formato a scenari
     renderCustomTableChips();
     renderSeating();
     // La lista ospiti mostra i nomi dei tavoli: ridisegnala ora che la mappa nomi e pronta
@@ -1936,37 +1947,105 @@ function normalizePiantinaUrl(url){
   if(u.includes('dropbox.com'))return u.replace(/\?dl=0/,'?raw=1').replace(/\?dl=1/,'?raw=1');
   return u;
 }
+// Scenario piantina attualmente visualizzato ('principale' | 'planB')
+let piantinaScenario='principale';
+// Migra la vecchia struttura a singola piantina nel nuovo formato a scenari
+function ensurePiantine(){
+  if(!seatingCfg.piantine){
+    seatingCfg.piantine={
+      principale:{url:seatingCfg.piantina||'',posizioni:seatingCfg.posizioni||{}},
+      planB:{url:'',posizioni:{}}
+    };
+    delete seatingCfg.piantina;
+    delete seatingCfg.posizioni;
+  }
+  if(!seatingCfg.piantine.principale)seatingCfg.piantine.principale={url:'',posizioni:{}};
+  if(!seatingCfg.piantine.planB)seatingCfg.piantine.planB={url:'',posizioni:{}};
+  return seatingCfg.piantine;
+}
+function currentPiantina(){return ensurePiantine()[piantinaScenario];}
+
+window.switchPiantinaScenario=function(s){
+  piantinaScenario=s;
+  document.getElementById('pt-principale').classList.toggle('active',s==='principale');
+  document.getElementById('pt-planB').classList.toggle('active',s==='planB');
+  renderPiantina();
+};
+
 window.savePiantinaUrl=async function(){
   const raw=(document.getElementById('piantina-url').value||'').trim();
   if(!raw){alert('Incolla il link di un\'immagine');return;}
-  const url=normalizePiantinaUrl(raw);
-  seatingCfg.piantina=url;
+  ensurePiantine();
+  seatingCfg.piantine[piantinaScenario].url=normalizePiantinaUrl(raw);
   await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
   await syncPublicPiantina();
   renderPiantina();
 };
 window.removePiantina=async function(){
-  if(!confirm('Rimuovere la piantina? Le posizioni dei tavoli andranno perse.'))return;
-  delete seatingCfg.piantina;
-  seatingCfg.posizioni={};
+  const nome=piantinaScenario==='planB'?'Piano B':'Principale';
+  if(!confirm('Rimuovere la piantina "'+nome+'"? Le posizioni dei tavoli di questo scenario andranno perse.'))return;
+  ensurePiantine();
+  seatingCfg.piantine[piantinaScenario]={url:'',posizioni:{}};
   await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
   await syncPublicPiantina();
   renderPiantina();
 };
-// Sincronizza piantina e posizioni nel nodo pubblico (per la vista sposi)
+// Sincronizza le piantine nel nodo pubblico (per la vista sposi)
 async function syncPublicPiantina(){
-  await set(ref(db,`matrimoni/${CW_ID}/pubblico/piantina`),{
-    url:seatingCfg.piantina||'',
-    posizioni:seatingCfg.posizioni||{}
-  });
+  ensurePiantine();
+  await set(ref(db,`matrimoni/${CW_ID}/pubblico/piantina`),seatingCfg.piantine);
 }
-// Salva la posizione (in %) di un tavolo sulla piantina
+// Salva la posizione (in %) di un tavolo nello scenario corrente
 async function savePiantinaPos(tId,xPct,yPct){
-  if(!seatingCfg.posizioni)seatingCfg.posizioni={};
-  seatingCfg.posizioni[tId]={x:Math.round(xPct*10)/10,y:Math.round(yPct*10)/10};
+  const p=currentPiantina();
+  if(!p.posizioni)p.posizioni={};
+  p.posizioni[tId]={x:Math.round(xPct*10)/10,y:Math.round(yPct*10)/10};
   await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
   await syncPublicPiantina();
 }
+
+// Esporta la piantina con i marker in PDF stampabile
+window.exportPiantinaPDF=function(){
+  const url=currentPiantina().url||'';
+  if(!url){alert('Nessuna piantina caricata');return;}
+  const w=CW_DATA||{};
+  const numT=seatingCfg.tables||10;
+  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
+  const customTables=seatingCfg.customTables||[];
+  const ids=[];
+  if(showSposi)ids.push('sposi');
+  customTables.forEach(ct=>ids.push(ct.id));
+  for(let i=1;i<=numT;i++)ids.push(String(i));
+  const pos=currentPiantina().posizioni||{};
+  let markers='';
+  ids.forEach((tId,idx)=>{
+    const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
+    if(count===0)return;
+    const p=pos[tId]||{x:5+(idx%10)*9, y:6+Math.floor(idx/10)*12};
+    const label=(tId==='sposi')?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):tId;
+    markers+=`<div style="position:absolute;left:${p.x}%;top:${p.y}%;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid #b08d57;border-radius:20px;padding:3px 9px;display:flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2)">
+      <span style="font-size:11px;font-weight:700;color:#1a1a1a">${label}</span>
+      <span style="font-size:9px;background:#b08d57;color:#fff;border-radius:10px;padding:1px 6px;font-weight:700">${count}</span>
+    </div>`;
+  });
+  const win=window.open('','_blank');
+  win.document.write(`<html><head><title>Piantina — ${w.nome1||''} & ${w.nome2||''}</title>
+    <style>@media print{@page{size:landscape;margin:10mm}}</style></head>
+    <body style="font-family:Arial,sans-serif;padding:20px;color:#1a1a1a;text-align:center;margin:0">
+      <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:56px"><br>
+      <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin:8px 0 16px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)} · Piantina ${piantinaScenario==='planB'?'Piano B':'Principale'}</div>
+      <div style="position:relative;display:inline-block;max-width:100%">
+        <img id="pfimg" src="${url}" style="display:block;max-width:100%;height:auto">
+        ${markers}
+      </div>
+      <script>
+        var im=document.getElementById('pfimg');
+        function go(){setTimeout(function(){window.print();},300);}
+        if(im.complete)go(); else im.onload=go;
+      <\/script>
+    </body></html>`);
+  win.document.close();
+};
 
 window.renderPiantina=function(){
   const wrap=document.getElementById('piantina-wrap');
@@ -1975,7 +2054,9 @@ window.renderPiantina=function(){
   const markers=document.getElementById('piantina-markers');
   const hint=document.getElementById('piantina-hint');
   if(!wrap)return;
-  const url=seatingCfg.piantina||'';
+  const url=currentPiantina().url||'';
+  const exportBtn=document.getElementById('piantina-export-btn');
+  if(exportBtn)exportBtn.style.display=url?'inline-block':'none';
   const urlInput=document.getElementById('piantina-url');
   if(urlInput&&document.activeElement!==urlInput)urlInput.value=url;
   if(!url){
@@ -1995,13 +2076,13 @@ window.renderPiantina=function(){
   }
   // Elenco tavoli con almeno un ospite, come nella griglia
   const numT=seatingCfg.tables||10;
-  const showSposi=!!seatingCfg.sposi;
+  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
   const customTables=seatingCfg.customTables||[];
   const ids=[];
   if(showSposi)ids.push('sposi');
   customTables.forEach(ct=>ids.push(ct.id));
   for(let i=1;i<=numT;i++)ids.push(String(i));
-  const pos=seatingCfg.posizioni||{};
+  const pos=currentPiantina().posizioni||{};
   markers.innerHTML='';
   ids.forEach((tId,idx)=>{
     const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
