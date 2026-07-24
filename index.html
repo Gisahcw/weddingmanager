@@ -677,8 +677,11 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <div class="admin-only" id="piantina-hint" style="font-size:12px;color:var(--gray);margin-bottom:12px">
             Trascina i tavoli sulla piantina per posizionarli come nella sala reale.
           </div>
-          <div id="piantina-wrap" style="position:relative;display:inline-block;max-width:100%;border:1px solid var(--gray-l);border-radius:6px;overflow:hidden;background:var(--cream-d)">
-            <img id="piantina-img" src="" alt="Piantina location" style="display:block;max-width:100%;height:auto">
+          <div id="piantina-wrap" style="position:relative;display:inline-block;max-width:100%;min-width:300px;min-height:220px;border:1px solid var(--gray-l);border-radius:6px;overflow:hidden;background:var(--cream-d)">
+            <img id="piantina-img" alt="Piantina location" style="display:block;max-width:100%;height:auto;min-height:220px">
+            <div id="piantina-error" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:13px;color:var(--gray);background:var(--cream-d)">
+              Immagine non caricata.<br>Verifica che il link punti direttamente al file (non alla pagina di anteprima) e che sia condiviso pubblicamente.
+            </div>
             <div id="piantina-markers" style="position:absolute;inset:0"></div>
           </div>
           <div id="piantina-empty" style="padding:30px;text-align:center;color:var(--gray);font-size:13px;background:var(--cream-d);border-radius:6px">
@@ -1917,9 +1920,26 @@ function renderCustomTableChips(){
 }
 
 // ── PIANTINA LOCATION ──
+window.onPiantinaError=function(){
+  const err=document.getElementById('piantina-error');
+  const markers=document.getElementById('piantina-markers');
+  if(err)err.style.display='flex';
+  if(markers)markers.style.display='none';
+};
+// Converte automaticamente i link di condivisione in link diretti all'immagine
+function normalizePiantinaUrl(url){
+  const u=(url||'').trim();
+  // Google Drive: .../file/d/ID/view -> uc?export=view&id=ID
+  const gd=u.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if(gd)return 'https://drive.google.com/uc?export=view&id='+gd[1];
+  // Dropbox: ?dl=0 -> ?raw=1
+  if(u.includes('dropbox.com'))return u.replace(/\?dl=0/,'?raw=1').replace(/\?dl=1/,'?raw=1');
+  return u;
+}
 window.savePiantinaUrl=async function(){
-  const url=(document.getElementById('piantina-url').value||'').trim();
-  if(!url){alert('Incolla il link di un\'immagine');return;}
+  const raw=(document.getElementById('piantina-url').value||'').trim();
+  if(!raw){alert('Incolla il link di un\'immagine');return;}
+  const url=normalizePiantinaUrl(raw);
   seatingCfg.piantina=url;
   await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
   await syncPublicPiantina();
@@ -1965,7 +1985,14 @@ window.renderPiantina=function(){
   }
   wrap.style.display='inline-block';empty.style.display='none';
   if(hint)hint.style.display=IS_ADMIN?'block':'none';
-  if(img.getAttribute('src')!==url)img.src=url;
+  const errEl=document.getElementById('piantina-error');
+  if(errEl)errEl.style.display='none';
+  markers.style.display='block';
+  if(img.getAttribute('src')!==url){
+    img.onerror=window.onPiantinaError; // agganciato qui: la funzione esiste di sicuro
+    img.onload=function(){if(errEl)errEl.style.display='none';markers.style.display='block';};
+    img.src=url;
+  }
   // Elenco tavoli con almeno un ospite, come nella griglia
   const numT=seatingCfg.tables||10;
   const showSposi=!!seatingCfg.sposi;
