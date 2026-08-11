@@ -240,6 +240,8 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .pt-btn:hover{border-color:var(--gold);color:var(--gold)}
 .pt-btn.active{background:var(--gold);border-color:var(--gold);color:#fff}
 .piantina-marker{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid var(--gold);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);user-select:none;touch-action:none;white-space:nowrap}
+.piantina-marker[data-draggable]{cursor:grab}
+.piantina-marker[data-draggable]:active{cursor:grabbing}
 .piantina-marker .pm-label{font-size:11px;font-weight:600;color:var(--black);letter-spacing:.5px}
 .piantina-marker .pm-count{font-size:10px;background:var(--gold);color:#fff;border-radius:10px;padding:1px 6px;font-weight:600}
 .unassigned-pool h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;margin-bottom:10px}
@@ -1694,6 +1696,7 @@ function loadWedding(wid,w){
     ensurePiantine(); // migra la vecchia piantina singola nel formato a scenari
     renderCustomTableChips();
     renderSeating();
+    renderPiantina(); // aggiorna piantina solo quando cambia la config tavoli
     // La lista ospiti mostra i nomi dei tavoli: ridisegnala ora che la mappa nomi e pronta
     if(typeof renderGuests==='function')renderGuests();
   });
@@ -2084,6 +2087,7 @@ window.renderPiantina=function(){
   for(let i=1;i<=numT;i++)ids.push(String(i));
   const pos=currentPiantina().posizioni||{};
   markers.innerHTML='';
+  if(IS_ADMIN)initPiantinaEvents(); // delegation: un solo listener, non uno per marker
   ids.forEach((tId,idx)=>{
     const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
     if(count===0)return; // mostra solo i tavoli occupati
@@ -2096,20 +2100,27 @@ window.renderPiantina=function(){
     m.style.top=p.y+'%';
     m.title=label+' — '+count+' ospiti';
     m.innerHTML=`<span class="pm-label">${label}</span><span class="pm-count">${count}</span>`;
-    if(IS_ADMIN){
-      m.style.cursor='grab';
-      m.addEventListener('pointerdown',startMarkerDrag);
-    }
+    if(IS_ADMIN)m.dataset.draggable='1';
     markers.appendChild(m);
   });
 };
 
-// Trascinamento marker sulla piantina (solo admin)
+// Trascinamento marker sulla piantina — event delegation (un solo listener sul contenitore)
 let dragMarker=null;
-function startMarkerDrag(e){
-  if(!IS_ADMIN)return;
+function initPiantinaEvents(){
+  const markers=document.getElementById('piantina-markers');
+  if(!markers||markers._delegated)return;
+  markers._delegated=true;
+  markers.addEventListener('pointerdown',function(e){
+    if(!IS_ADMIN)return;
+    const m=e.target.closest('[data-draggable]');
+    if(!m)return;
+    startMarkerDrag(e,m);
+  });
+}
+function startMarkerDrag(e,m){
   e.preventDefault();
-  dragMarker=e.currentTarget;
+  dragMarker=m;
   dragMarker.style.cursor='grabbing';
   dragMarker.setPointerCapture(e.pointerId);
   dragMarker.addEventListener('pointermove',onMarkerDrag);
@@ -2203,7 +2214,7 @@ window.renderSeating=function(){
       <span class="guest-chip-name">${g.cognome} ${g.nome}</span>
       <span class="guest-chip-menu" style="font-size:10px;color:var(--gray)">${g.menu||''}</span>
     </div>`).join('');
-  renderPiantina();
+  // NON chiama renderPiantina qui: si aggiorna solo quando cambia seatingCfg, non gli ospiti
 };
 
 window.onDragStart=function(e,gid){dragGuest=gid;e.dataTransfer.setData('text/plain',gid);};
