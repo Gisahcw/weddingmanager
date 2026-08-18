@@ -264,6 +264,9 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .piantina-marker{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid var(--gold);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);user-select:none;touch-action:none;white-space:nowrap}
 .piantina-marker[data-draggable]{cursor:grab}
 .piantina-marker[data-draggable]:active{cursor:grabbing}
+.piantina-marker.pm-elemento{background:rgba(60,60,80,.88);border-color:#6c7a8d;border-radius:6px}
+.piantina-marker.pm-elemento .pm-label{color:#fff;font-size:10px;letter-spacing:.5px}
+.piantina-marker.pm-elemento .pm-remove{background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:12px;padding:0;margin-left:2px;line-height:1}
 .piantina-marker .pm-label{font-size:11px;font-weight:600;color:var(--black);letter-spacing:.5px}
 .piantina-marker .pm-count{font-size:10px;background:var(--gold);color:#fff;border-radius:10px;padding:1px 6px;font-weight:600}
 .unassigned-pool h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;margin-bottom:10px}
@@ -770,8 +773,14 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
             <button class="pt-btn active" id="pt-principale" onclick="switchPiantinaScenario('principale')" data-t="scenario_main">Principale</button>
             <button class="pt-btn" id="pt-planB" onclick="switchPiantinaScenario('planB')" data-t="scenario_b">Piano B</button>
           </div>
-          <div class="admin-only" id="piantina-hint" style="font-size:12px;color:var(--gray);margin-bottom:12px">
+          <div class="admin-only" id="piantina-hint" style="font-size:12px;color:var(--gray);margin-bottom:8px">
             Trascina i tavoli sulla piantina per posizionarli come nella sala reale.
+          </div>
+          <div class="admin-only" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <label style="font-size:12px;color:var(--gray);letter-spacing:1px;text-transform:uppercase">Elementi sala</label>
+            <input id="new-elemento" placeholder="es. Ingresso, Buffet, Palco..." style="padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:12px;width:180px" onkeydown="if(event.key==='Enter')addElementoSala()">
+            <button class="btn-sm" onclick="addElementoSala()">+ Aggiungi</button>
+            <div id="elementi-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
           </div>
           <div id="piantina-wrap" style="position:relative;display:inline-block;max-width:100%;min-width:300px;min-height:220px;border:1px solid var(--gray-l);border-radius:6px;overflow:hidden;background:var(--cream-d)">
             <img id="piantina-img" alt="Piantina location" style="display:block;max-width:100%;height:auto;min-height:220px">
@@ -2227,6 +2236,34 @@ window.switchPiantinaScenario=function(s){
   renderPiantina();
 };
 
+window.addElementoSala=async function(){
+  const inp=document.getElementById('new-elemento');
+  const nome=(inp.value||'').trim();
+  if(!nome)return;
+  ensurePiantine();
+  const p=currentPiantina();
+  if(!p.elementi)p.elementi=[];
+  const id='el_'+Date.now().toString(36);
+  p.elementi.push({id,nome,x:50,y:50});
+  inp.value='';
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicPiantina();
+  renderPiantina();
+};
+window.removeElementoSala=async function(id){
+  ensurePiantine();
+  const p=currentPiantina();
+  p.elementi=(p.elementi||[]).filter(e=>e.id!==id);
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicPiantina();
+  renderPiantina();
+};
+function renderElementiChips(){
+  const wrap=document.getElementById('elementi-chips');
+  if(!wrap)return;
+  const list=currentPiantina().elementi||[];
+  wrap.innerHTML=list.map(e=>`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(60,60,80,.1);border:1px solid #6c7a8d;border-radius:4px;padding:2px 8px;font-size:11px">${e.nome}<button onclick="removeElementoSala('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:12px;padding:0;margin-left:2px">✕</button></span>`).join('');
+}
 window.savePiantinaUrl=async function(){
   const raw=(document.getElementById('piantina-url').value||'').trim();
   if(!raw){alert('Incolla il link di un\'immagine');return;}
@@ -2281,6 +2318,12 @@ window.exportPiantinaPDF=function(){
     markers+=`<div style="position:absolute;left:${p.x}%;top:${p.y}%;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid #b08d57;border-radius:20px;padding:3px 9px;display:flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2)">
       <span style="font-size:11px;font-weight:700;color:#1a1a1a">${label}</span>
       <span style="font-size:9px;background:#b08d57;color:#fff;border-radius:10px;padding:1px 6px;font-weight:700">${count}</span>
+    </div>`;
+  });
+  // Elementi sala nel PDF
+  (currentPiantina().elementi||[]).forEach(e=>{
+    markers+=`<div style="position:absolute;left:${e.x||50}%;top:${e.y||50}%;transform:translate(-50%,-50%);background:rgba(60,60,80,.85);border:2px solid #6c7a8d;border-radius:6px;padding:3px 10px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2)">
+      <span style="font-size:10px;font-weight:700;color:#fff;letter-spacing:.5px">${e.nome}</span>
     </div>`;
   });
   const win=window.open('','_blank');
@@ -2355,6 +2398,29 @@ window.renderPiantina=function(){
     if(IS_ADMIN)m.dataset.draggable='1';
     markers.appendChild(m);
   });
+  // Marker elementi sala (ingresso, buffet, palco...)
+  const elementi=currentPiantina().elementi||[];
+  elementi.forEach(e=>{
+    const m=document.createElement('div');
+    m.className='piantina-marker pm-elemento';
+    m.dataset.elid=e.id;
+    m.style.left=(e.x||50)+'%';
+    m.style.top=(e.y||50)+'%';
+    m.title=e.nome;
+    m.innerHTML=`<span class="pm-label">${e.nome}</span>`;
+    if(IS_ADMIN){
+      m.dataset.draggable='1';
+      // pulsante rimozione visibile solo su hover
+      const rm=document.createElement('button');
+      rm.className='pm-remove';
+      rm.textContent='✕';
+      rm.title='Rimuovi';
+      rm.onclick=(ev)=>{ev.stopPropagation();removeElementoSala(e.id);};
+      m.appendChild(rm);
+    }
+    markers.appendChild(m);
+  });
+  renderElementiChips();
 };
 
 // Trascinamento marker sulla piantina — event delegation (un solo listener sul contenitore)
@@ -2401,7 +2467,17 @@ async function endMarkerDrag(e){
   let y=((e.clientY-r.top)/r.height)*100;
   x=Math.max(0,Math.min(100,x));
   y=Math.max(0,Math.min(100,y));
-  await savePiantinaPos(m.dataset.tid,x,y);
+  if(m.dataset.elid){
+    // Elemento sala: aggiorna posizione nell'array elementi
+    ensurePiantine();
+    const p=currentPiantina();
+    const el=(p.elementi||[]).find(e=>e.id===m.dataset.elid);
+    if(el){el.x=Math.round(x*10)/10;el.y=Math.round(y*10)/10;}
+    await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+    await syncPublicPiantina();
+  }else{
+    await savePiantinaPos(m.dataset.tid,x,y);
+  }
 }
 
 window.renderSeating=function(){
