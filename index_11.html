@@ -1,0 +1,3134 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gisa Haute Couture — Wedding Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#fdfbf7; --cream-d:#f5f0e8; --gold:#d4af37; --gold-l:#e8cc6a;
+  --gold-pale:#f7f0d8; --black:#1a1a1a; --gray:#8a8a8a; --gray-l:#e8e4dc;
+  --red:#c0392b; --green:#2e7d50; --green-l:#e8f5e9; --blue:#1565c0; --blue-l:#e3f2fd;
+  --orange:#e65100; --orange-l:#fff3e0; --purple:#6a1b9a; --purple-l:#f3e5f5;
+  --teal:#00695c; --teal-l:#e0f2f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--cream);font-family:'Cormorant Garamond',serif;color:var(--black);min-height:100vh}
+
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ── LOGIN ── */
+#s-login{min-height:100vh;display:none!important;align-items:center;justify-content:center;background:var(--black);position:relative;overflow:hidden}
+#s-login.active{display:flex!important}
+#s-login::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(212,175,55,.12) 0%,transparent 60%),radial-gradient(ellipse at 70% 20%,rgba(212,175,55,.08) 0%,transparent 50%)}
+.login-box{background:var(--cream);width:440px;max-width:92vw;padding:56px 48px;position:relative;animation:fadeUp .8s ease both}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.login-logo{text-align:center;margin-bottom:20px}
+.login-logo img{width:200px;max-width:75%}
+.login-sub{text-align:center;color:var(--gray);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:36px}
+.fg{margin-bottom:22px}
+.fg label{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:7px}
+.fg input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--gray-l);padding:10px 0;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--black);outline:none;transition:border-color .3s}
+.fg input:focus{border-bottom-color:var(--gold)}
+.btn-primary{width:100%;background:var(--black);color:var(--cream);border:none;padding:16px;font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:background .3s;margin-top:8px}
+.btn-primary:hover{background:var(--gold);color:var(--black)}
+.err{color:var(--red);font-size:13px;text-align:center;margin-top:12px;min-height:18px}
+
+/* ── RSVP ── */
+#s-rsvp{min-height:100vh;display:none;align-items:center;justify-content:center;background:var(--black);position:relative;overflow:hidden}
+#s-rsvp.active{display:flex}
+#s-rsvp::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 40%,rgba(212,175,55,.1) 0%,transparent 60%)}
+.rsvp-box{background:var(--cream);width:560px;max-width:96vw;padding:48px 32px;position:relative;animation:fadeUp .8s ease both}
+.rsvp-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.rsvp-logo{text-align:center;margin-bottom:16px}
+.rsvp-logo img{width:180px}
+.rsvp-couple{text-align:center;font-family:'Playfair Display',serif;font-size:28px;font-weight:400;margin-bottom:4px}
+.rsvp-date{text-align:center;color:var(--gold);font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.rsvp-invite{text-align:center;color:var(--gray);font-size:14px;margin-bottom:32px}
+.rsvp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;max-width:560px;margin-left:auto;margin-right:auto}
+.rsvp-full{grid-column:span 2}
+.rsvp-allergeni{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.rsvp-allergeni .allerg-cb{display:flex!important;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;font-size:13px;cursor:pointer;margin:0;text-transform:none;letter-spacing:normal;color:var(--black);white-space:nowrap}
+.rsvp-allergeni .allerg-cb input{accent-color:var(--gold);width:15px;height:15px;flex:0 0 auto;margin:0}
+.rsvp-allergeni .allerg-cb span{flex:1 1 auto;font-size:13px;letter-spacing:normal;text-transform:none;color:var(--black)}
+.rsvp-confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.btn-rsvp-yes{background:var(--green);color:#fff;border:none;padding:14px;font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:opacity .3s}
+.btn-rsvp-yes:hover{opacity:.85}
+.btn-rsvp-no{background:transparent;border:2px solid var(--gray-l);color:var(--gray);padding:14px;font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s}
+.btn-rsvp-no:hover{border-color:var(--red);color:var(--red)}
+.rsvp-selected-yes{border:2px solid var(--green)!important;color:var(--green)!important;background:var(--green-l)!important}
+.rsvp-selected-no{border:2px solid var(--red)!important;color:var(--red)!important;background:#fdecea!important}
+.rsvp-thanks{text-align:center;padding:40px 0}
+.rsvp-thanks .icon{font-size:48px;margin-bottom:16px}
+.rsvp-thanks h3{font-family:'Playfair Display',serif;font-size:26px;font-weight:400;margin-bottom:8px}
+.rsvp-thanks p{color:var(--gray);font-size:15px}
+
+/* ── CUCINA READ-ONLY ── */
+#s-cucina{min-height:100vh;background:var(--cream);display:none}
+#s-cucina .cucina-header{background:var(--black);padding:20px 40px;display:flex;align-items:center;justify-content:space-between}
+#s-cucina .cucina-header h1{font-family:'Playfair Display',serif;color:var(--cream);font-size:20px;font-weight:400}
+#s-cucina .cucina-header span{color:var(--gold);font-size:13px;letter-spacing:2px;text-transform:uppercase}
+.cucina-content{padding:32px 40px;max-width:1200px;margin:0 auto}
+.cucina-logo{height:50px;width:auto}
+.cucina-lang-toggle{display:flex;gap:8px}
+.lang-btn{background:transparent;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.6);padding:6px 14px;font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s}
+.lang-btn:hover{border-color:var(--gold);color:var(--cream)}
+.lang-btn.active{background:var(--gold);color:var(--black);border-color:var(--gold);font-weight:600}
+.cucina-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:28px}
+.c-stat{background:white;border:1px solid var(--gray-l);padding:16px;text-align:center}
+.c-stat .n{font-family:'Playfair Display',serif;font-size:28px;color:var(--black);line-height:1}
+.c-stat .l{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);margin-top:4px}
+.cucina-table-section{margin-bottom:32px}
+.cucina-table-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--black)}
+
+/* ── APP ── */
+#s-app{display:none;min-height:100vh}
+#s-app.active{display:block}
+.topbar{background:var(--black);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:100}
+.topbar-logo img{height:40px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.user-chip{color:var(--gray);font-size:12px;letter-spacing:1px}
+.admin-badge{background:var(--gold);color:var(--black);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;font-weight:600}
+.btn-logout{background:transparent;border:1px solid rgba(212,175,55,.4);color:var(--gold);padding:5px 16px;font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s}
+.btn-logout:hover{background:var(--gold);color:var(--black)}
+.lang-sel{background:transparent;border:none;color:var(--gray);font-family:'Cormorant Garamond',serif;font-size:12px;cursor:pointer;letter-spacing:1px;outline:none}
+.lang-sel option{background:var(--black);color:var(--cream)}
+
+/* ── LAYOUT ── */
+.app-inner{display:flex;min-height:calc(100vh - 62px)}
+.sidebar{width:220px;background:var(--black);flex-shrink:0;padding:24px 0}
+.sidebar-nav a{display:flex;align-items:center;gap:10px;padding:12px 24px;color:var(--gray);font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;text-decoration:none;border-left:2px solid transparent}
+.sidebar-nav a:hover{color:var(--cream);border-left-color:rgba(212,175,55,.4)}
+.sidebar-nav a.active{color:var(--gold);border-left-color:var(--gold)}
+.sidebar-nav a .icon{font-size:16px;width:20px;text-align:center}
+.sidebar-section{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.2);padding:16px 24px 6px}
+.main-panel{flex:1;padding:36px;overflow-y:auto}
+
+/* ── DASHBOARD ── */
+.dash-header{margin-bottom:32px}
+.dash-header h1{font-family:'Playfair Display',serif;font-size:32px;font-weight:400}
+.dash-couple{color:var(--gold);font-size:14px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.countdown-banner{background:var(--black);padding:24px 32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.countdown-units{display:flex;gap:24px}
+.cd-unit{text-align:center}
+.cd-num{font-family:'Playfair Display',serif;font-size:36px;color:var(--gold);line-height:1}
+.cd-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-top:2px}
+.cd-wedding{font-family:'Playfair Display',serif;font-size:18px;color:var(--cream);font-style:italic}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1px;background:var(--gray-l);border:1px solid var(--gray-l);margin-bottom:28px}
+.kpi{background:white;padding:20px 24px;text-align:center}
+.kpi .kpi-n{font-family:'Playfair Display',serif;font-size:30px;color:var(--black);line-height:1;margin-bottom:4px}
+.kpi .kpi-l{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray)}
+.kpi.gold .kpi-n{color:var(--gold)}
+.kpi.green .kpi-n{color:var(--green)}
+.kpi.red .kpi-n{color:var(--red)}
+.progress-bar{height:4px;background:var(--gray-l);margin-top:8px}
+.progress-fill{height:100%;background:var(--gold);transition:width .6s ease}
+.dash-two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.dash-card{background:white;border:1px solid var(--gray-l);padding:24px}
+.dash-card h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--gray-l)}
+.rsvp-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray-l);font-size:14px}
+.rsvp-item:last-child{border:none}
+.rsvp-link-box{background:var(--cream-d);padding:12px 16px;font-size:12px;font-family:monospace;word-break:break-all;margin-bottom:8px;color:var(--black)}
+.btn-copy{background:var(--black);color:var(--cream);border:none;padding:8px 16px;font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .3s}
+.btn-copy:hover{background:var(--gold);color:var(--black)}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--gray-l);margin-bottom:28px}
+.tab-btn{background:none;border:none;padding:12px 24px;font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);cursor:pointer;position:relative;transition:color .3s}
+.tab-btn::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .3s}
+.tab-btn.active{color:var(--black)}
+.tab-btn.active::after{transform:scaleX(1)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── STATS BAR ── */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:1px;background:var(--gray-l);border:1px solid var(--gray-l);margin-bottom:28px}
+.stat-i{background:white;padding:16px 20px;text-align:center}
+.stat-i .sn{font-family:'Playfair Display',serif;font-size:28px;color:var(--black);line-height:1;margin-bottom:3px}
+.stat-i .sl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray)}
+.stat-i.gold .sn{color:var(--gold)}
+.stat-i.green .sn{color:var(--green)}
+.stat-i.red .sn{color:var(--red)}
+.stat-i.purple .sn{color:var(--purple)}
+.stat-i.teal .sn{color:var(--teal)}
+
+/* ── FORM CARD ── */
+.form-card{background:white;border:1px solid var(--gray-l);padding:28px;margin-bottom:20px}
+.form-card h4{font-family:'Playfair Display',serif;font-size:17px;font-weight:400;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--gray-l)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:end}
+.ig{display:flex;flex-direction:column;gap:5px}
+.ig label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gray)}
+.ig input,.ig select,.ig textarea{background:var(--cream);border:1px solid var(--gray-l);padding:9px 12px;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--black);outline:none;transition:border-color .3s;width:100%}
+.ig input:focus,.ig select:focus,.ig textarea:focus{border-color:var(--gold)}
+.ig textarea{resize:vertical;min-height:70px}
+.span2{grid-column:span 2}
+.span3{grid-column:span 3}
+.btn-add{background:var(--black);color:var(--cream);border:none;padding:10px 24px;font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .3s;white-space:nowrap}
+.btn-add:hover{background:var(--gold);color:var(--black)}
+
+/* ── ALLERGENI CHECKBOXES ── */
+.allerg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:4px}
+.allerg-item{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:4px 6px;border:1px solid var(--gray-l);transition:all .2s}
+.allerg-item:hover{border-color:var(--gold)}
+.allerg-item input{accent-color:var(--gold);width:13px;height:13px}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead tr{border-bottom:2px solid var(--black)}
+thead th{padding:10px 14px;text-align:left;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:500;color:var(--gray)}
+tbody tr{border-bottom:1px solid var(--gray-l);transition:background .2s}
+tbody tr:hover{background:var(--cream-d)}
+tbody td{padding:12px 14px;vertical-align:middle}
+td[contenteditable=true]{outline:none;border-bottom:1px solid var(--gold)}
+.badge{display:inline-block;padding:3px 8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase}
+.b-gray{background:#f5f5f5;color:var(--gray)}
+.b-gold{background:var(--gold-pale);color:#8a6d00}
+.b-green{background:var(--green-l);color:var(--green)}
+.b-red{background:#fdecea;color:var(--red)}
+.b-blue{background:var(--blue-l);color:var(--blue)}
+.b-purple{background:var(--purple-l);color:var(--purple)}
+.b-teal{background:var(--teal-l);color:var(--teal)}
+.b-orange{background:var(--orange-l);color:var(--orange)}
+/* ── RSVP non riconosciuto ── */
+tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
+.rsvp-flag{position:relative;display:inline-flex;align-items:center;gap:4px;background:var(--orange-l);color:var(--orange);font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:10px;margin-left:8px;cursor:help;vertical-align:middle}
+.rsvp-flag::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--orange)}
+.rsvp-flag:hover .rsvp-tip{opacity:1;visibility:visible;transform:translateY(0)}
+.rsvp-tip{position:absolute;bottom:calc(100% + 8px);left:0;background:var(--black);color:#fff;font-size:11px;font-weight:400;letter-spacing:.3px;text-transform:none;padding:7px 11px;border-radius:6px;white-space:normal;width:max-content;max-width:240px;line-height:1.4;opacity:0;visibility:hidden;transform:translateY(4px);transition:all .2s;z-index:50;box-shadow:0 4px 16px rgba(0,0,0,.18);pointer-events:none}
+.rsvp-tip::after{content:'';position:absolute;top:100%;left:14px;border:5px solid transparent;border-top-color:var(--black)}
+.rsvp-ok{margin-left:6px;width:22px;height:22px;border:1px solid var(--gray-l);background:none;color:var(--gray);border-radius:50%;cursor:pointer;font-size:11px;vertical-align:middle;transition:all .2s;line-height:1}
+.rsvp-ok:hover{border-color:var(--green);color:var(--green);background:var(--green-l)}
+.btn-icon{background:none;border:1px solid var(--gray-l);width:28px;height:28px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:var(--gray);transition:all .2s}
+.btn-icon:hover{border-color:var(--red);color:var(--red)}
+.btn-sm{background:transparent;border:1px solid var(--gray-l);color:var(--gray);padding:5px 12px;font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s}
+.btn-sm:hover{border-color:var(--gold);color:var(--gold)}
+.search-row{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.search-inp{background:white;border:1px solid var(--gray-l);padding:9px 14px;font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--black);outline:none;flex:1;min-width:180px;transition:border-color .3s}
+.search-inp:focus{border-color:var(--gold)}
+.filter-sel{background:white;border:1px solid var(--gray-l);padding:9px 12px;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--black);outline:none;transition:border-color .3s}
+.filter-sel:focus{border-color:var(--gold)}
+.empty-state{text-align:center;padding:56px 20px;color:var(--gray)}
+.empty-state .ei{font-size:38px;margin-bottom:14px;opacity:.3}
+
+/* ── SEATING ── */
+.seating-controls{display:flex;gap:14px;margin-bottom:20px;align-items:flex-end;flex-wrap:wrap}
+.seating-area{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.table-card{background:white;border:1px solid var(--gray-l);padding:16px;position:relative}
+.table-card.drag-over{border-color:var(--gold);background:var(--gold-pale)}
+.table-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--gray-l)}
+.table-card-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:400}
+.table-capacity{font-size:11px;color:var(--gray);letter-spacing:1px}
+.table-capacity.full{color:var(--red)}
+.table-guests{min-height:60px;display:flex;flex-direction:column;gap:4px}
+.guest-chip{background:var(--cream-d);padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;cursor:grab;transition:background .2s}
+.guest-chip:active{cursor:grabbing;background:var(--gold-pale)}
+.guest-chip.chip-drop-target{border-top:3px solid var(--gold);background:var(--gold-pale)}
+.guest-chip-name{flex:1}
+.guest-chip-menu{font-size:10px;color:var(--gray);margin-left:6px}
+.seat-num{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;background:var(--gold);color:#fff;border-radius:50%;font-size:10px;font-weight:600;margin-right:7px;flex-shrink:0}
+.seat-arrows{display:inline-flex;flex-direction:column;margin-left:6px;flex-shrink:0}
+.seat-arrow{border:none;background:none;color:var(--gray);cursor:pointer;font-size:8px;line-height:1;padding:1px 2px;border-radius:2px}
+.seat-arrow:hover:not(:disabled){color:var(--gold);background:var(--gold-pale)}
+.seat-arrow:disabled{opacity:.25;cursor:default}
+.unassigned-pool{background:white;border:1px solid var(--gray-l);padding:16px;margin-bottom:20px}
+/* ── CHECK-IN ── */
+.btn-checkin{background:var(--gold);color:#fff;border:none;padding:7px 16px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.ci-counter{background:var(--cream-d);border:1px solid var(--gray-l);border-radius:8px;padding:20px 24px;margin-bottom:4px}
+.ci-num{font-size:52px;font-family:'Playfair Display',serif;line-height:1;color:var(--black)}
+.ci-tot{font-size:28px;color:var(--gray)}
+.ci-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin:4px 0 12px}
+.ci-bar-wrap{background:#e5e5e5;border-radius:10px;height:6px;margin-bottom:8px}
+.ci-bar{background:var(--gold);height:6px;border-radius:10px;transition:width .4s ease;width:0%}
+.ci-sub{font-size:12px;color:var(--gray)}
+.ci-tab{background:none;border:1px solid var(--gray-l);color:var(--gray);padding:7px 18px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.ci-tab.active{background:var(--gold);border-color:var(--gold);color:#fff}
+.ci-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.ci-card{background:#fff;border:1px solid var(--gray-l);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s,background .2s}
+.ci-card:hover{border-color:var(--gold)}
+.ci-card.checked{background:#f0faf0;border-color:#4caf50}
+.ci-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--gray-l);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:16px}
+.ci-card.checked .ci-circle{background:#4caf50;border-color:#4caf50;color:#fff}
+.ci-card:not(.checked) .ci-circle{color:transparent}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-size:15px;font-weight:600;color:var(--black);margin-bottom:3px}
+.ci-meta{font-size:11px;color:var(--gray);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ci-ora{font-size:11px;color:#4caf50;font-weight:600;margin-top:2px}
+/* ── PIANTINA LOCATION ── */
+.pt-btn{background:none;border:1px solid var(--gray-l);color:var(--gray);padding:6px 16px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
+.pt-btn:hover{border-color:var(--gold);color:var(--gold)}
+.pt-btn.active{background:var(--gold);border-color:var(--gold);color:#fff}
+.piantina-marker{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid var(--gold);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);user-select:none;touch-action:none;white-space:nowrap}
+.piantina-marker[data-draggable]{cursor:grab}
+.piantina-marker[data-draggable]:active{cursor:grabbing}
+.piantina-marker .pm-label{font-size:11px;font-weight:600;color:var(--black);letter-spacing:.5px}
+.piantina-marker .pm-count{font-size:10px;background:var(--gold);color:#fff;border-radius:10px;padding:1px 6px;font-weight:600}
+.unassigned-pool h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;margin-bottom:10px}
+.pool-guests{display:flex;flex-wrap:wrap;gap:6px;min-height:40px;padding:8px;background:var(--cream-d)}
+.pool-guests.drag-over{background:var(--gold-pale)}
+
+/* ── BUDGET ── */
+.budget-total-row{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.budget-total-row h4{font-family:'Playfair Display',serif;font-size:17px;font-weight:400}
+.budget-inp-inline{background:transparent;border:none;border-bottom:1px solid var(--gold);padding:3px 6px;font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);width:130px;outline:none}
+.diff-pos{color:var(--green)}
+.diff-neg{color:var(--red)}
+.alert-payment{background:#fff3e0;border-left:3px solid var(--orange);padding:10px 14px;margin-bottom:8px;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+
+/* ── CHECKLIST (admin only) ── */
+.checklist-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--gray-l)}
+.checklist-item input[type=checkbox]{accent-color:var(--gold);width:16px;height:16px;cursor:pointer}
+.checklist-item .cl-text{flex:1;font-size:15px;transition:opacity .3s;cursor:text;border-radius:4px;padding:2px 4px}
+.checklist-item .cl-text:hover{background:var(--gray-l)}
+.checklist-item.done .cl-text{text-decoration:line-through;opacity:.4}
+.checklist-item .cl-date{font-size:11px;color:var(--gray);letter-spacing:1px;margin-right:8px;cursor:pointer;border-radius:4px;padding:2px 4px}
+.checklist-item .cl-date:hover{background:var(--gray-l)}
+.checklist-item .cl-cat{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;cursor:pointer}
+.checklist-item.editing .cl-text,.checklist-item.editing .cl-cat,.checklist-item.editing .cl-date{display:none}
+.cl-edit-row{flex:1;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cl-edit-row input[type=text]{flex:2;min-width:140px;padding:6px 8px;border:1px solid var(--gold);border-radius:4px;font-size:14px;font-family:inherit}
+.cl-edit-row input[type=date]{padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px;font-size:13px;font-family:inherit}
+.cl-edit-row select{padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px;font-size:13px;font-family:inherit}
+.cl-edit-row .cl-save{background:var(--gold);color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px}
+.cl-edit-row .cl-cancel{background:none;border:1px solid var(--gray-l);padding:6px 10px;border-radius:4px;cursor:pointer;font-size:13px;color:var(--gray)}
+.cl-add-form{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:end}
+.cl-progress{height:6px;background:var(--gray-l);margin-bottom:20px}
+.cl-progress-fill{height:100%;background:var(--gold);transition:width .5s ease}
+
+/* ── TIMELINE (admin only) ── */
+#view-timeline{contain:layout style}
+.timeline-list{position:relative;padding-left:28px;contain:layout style}
+.timeline-list::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:1px;background:var(--gray-l)}
+.tl-item{position:relative;margin-bottom:16px;content-visibility:auto;contain-intrinsic-size:0 60px}
+.tl-dot{position:absolute;left:-22px;top:4px;width:10px;height:10px;background:var(--gold);border-radius:50%}
+.tl-time{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:2px;cursor:pointer;display:inline-block;border-radius:4px;padding:1px 4px}
+.tl-time:hover{background:var(--gray-l)}
+.tl-text{font-size:15px;color:var(--black);cursor:text;border-radius:4px;padding:2px 4px}
+.tl-text:hover{background:var(--gray-l)}
+.tl-item.done .tl-dot{background:var(--green)}
+.tl-item.done .tl-text{text-decoration:line-through;opacity:.5}
+.tl-cat-badge{font-size:9px;letter-spacing:1px;text-transform:uppercase;background:var(--gold-pale);color:var(--gold);padding:2px 7px;border-radius:10px;white-space:nowrap}
+.tl-item.editing .tl-time,.tl-item.editing .tl-text{display:none}
+.tl-edit-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.tl-edit-row input[type=text]{flex:2;min-width:140px;padding:6px 8px;border:1px solid var(--gold);border-radius:4px;font-size:14px;font-family:inherit}
+.tl-edit-row input[type=time]{padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px;font-size:13px;font-family:inherit}
+.tl-edit-row .tl-save{background:var(--gold);color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px}
+.tl-edit-row .tl-cancel{background:none;border:1px solid var(--gray-l);padding:6px 10px;border-radius:4px;cursor:pointer;font-size:13px;color:var(--gray)}
+.tl-add-form{display:flex;gap:10px;margin-bottom:20px;align-items:end;flex-wrap:wrap}
+
+/* ── ARCHIVIO ── */
+.archive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.archive-card{background:white;border:1px solid var(--gray-l);padding:24px;position:relative;opacity:.75;transition:opacity .3s}
+.archive-card:hover{opacity:1}
+.archive-card::after{content:'ARCHIVIO';position:absolute;top:12px;right:12px;font-size:9px;letter-spacing:2px;background:var(--gray-l);color:var(--gray);padding:2px 7px}
+.archive-card h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;margin-bottom:6px}
+.archive-card .arc-date{color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+
+/* ── MODALS ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,26,26,.72);z-index:300;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal-box{background:var(--cream);width:520px;max-width:92vw;padding:48px;position:relative;animation:fadeUp .4s ease both;max-height:90vh;overflow-y:auto}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.modal-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin-bottom:26px}
+.modal-close{position:absolute;top:16px;right:20px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray)}
+
+/* ── ANIM ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeUp .5s ease both}
+
+/* ── RESPONSIVE ── */
+/* ── HAMBURGER ── */
+.hamburger{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:8px;
+  z-index:200;
+}
+.hamburger span{
+  display:block;
+  width:22px;
+  height:2px;
+  background:var(--cream);
+  transition:all .3s;
+}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+.mobile-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:150;
+}
+.mobile-overlay.active{display:block}
+
+@media(max-width:900px){
+  .hamburger{display:flex}
+  .rsvp-allergeni{grid-template-columns:repeat(2,1fr)!important}
+  .rsvp-box{padding:32px 20px!important}
+  .sidebar{
+    display:block;
+    position:fixed;
+    left:-240px;
+    top:62px;
+    bottom:0;
+    width:240px;
+    z-index:160;
+    transition:left .3s ease;
+    overflow-y:auto;
+  }
+  .sidebar.mobile-open{left:0}
+  .dash-two-col{grid-template-columns:1fr}
+  .rsvp-grid{grid-template-columns:1fr}
+  .rsvp-full{grid-column:span 1}
+  .allerg-grid,.rsvp-allergeni{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+  .span2,.span3{grid-column:span 1}
+  .stats-bar{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:600px){
+  .main-panel{padding:20px}
+  .topbar{padding:0 16px}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<datalist id="tavoli-list"></datalist>
+
+<!-- ══ LOGIN ══ -->
+<div id="s-login" class="active">
+  <div class="login-box">
+    <div class="login-logo"><img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" alt="Gisa Haute Couture"></div>
+    <p class="login-sub" id="login-sub">Gestione Matrimoni</p>
+    <div class="fg"><label id="l-email">Email</label><input type="email" id="login-email" placeholder="la tua email"></div>
+    <div class="fg"><label id="l-pwd">Password</label><input type="password" id="login-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn-primary" onclick="doLogin()" id="l-btn">Accedi</button>
+    <div class="err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ══ RSVP ══ -->
+<div id="s-rsvp" style="display:none">
+  <div class="rsvp-box" id="rsvp-box">
+    <div class="rsvp-logo"><img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" alt="Gisa"></div>
+    <div id="rsvp-form-wrap">
+      <h2 class="rsvp-couple" id="rsvp-couple"></h2>
+      <div class="rsvp-date" id="rsvp-date"></div>
+      <p class="rsvp-invite" id="rsvp-invite-text">Sei invitato al loro matrimonio. Conferma la tua presenza.</p>
+      <div class="rsvp-grid">
+        <div class="ig"><label id="rl-nome">Nome *</label><input id="rsvp-nome" placeholder="Marco"></div>
+        <div class="ig"><label id="rl-cognome">Cognome *</label><input id="rsvp-cognome" placeholder="Rossi"></div>
+        <div class="ig"><label id="rl-email">Email</label><input type="email" id="rsvp-email" placeholder="marco@email.com"></div>
+        <div class="ig"><label id="rl-tel">Telefono</label><input id="rsvp-tel" placeholder="+39 333 000 0000"></div>
+        <div class="ig rsvp-full"><label id="rl-menu">Menu</label>
+          <select id="rsvp-menu">
+            <option value="Normale" id="rm-norm">Normale</option>
+            <option value="Vegetariano" id="rm-veg">Vegetariano</option>
+            <option value="Vegano" id="rm-vegan">Vegano</option>
+            <option value="Pesce" id="rm-fish">Pesce</option>
+            <option value="Bambino" id="rm-child">Bambino</option>
+          </select>
+        </div>
+        <div class="ig rsvp-full">
+          <label id="rl-allerg">Allergeni</label>
+          <div class="rsvp-allergeni">
+            <label class="allerg-cb"><input type="checkbox" value="Glutine" class="rsvp-allerg-cb"> <span data-t="al_gluten">Glutine</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Lattosio" class="rsvp-allerg-cb"> <span data-t="al_lactose">Lattosio</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Frutta secca" class="rsvp-allerg-cb"> <span data-t="al_nuts">Frutta secca</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Crostacei" class="rsvp-allerg-cb"> <span data-t="al_shellfish">Crostacei</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Uova" class="rsvp-allerg-cb"> <span data-t="al_eggs">Uova</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Soia" class="rsvp-allerg-cb"> <span data-t="al_soy">Soia</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Pesce" class="rsvp-allerg-cb"> <span data-t="al_fish">Pesce</span></label>
+            <label class="allerg-cb"><input type="checkbox" value="Sesamo" class="rsvp-allerg-cb"> <span data-t="al_sesame">Sesamo</span></label>
+          </div>
+        </div>
+        <div class="ig rsvp-full"><label id="rl-note">Note</label><input id="rsvp-note" id="rl-note-inp" placeholder="..."></div>
+      </div>
+      <div class="rsvp-confirm-btns">
+        <button class="btn-rsvp-yes" id="rsvp-yes-btn" onclick="selectRsvp('yes')">✓ Confermo la presenza</button>
+        <button class="btn-rsvp-no" id="rsvp-no-btn" onclick="selectRsvp('no')">✕ Non potrò essere presente</button>
+      </div>
+      <button class="btn-primary" onclick="submitRsvp()" id="r-send">Invia conferma</button>
+      <div class="err" id="rsvp-err"></div>
+    </div>
+    <div id="rsvp-thanks" class="rsvp-thanks" style="display:none">
+      <div class="icon" id="rsvp-thanks-icon">✦</div>
+      <h3 id="rsvp-thanks-title">Grazie!</h3>
+      <p id="rsvp-thanks-msg">La tua risposta è stata registrata.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CUCINA ══ -->
+<div id="s-cucina" style="display:none">
+  <div class="cucina-header">
+    <div style="display:flex;align-items:center;gap:16px">
+      <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20GisaCompleto%20DefBianco.png" alt="Gisa" class="cucina-logo">
+      <h1 id="cucina-title">Lista Cucina</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px">
+      <div class="cucina-lang-toggle">
+        <button class="lang-btn active" onclick="setCucinaLang('it',this)">🇮🇹 IT</button>
+        <button class="lang-btn" onclick="setCucinaLang('en',this)">🇬🇧 EN</button>
+      </div>
+      <button id="cucina-pdf-btn" onclick="exportKitchenPDF()" style="background:var(--gold);color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-size:12px;letter-spacing:1px;text-transform:uppercase">⤓ <span id="cucina-pdf-label">Scarica PDF</span></button>
+      <span id="cucina-couple" style="color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase"></span>
+    </div>
+  </div>
+  <div class="cucina-content">
+    <div class="cucina-stats" id="cucina-stats"></div>
+    <div id="cucina-body"></div>
+  </div>
+</div>
+
+<!-- ══ CHECK-IN STAFF ══ -->
+<div id="s-checkin" style="display:none;min-height:100vh;background:var(--cream)">
+  <div style="background:var(--black);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:16px">
+      <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20GisaCompleto%20DefBianco.png" alt="Gisa" style="height:36px">
+      <span id="ci-couple-title" style="color:var(--gold);font-size:13px;letter-spacing:2px;text-transform:uppercase"></span>
+    </div>
+    <input id="ci-search-staff" placeholder="Cerca ospite..." oninput="renderCheckinStaff()" style="padding:8px 14px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:14px;width:240px">
+  </div>
+  <div style="padding:20px 24px">
+    <!-- Contatore -->
+    <div class="ci-counter" id="ci-counter-staff">
+      <div class="ci-num"><span id="ci-present-staff">0</span><span class="ci-tot" id="ci-total-staff">/0</span></div>
+      <div class="ci-label">OSPITI PRESENTI</div>
+      <div class="ci-bar-wrap"><div class="ci-bar" id="ci-bar-staff"></div></div>
+      <div class="ci-sub"><span id="ci-arrived-staff">0 arrivati</span> · <span id="ci-waiting-staff">0 attesi</span> <span id="ci-pct-staff" style="float:right;color:var(--gold);font-weight:600">0%</span></div>
+    </div>
+    <!-- Tab -->
+    <div class="ci-tabs" style="display:flex;gap:8px;margin:16px 0">
+      <button class="ci-tab active" id="cis-tab-waiting" onclick="setCiStaffTab('waiting')">Da arrivare</button>
+      <button class="ci-tab" id="cis-tab-arrived" onclick="setCiStaffTab('arrived')">Arrivati</button>
+      <button class="ci-tab" id="cis-tab-all" onclick="setCiStaffTab('all')">Tutti</button>
+    </div>
+    <div class="ci-grid" id="ci-grid-staff"></div>
+    <div id="ci-empty-staff" class="empty-state" style="display:none"><div class="ei">✓</div><p>Nessun ospite in questa categoria</p></div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="s-app" style="display:none">
+  <div class="topbar">
+    <button class="hamburger" onclick="toggleMobileMenu()" id="hamburger-btn">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-logo"><img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20GisaCompleto%20DefBianco.png" alt="Gisa"></div>
+    <div class="topbar-right">
+      <select class="lang-sel" onchange="setLang(this.value)" id="lang-sel">
+        <option value="it">🇮🇹 IT</option>
+        <option value="en">🇬🇧 EN</option>
+      </select>
+      <span class="admin-badge" id="role-badge" style="display:none">ADMIN</span>
+      <span class="user-chip" id="user-chip"></span>
+      <button class="btn-logout" onclick="doLogout()" id="btn-logout">Esci</button>
+    </div>
+  </div>
+  <!-- Mobile nav overlay -->
+  <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
+  <div class="app-inner">
+    <div class="sidebar">
+      <div class="sidebar-section" id="sb-overview">PANORAMICA</div>
+      <nav class="sidebar-nav">
+        <a onclick="showView('dashboard')" data-view="dashboard"><span class="icon">◈</span><span data-t="nav_dash">Dashboard</span></a>
+        <a onclick="showView('ospiti')" data-view="ospiti"><span class="icon">♡</span><span data-t="nav_guests">Ospiti</span></a>
+        <a onclick="showView('seating')" data-view="seating"><span class="icon">⊞</span><span data-t="nav_seating">Tavoli</span></a>
+        <a onclick="showView('budget')" data-view="budget" class="admin-only-nav"><span class="icon">◎</span><span data-t="nav_budget">Budget</span></a>
+        <a onclick="showView('fornitori')" data-view="fornitori"><span class="icon">✦</span><span data-t="nav_vendors">Fornitori</span></a>
+        <a onclick="showView('timeline')" data-view="timeline" class="admin-only-nav"><span class="icon">◷</span><span data-t="nav_timeline">Timeline</span></a>
+        <a onclick="showView('checklist')" data-view="checklist" class="admin-only-nav"><span class="icon">☑</span><span data-t="nav_checklist">Checklist</span></a>
+      </nav>
+      <div class="sidebar-section admin-only-nav" id="sb-mgmt">GESTIONE</div>
+      <nav class="sidebar-nav">
+        <a onclick="showView('admin-weddings')" data-view="admin-weddings" class="admin-only-nav"><span class="icon">⬡</span><span data-t="nav_weddings">Matrimoni</span></a>
+        <a onclick="showView('archivio')" data-view="archivio" class="admin-only-nav"><span class="icon">◻</span><span data-t="nav_archive">Archivio</span></a>
+      </nav>
+    </div>
+    <div class="main-panel">
+      <!-- DASHBOARD -->
+      <div id="view-dashboard" class="view-panel fade-in" style="display:none">
+        <div class="dash-header">
+          <h1 data-t="dash_title">Dashboard</h1>
+          <div class="dash-couple" id="dash-couple-name"></div>
+        </div>
+        <div class="countdown-banner">
+          <div>
+            <div style="color:var(--cream);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px" data-t="countdown_label">Al matrimonio</div>
+            <div class="countdown-units" id="countdown-units"></div>
+          </div>
+          <div class="cd-wedding-wrap" style="display:flex;align-items:center;gap:10px">
+            <div class="cd-wedding" id="dash-wedding-date"></div>
+            <button class="admin-only" id="edit-date-btn" onclick="editWeddingDate()" title="Modifica data" style="background:none;border:1px solid var(--cream);color:var(--cream);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:13px;flex-shrink:0">✎</button>
+          </div>
+        </div>
+        <div class="kpi-grid" id="dash-kpi"></div>
+        <div class="dash-two-col">
+          <div class="dash-card">
+            <h4 data-t="rsvp_status">Stato RSVP</h4>
+            <div id="dash-rsvp-list"></div>
+          </div>
+          <div class="dash-card admin-only">
+            <h4 data-t="payment_alerts">Pagamenti in scadenza</h4>
+            <div id="dash-payments"></div>
+          </div>
+        </div>
+        <div class="dash-card admin-only" style="margin-bottom:20px">
+          <h4 data-t="rsvp_link_title">Link RSVP ospiti</h4>
+          <div class="rsvp-link-box" id="rsvp-link-display"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-copy" onclick="copyRsvpLink()" data-t="copy_link">Copia link</button>
+            <button class="btn-copy" onclick="copyKitchenLink()" style="background:var(--teal)" data-t="copy_kitchen">Link cucina</button>
+            <button class="btn-copy" onclick="copyCheckinLink()" style="background:var(--gold)" data-t="copy_checkin">Link check-in staff</button>
+          </div>
+          <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <label style="font-size:12px;color:var(--gray);letter-spacing:1px;text-transform:uppercase">Chiave check-in</label>
+            <input id="checkin-key-input" placeholder="es. staff2026" style="padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:13px;width:160px">
+            <button class="btn-sm" onclick="saveCheckinKey()">Salva</button>
+            <span id="checkin-key-saved" style="font-size:11px;color:var(--gray);display:none">✓ Salvata</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- OSPITI -->
+      <div id="view-ospiti" class="view-panel fade-in" style="display:none">
+        <div class="stats-bar" id="ospiti-stats"></div>
+        <div class="form-card">
+          <h4 data-t="add_guest">Aggiungi Ospite</h4>
+          <div class="form-grid">
+            <div class="ig"><label data-t="fname">Nome *</label><input id="g-nome" placeholder="Marco"></div>
+            <div class="ig"><label data-t="lname">Cognome *</label><input id="g-cognome" placeholder="Rossi"></div>
+            <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="text" id="g-tavolo" placeholder="1" list="tavoli-list" autocomplete="off"></div>
+            <div class="ig"><label data-t="phone">Telefono</label><input id="g-tel" placeholder="+39 333..."></div>
+            <div class="ig"><label>Email</label><input type="email" id="g-email" placeholder="email@..."></div>
+            <div class="ig"><label data-t="transfer">Transfer</label>
+              <select id="g-transfer"><option value="No">No</option><option value="Sì">Sì</option></select></div>
+            <div class="ig"><label data-t="rsvp_stat">RSVP</label>
+              <select id="g-rsvp">
+                <option value="In attesa" data-t="rsvp_waiting">In attesa</option>
+                <option value="Confermato" data-t="rsvp_yes">Confermato</option>
+                <option value="Assente" data-t="rsvp_no">Assente</option>
+              </select></div>
+            <div class="ig"><label data-t="menu">Menu</label>
+              <select id="g-menu">
+                <option value="Normale">Normale</option>
+                <option value="Carne">Carne</option>
+                <option value="Vegetariano">Vegetariano</option>
+                <option value="Vegano">Vegano</option>
+                <option value="Pesce">Pesce</option>
+                <option value="Staff">Staff</option>
+                <option value="Bambino">Bambino</option>
+                <option value="Neonato">Neonato</option>
+                <option value="Altro">Altro</option>
+              </select></div>
+            <div class="ig span2">
+              <label data-t="allergens">Allergeni rapidi</label>
+              <div class="allerg-grid" id="allerg-form">
+                <label class="allerg-item"><input type="checkbox" value="Glutine"> <span data-t="al_gluten">Glutine</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Lattosio"> <span data-t="al_lactose">Lattosio</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Frutta secca"> <span data-t="al_nuts">Frutta secca</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Crostacei"> <span data-t="al_shellfish">Crostacei</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Uova"> <span data-t="al_eggs">Uova</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Soia"> <span data-t="al_soy">Soia</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Pesce"> <span data-t="al_fish">Pesce</span></label>
+                <label class="allerg-item"><input type="checkbox" value="Sesamo"> <span data-t="al_sesame">Sesamo</span></label>
+                <label class="allerg-item"><input type="checkbox" id="allerg-altro-cb" value="__altro__" onchange="document.getElementById('allerg-altro-wrap').style.display=this.checked?'block':'none';if(this.checked)document.getElementById('allerg-altro-txt').focus()"> <span data-t="al_other">Altro</span></label>
+              </div>
+              <div id="allerg-altro-wrap" style="display:none;margin-top:8px">
+                <input id="allerg-altro-txt" placeholder="Specifica (es. melanzane, nichel...)" style="width:100%">
+              </div>
+            </div>
+            <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="g-intoll" placeholder="es. senza glutine..."></div>
+            <div class="ig admin-only"><label data-t="private_note">Nota privata (admin)</label><input id="g-nota-admin" placeholder="Solo tu puoi leggere questo"></div>
+            <div class="ig" style="align-self:end"><button class="btn-add" onclick="addGuest()" data-t="add_btn">+ Aggiungi</button></div>
+          </div>
+        </div>
+        <div class="search-row">
+          <input class="search-inp" id="g-search" placeholder="Cerca per cognome, tavolo..." oninput="renderGuests()">
+          <select class="filter-sel" id="g-filter-rsvp" onchange="renderGuests()">
+            <option value="">Tutti RSVP</option>
+            <option value="Confermato">Confermati</option>
+            <option value="In attesa">In attesa</option>
+            <option value="Assente">Assenti</option>
+          </select>
+          <select class="filter-sel" id="g-filter-menu" onchange="renderGuests()">
+            <option value="">Tutti menu</option>
+            <option value="Normale">Normale</option>
+            <option value="Carne">Carne</option>
+            <option value="Vegetariano">Vegetariano</option>
+            <option value="Vegano">Vegano</option>
+            <option value="Pesce">Pesce</option>
+            <option value="Staff">Staff</option>
+            <option value="Bambino">Bambino</option>
+            <option value="Neonato">Neonato</option>
+            <option value="Altro">Altro</option>
+          </select>
+          <button class="btn-sm" onclick="exportGuestsPDF('tavolo')" data-t="pdf_table">PDF per tavolo</button>
+          <button class="btn-sm" onclick="exportGuestsPDF('alfa')" data-t="pdf_alpha">PDF alfabetica</button>
+          <button class="btn-sm" onclick="exportGuestsCSV()" data-t="export_csv">CSV</button>
+          <button class="btn-sm" onclick="exportGuestsXLS()" data-t="backup_xls">Backup Excel</button>
+          <button class="btn-checkin" onclick="showCheckin()" data-t="checkin_btn">✓ Check-in</button>
+        </div>
+        <div class="tw">
+          <table>
+            <thead><tr>
+              <th data-t="lname">Cognome</th><th data-t="fname">Nome</th>
+              <th data-t="table_n">Tavolo</th><th>RSVP</th>
+              <th data-t="transfer">Transfer</th><th data-t="menu">Menu</th>
+              <th data-t="allergens">Allergeni</th><th data-t="intolerances">Note</th>
+              <th class="admin-only" data-t="private_note">★ Admin</th><th class="admin-only"></th><th></th>
+            </tr></thead>
+            <tbody id="tbody-guests"></tbody>
+          </table>
+        </div>
+        <div id="empty-guests" class="empty-state" style="display:none"><div class="ei">♡</div><p data-t="no_guests">Nessun ospite aggiunto</p></div>
+      </div>
+
+      <!-- CHECK-IN -->
+      <div id="view-checkin" class="view-panel fade-in" style="display:none">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+          <button class="btn-sm" onclick="hideCheckin()">← Lista ospiti</button>
+          <h3 style="margin:0;font-family:'Playfair Display',serif;font-weight:400">Check-in</h3>
+          <input class="search-inp" id="ci-search" placeholder="Cerca ospite..." oninput="renderCheckin()" style="flex:1;max-width:300px">
+        </div>
+        <!-- Contatore -->
+        <div class="ci-counter" id="ci-counter">
+          <div class="ci-num"><span id="ci-present">0</span><span class="ci-tot" id="ci-total">/0</span></div>
+          <div class="ci-label">OSPITI PRESENTI</div>
+          <div class="ci-bar-wrap"><div class="ci-bar" id="ci-bar"></div></div>
+          <div class="ci-sub"><span id="ci-arrived-lbl">0 arrivati</span> · <span id="ci-waiting-lbl">0 attesi</span> <span id="ci-pct" style="float:right;color:var(--gold);font-weight:600">0%</span></div>
+        </div>
+        <!-- Filtri tab -->
+        <div class="ci-tabs" style="display:flex;gap:8px;margin:16px 0">
+          <button class="ci-tab active" id="ci-tab-waiting" onclick="setCiTab('waiting')">Da arrivare</button>
+          <button class="ci-tab" id="ci-tab-arrived" onclick="setCiTab('arrived')">Arrivati</button>
+          <button class="ci-tab" id="ci-tab-all" onclick="setCiTab('all')">Tutti</button>
+        </div>
+        <!-- Griglia card -->
+        <div class="ci-grid" id="ci-grid"></div>
+        <div id="ci-empty" class="empty-state" style="display:none"><div class="ei">✓</div><p>Nessun ospite in questa categoria</p></div>
+      </div>
+
+      <!-- SEATING -->
+      <div id="view-seating" class="view-panel fade-in" style="display:none">
+        <div class="seating-controls">
+          <div class="ig" style="flex:0 0 auto">
+            <label data-t="num_tables">N° tavoli</label>
+            <input type="number" id="seat-num-tables" value="10" min="1" max="50" style="width:80px" onchange="renderSeating()">
+          </div>
+          <div class="ig" style="flex:0 0 auto">
+            <label data-t="seats_per_table">Posti per tavolo</label>
+            <input type="number" id="seat-capacity" value="10" min="1" max="30" style="width:80px" onchange="renderSeating()">
+          </div>
+          <div class="ig" style="flex:0 0 auto">
+            <label data-t="table_sposi">Tavolo Sposi</label>
+            <div style="height:38px;display:flex;align-items:center"><input type="checkbox" id="seat-sposi" onchange="renderSeating()" style="accent-color:var(--gold);width:20px;height:20px;cursor:pointer"></div>
+          </div>
+          <button class="btn-add" onclick="saveSeatingConfig()" data-t="save_config">Salva config</button>
+          <button class="btn-sm" onclick="autoAssign()" data-t="auto_assign">Auto-assegna non assegnati</button>
+          <button class="btn-sm" onclick="exportSeatingChartPDF()" data-t="seating_chart_pdf">Piantina PDF</button>
+        </div>
+        <div class="custom-tables-bar" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding:12px;background:var(--cream-d);border-radius:6px">
+          <label data-t="custom_tables" style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gray)">Tavoli personalizzati</label>
+          <div id="custom-tables-chips" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+          <input id="new-custom-table" placeholder="es. Fotografi" style="padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:13px;width:140px" onkeydown="if(event.key==='Enter')addCustomTable()">
+          <button class="btn-sm" onclick="addCustomTable()" data-t="add_custom_table">+ Aggiungi</button>
+        </div>
+        <div class="unassigned-pool">
+          <h4 data-t="unassigned">Non assegnati (<span id="unassigned-count">0</span>)</h4>
+          <div class="pool-guests" id="pool-guests" ondragover="onDragOverPool(event)" ondrop="onDropPool(event)"></div>
+        </div>
+        <div class="seating-area" id="seating-area"></div>
+
+        <!-- PIANTINA LOCATION -->
+        <div class="piantina-section" style="margin-top:32px;border-top:1px solid var(--gray-l);padding-top:24px">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+            <h4 data-t="floorplan" style="margin:0;font-family:'Playfair Display',serif;font-size:17px;font-weight:400">Piantina della Location</h4>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <span class="admin-only" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <input id="piantina-url" placeholder="Incolla il link dell'immagine (.jpg/.png)" style="width:280px;padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:12px">
+                <button class="btn-sm" onclick="savePiantinaUrl()" data-t="load_floorplan">Carica</button>
+                <button class="btn-sm" onclick="removePiantina()" data-t="remove_floorplan">Rimuovi</button>
+              </span>
+              <button class="btn-sm" id="piantina-export-btn" onclick="exportPiantinaPDF()" data-t="export_floorplan">⤓ PDF</button>
+            </div>
+          </div>
+          <div class="piantina-tabs" style="display:flex;gap:8px;margin-bottom:14px">
+            <button class="pt-btn active" id="pt-principale" onclick="switchPiantinaScenario('principale')" data-t="scenario_main">Principale</button>
+            <button class="pt-btn" id="pt-planB" onclick="switchPiantinaScenario('planB')" data-t="scenario_b">Piano B</button>
+          </div>
+          <div class="admin-only" id="piantina-hint" style="font-size:12px;color:var(--gray);margin-bottom:12px">
+            Trascina i tavoli sulla piantina per posizionarli come nella sala reale.
+          </div>
+          <div id="piantina-wrap" style="position:relative;display:inline-block;max-width:100%;min-width:300px;min-height:220px;border:1px solid var(--gray-l);border-radius:6px;overflow:hidden;background:var(--cream-d)">
+            <img id="piantina-img" alt="Piantina location" style="display:block;max-width:100%;height:auto;min-height:220px">
+            <div id="piantina-error" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:13px;color:var(--gray);background:var(--cream-d)">
+              Immagine non caricata.<br>Verifica che il link punti direttamente al file (non alla pagina di anteprima) e che sia condiviso pubblicamente.
+            </div>
+            <div id="piantina-markers" style="position:absolute;inset:0"></div>
+          </div>
+          <div id="piantina-empty" style="padding:30px;text-align:center;color:var(--gray);font-size:13px;background:var(--cream-d);border-radius:6px">
+            Nessuna piantina caricata.
+          </div>
+        </div>
+      </div>
+
+      <!-- BUDGET (admin only) -->
+      <div id="view-budget" class="view-panel admin-only fade-in" style="display:none">
+        <div class="stats-bar" id="budget-stats"></div>
+        <div class="form-card">
+          <div class="budget-total-row">
+            <h4 data-t="total_budget">Budget Totale:</h4>
+            <input class="budget-inp-inline" type="number" id="budget-max" value="20000" onchange="saveBudgetMax()">
+            <span style="color:var(--gold);font-family:'Playfair Display',serif;font-size:22px">€</span>
+          </div>
+          <div class="form-grid">
+            <div class="ig span2"><label data-t="expense_item">Voce di spesa</label><input type="text" id="b-desc" placeholder="es. Fiorista, Location..."></div>
+            <div class="ig"><label data-t="planned">Previsto (€)</label><input type="number" id="b-prev" placeholder="0"></div>
+            <div class="ig"><label data-t="actual">Effettivo (€)</label><input type="number" id="b-real" placeholder="0"></div>
+            <div class="ig"><label data-t="due_date">Scadenza pagamento</label><input type="date" id="b-scad"></div>
+            <div class="ig" style="align-self:end"><button class="btn-add" onclick="addBudgetItem()" data-t="add_btn">+ Aggiungi</button></div>
+          </div>
+        </div>
+        <div id="budget-alerts"></div>
+        <div class="tw"><table>
+          <thead><tr><th data-t="expense_item">Voce</th><th data-t="planned">Previsto</th><th data-t="actual">Effettivo</th><th data-t="diff">Differenza</th><th data-t="due_date">Scadenza</th><th></th></tr></thead>
+          <tbody id="tbody-budget"></tbody>
+        </table></div>
+        <div id="empty-budget" class="empty-state" style="display:none"><div class="ei">◎</div><p data-t="no_budget">Nessuna voce aggiunta</p></div>
+      </div>
+
+      <!-- FORNITORI -->
+      <div id="view-fornitori" class="view-panel fade-in" style="display:none">
+        <div class="form-card admin-only">
+          <h4 data-t="add_vendor">Aggiungi Fornitore</h4>
+          <div class="form-grid">
+            <div class="ig"><label data-t="category">Categoria</label>
+              <select id="f-cat">
+                <option>Location</option><option>Fotografo</option><option>Videomaker</option>
+                <option>Chiesa / Celebrante</option><option>Makeup & Hair Stylist</option>
+                <option>Auto Sposi</option><option>Hotel</option><option>Stationery</option>
+                <option>Musica</option><option>Animazione Bambini</option>
+                <option>Transfer Ospiti</option><option>Light Designer</option>
+                <option>Flower Designer</option><option>Altro</option>
+              </select></div>
+            <div class="ig"><label data-t="vendor_name">Nome Fornitore</label><input id="f-nome" placeholder="es. Studio Rossi"></div>
+            <div class="ig"><label data-t="contact">Contatto</label><input id="f-cont" placeholder="tel / email"></div>
+            <div class="ig"><label data-t="contract_amount">Importo (€)</label><input type="number" id="f-imp" placeholder="0"></div>
+            <div class="ig admin-only"><label data-t="deposit_paid">Acconto pagato (€)</label><input type="number" id="f-acc" placeholder="0"></div>
+            <div class="ig admin-only"><label data-t="due_date">Scadenza saldo</label><input type="date" id="f-scad"></div>
+            <div class="ig"><label data-t="status">Stato</label>
+              <select id="f-stato">
+                <option value="Da contattare" data-t="st_contact">Da contattare</option>
+                <option value="Confermato" data-t="st_confirmed">Confermato</option>
+                <option value="Acconto pagato" data-t="st_deposit">Acconto pagato</option>
+                <option value="Saldato" data-t="st_paid">Saldato</option>
+              </select></div>
+            <div class="ig span2"><label data-t="notes">Note</label><input id="f-note" placeholder="Note aggiuntive..."></div>
+            <div class="ig" style="align-self:end"><button class="btn-add" onclick="addVendor()" data-t="add_btn">+ Aggiungi</button></div>
+          </div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr id="vendors-thead">
+            <th data-t="category">Cat.</th><th data-t="vendor_name">Nome</th>
+            <th data-t="contact">Contatto</th><th data-t="contract_amount">Importo</th>
+            <th data-t="deposit_paid">Acconto</th>
+            <th data-t="due_date">Scadenza</th>
+            <th data-t="status">Stato</th><th data-t="notes">Note</th><th class="admin-only"></th>
+          </tr></thead>
+          <tbody id="tbody-fornitori"></tbody>
+        </table></div>
+        <div id="empty-fornitori" class="empty-state" style="display:none"><div class="ei">✦</div><p data-t="no_vendors">Nessun fornitore aggiunto</p></div>
+      </div>
+
+      <!-- TIMELINE (admin only) -->
+      <div id="view-timeline" class="view-panel admin-only fade-in" style="display:none">
+        <div class="form-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:4px">
+            <h4 data-t="timeline_title" style="margin:0">Timeline del Giorno</h4>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn-sm" onclick="exportTimelinePDF()" data-t="tl_pdf">PDF</button>
+              <button class="btn-sm" onclick="exportTimelineXLS()" data-t="tl_xls">Excel</button>
+              <button class="btn-sm" onclick="exportTimelineCSV()" data-t="tl_csv">CSV</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 14px">
+            <label data-t="tl_view_cat" style="font-size:12px;color:var(--gray);letter-spacing:1px;text-transform:uppercase">Timeline</label>
+            <select id="tl-cat-filter" onchange="renderTimeline()" style="padding:6px 10px;border:1px solid var(--gold);border-radius:4px;font-family:inherit;font-size:13px">
+              <option value="__all__">Tutte</option>
+              <option value="Generale">Generale</option>
+              <option value="Chiesa">Chiesa</option>
+              <option value="Musica">Musica</option>
+              <option value="Flower Designer">Flower Designer</option>
+              <option value="Make-up">Make-up</option>
+                <option value="Hair Stylist">Hair Stylist</option>
+              <option value="Sposa">Sposa</option>
+              <option value="Sposo">Sposo</option>
+              <option value="Auto Sposi">Auto Sposi</option>
+              <option value="Foto/Video">Foto/Video</option>
+              <option value="Light Designer">Light Designer</option>
+              <option value="Animazione Bambini">Animazione Bambini</option>
+              <option value="Catering">Catering</option>
+            </select>
+          </div>
+          <div class="tl-add-form">
+            <div class="ig"><label data-t="time">Orario</label><input type="time" id="tl-ora" style="width:110px"></div>
+            <div class="ig" style="flex:1"><label data-t="event">Evento</label><input id="tl-txt" placeholder="es. Cerimonia in chiesa"></div>
+            <div class="ig"><label data-t="tl_cat">Categoria</label>
+              <select id="tl-cat" style="padding:8px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit">
+                <option value="Generale">Generale</option>
+                <option value="Chiesa">Chiesa</option>
+                <option value="Musica">Musica</option>
+                <option value="Flower Designer">Flower Designer</option>
+                <option value="Make-up">Make-up</option>
+                <option value="Hair Stylist">Hair Stylist</option>
+                <option value="Sposa">Sposa</option>
+                <option value="Sposo">Sposo</option>
+                <option value="Auto Sposi">Auto Sposi</option>
+                <option value="Foto/Video">Foto/Video</option>
+                <option value="Light Designer">Light Designer</option>
+                <option value="Animazione Bambini">Animazione Bambini</option>
+                <option value="Catering">Catering</option>
+              </select>
+            </div>
+            <div class="ig" style="align-self:end"><button class="btn-add" onclick="addTimelineItem()" data-t="add_btn">+ Aggiungi</button></div>
+          </div>
+        </div>
+        <div class="timeline-list" id="timeline-list"></div>
+        <div id="empty-timeline" class="empty-state" style="display:none"><div class="ei">◷</div><p data-t="no_timeline">Nessun evento nella timeline</p></div>
+      </div>
+
+      <!-- CHECKLIST (admin only) -->
+      <div id="view-checklist" class="view-panel admin-only fade-in" style="display:none">
+        <div class="cl-progress" id="cl-progress-bar"><div class="cl-progress-fill" id="cl-progress-fill" style="width:0%"></div></div>
+        <div style="text-align:right;margin-top:-4px;margin-bottom:16px;font-size:12px;color:var(--gray)" id="cl-progress-label"></div>
+        <div class="form-card">
+          <h4 data-t="add_task">Aggiungi attività</h4>
+          <div class="cl-add-form">
+            <div class="ig" style="flex:2"><label data-t="task">Attività</label><input id="cl-text" placeholder="es. Confermare fiorista"></div>
+            <div class="ig"><label data-t="due_date">Scadenza</label><input type="date" id="cl-date"></div>
+            <div class="ig"><label data-t="category">Categoria</label>
+              <select id="cl-cat">
+                <option value="Fornitori">Fornitori</option><option value="Ospiti">Ospiti</option>
+                <option value="Logistica">Logistica</option><option value="Documenti">Documenti</option>
+                <option value="Altro">Altro</option>
+              </select></div>
+            <div class="ig" style="align-self:end"><button class="btn-add" onclick="addChecklistItem()" data-t="add_btn">+ Aggiungi</button></div>
+          </div>
+        </div>
+        <div id="checklist-list"></div>
+        <div id="empty-checklist" class="empty-state" style="display:none"><div class="ei">☑</div><p data-t="no_tasks">Nessuna attività</p></div>
+      </div>
+
+      <!-- ADMIN: MATRIMONI -->
+      <div id="view-admin-weddings" class="view-panel admin-only fade-in" style="display:none">
+        <div class="dash-header"><h1 data-t="nav_weddings">I Matrimoni</h1></div>
+        <div id="weddings-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px"></div>
+      </div>
+
+      <!-- ARCHIVIO -->
+      <div id="view-archivio" class="view-panel admin-only fade-in" style="display:none">
+        <div class="dash-header"><h1 data-t="nav_archive">Archivio</h1></div>
+        <div class="archive-grid" id="archive-grid"></div>
+        <div id="empty-archive" class="empty-state" style="display:none"><div class="ei">◻</div><p data-t="no_archive">Nessun matrimonio in archivio</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: MODIFICA OSPITE ══ -->
+<div class="modal-overlay" id="modal-guest">
+  <div class="modal-box" style="width:640px">
+    <button class="modal-close" onclick="closeModal('modal-guest')">✕</button>
+    <h3 class="modal-title" data-t="edit_guest">Modifica Ospite</h3>
+    <input type="hidden" id="edit-guest-id">
+    <div class="form-grid" style="margin-bottom:16px">
+      <div class="ig"><label data-t="fname">Nome *</label><input id="eg-nome"></div>
+      <div class="ig"><label data-t="lname">Cognome *</label><input id="eg-cognome"></div>
+      <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="text" id="eg-tavolo" list="tavoli-list" autocomplete="off"></div>
+      <div class="ig"><label data-t="phone">Telefono</label><input id="eg-tel"></div>
+      <div class="ig"><label>Email</label><input type="email" id="eg-email"></div>
+      <div class="ig"><label data-t="transfer">Transfer</label>
+        <select id="eg-transfer"><option value="No">No</option><option value="Sì">Sì</option></select></div>
+      <div class="ig"><label data-t="rsvp_stat">RSVP</label>
+        <select id="eg-rsvp">
+          <option value="In attesa">In attesa</option>
+          <option value="Confermato">Confermato</option>
+          <option value="Assente">Assente</option>
+        </select></div>
+      <div class="ig"><label data-t="menu">Menu</label>
+        <select id="eg-menu">
+          <option value="Normale">Normale</option>
+          <option value="Carne">Carne</option>
+          <option value="Vegetariano">Vegetariano</option>
+          <option value="Vegano">Vegano</option>
+          <option value="Pesce">Pesce</option>
+          <option value="Staff">Staff</option>
+          <option value="Bambino">Bambino</option>
+          <option value="Neonato">Neonato</option>
+          <option value="Altro">Altro</option>
+        </select></div>
+      <div class="ig span2">
+        <label data-t="allergens">Allergeni rapidi</label>
+        <div class="allerg-grid" id="eg-allerg-grid">
+          <label class="allerg-item"><input type="checkbox" value="Glutine" class="eg-allerg"> <span data-t="al_gluten">Glutine</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Lattosio" class="eg-allerg"> <span data-t="al_lactose">Lattosio</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Frutta secca" class="eg-allerg"> <span data-t="al_nuts">Frutta secca</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Crostacei" class="eg-allerg"> <span data-t="al_shellfish">Crostacei</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Uova" class="eg-allerg"> <span data-t="al_eggs">Uova</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Soia" class="eg-allerg"> <span data-t="al_soy">Soia</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Pesce" class="eg-allerg"> <span data-t="al_fish">Pesce</span></label>
+          <label class="allerg-item"><input type="checkbox" value="Sesamo" class="eg-allerg"> <span data-t="al_sesame">Sesamo</span></label>
+          <label class="allerg-item"><input type="checkbox" id="eg-allerg-altro-cb" value="__altro__" class="eg-allerg" onchange="document.getElementById('eg-allerg-altro-wrap').style.display=this.checked?'block':'none'"> <span data-t="al_other">Altro</span></label>
+        </div>
+        <div id="eg-allerg-altro-wrap" style="display:none;margin-top:8px">
+          <input id="eg-allerg-altro-txt" placeholder="Specifica (es. melanzane, nichel...)" style="width:100%">
+        </div>
+      </div>
+      <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="eg-intoll"></div>
+      <div class="ig admin-only span2"><label data-t="private_note">★ Nota privata (admin)</label><input id="eg-nota-admin"></div>
+    </div>
+    <div style="display:flex;gap:12px">
+      <button class="btn-primary" onclick="saveGuestEdit()" style="flex:1" data-t="save">Salva modifiche</button>
+      <button class="btn-sm" onclick="closeModal('modal-guest')" style="padding:16px 24px" data-t="cancel">Annulla</button>
+    </div>
+    <div class="err" id="edit-guest-err"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL: MODIFICA FORNITORE ══ -->
+<div class="modal-overlay" id="modal-vendor">
+  <div class="modal-box" style="width:640px">
+    <button class="modal-close" onclick="closeModal('modal-vendor')">✕</button>
+    <h3 class="modal-title" data-t="edit_vendor">Modifica Fornitore</h3>
+    <input type="hidden" id="edit-vendor-id">
+    <div class="form-grid" style="margin-bottom:16px">
+      <div class="ig"><label data-t="category">Categoria</label>
+        <select id="ev-cat">
+          <option>Location</option><option>Fotografo</option><option>Videomaker</option>
+          <option>Chiesa / Celebrante</option><option>Makeup & Hair Stylist</option>
+          <option>Auto Sposi</option><option>Hotel</option><option>Stationery</option>
+          <option>Musica</option><option>Animazione Bambini</option>
+          <option>Transfer Ospiti</option><option>Light Designer</option>
+          <option>Flower Designer</option><option>Altro</option>
+        </select></div>
+      <div class="ig"><label data-t="vendor_name">Nome Fornitore</label><input id="ev-nome"></div>
+      <div class="ig"><label data-t="contact">Contatto</label><input id="ev-cont" placeholder="tel / email"></div>
+      <div class="ig"><label data-t="contract_amount">Importo (€)</label><input type="number" id="ev-imp" placeholder="0"></div>
+      <div class="ig admin-only span2">
+        <label data-t="deposits">Acconti versati</label>
+        <div id="ev-acconti-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="ev-new-acc-importo" placeholder="Importo €" style="width:120px;padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px">
+          <input type="date" id="ev-new-acc-data" style="padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px">
+          <button type="button" class="btn-sm" onclick="addAccontoRow()" data-t="add_deposit">+ Acconto</button>
+          <span id="ev-acconti-tot" style="margin-left:auto;font-size:13px;color:var(--gray)"></span>
+        </div>
+      </div>
+      <div class="ig admin-only"><label data-t="due_date">Scadenza saldo</label><input type="date" id="ev-scad"></div>
+      <div class="ig"><label data-t="status">Stato</label>
+        <select id="ev-stato">
+          <option value="Da contattare">Da contattare</option>
+          <option value="Confermato">Confermato</option>
+          <option value="Acconto pagato">Acconto pagato</option>
+          <option value="Saldato">Saldato</option>
+        </select></div>
+      <div class="ig span2"><label data-t="notes">Note</label><input id="ev-note"></div>
+    </div>
+    <div style="display:flex;gap:12px">
+      <button class="btn-primary" onclick="saveVendorEdit()" style="flex:1" data-t="save">Salva modifiche</button>
+      <button class="btn-sm" onclick="closeModal('modal-vendor')" style="padding:16px 24px" data-t="cancel">Annulla</button>
+    </div>
+    <div class="err" id="edit-vendor-err"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL: NUOVO MATRIMONIO ══ -->
+<div class="modal-overlay" id="modal-wedding">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-wedding')">✕</button>
+    <h3 class="modal-title" data-t="new_wedding">Nuovo Matrimonio</h3>
+    <div class="form-grid" style="margin-bottom:20px">
+      <div class="ig"><label data-t="spouse1">Sposo/a 1</label><input id="m-n1" placeholder="Sofia"></div>
+      <div class="ig"><label data-t="spouse2">Sposo/a 2</label><input id="m-n2" placeholder="Marco"></div>
+    </div>
+    <div class="ig" style="margin-bottom:16px"><label data-t="wedding_date">Data Matrimonio</label><input type="date" id="m-date"></div>
+    <div class="ig" style="margin-bottom:16px"><label data-t="email_spouses">Email Sposi</label><input type="email" id="m-email" placeholder="sposi@email.com"></div>
+    <div class="ig" style="margin-bottom:16px"><label data-t="wedding_location">Location</label><input id="m-location" placeholder="es. Villa Borghese, Roma"></div>
+    <div class="ig" style="margin-bottom:28px"><label data-t="pwd_spouses">Password Sposi</label><input type="password" id="m-pwd" placeholder="minimo 6 caratteri"></div>
+    <button class="btn-primary" onclick="createWedding()" data-t="create_wedding">Crea Matrimonio</button>
+    <div class="err" id="modal-err"></div>
+  </div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {getDatabase,ref,set,push,remove,onValue,get,update} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const FC={
+  apiKey:"AIzaSyCtQ1RZlIy7dzQlIGj4-ohs7z7Ht5pdi2Q",
+  authDomain:"wedding-manager-f1488.firebaseapp.com",
+  databaseURL:"https://wedding-manager-f1488-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"wedding-manager-f1488",
+  storageBucket:"wedding-manager-f1488.firebasestorage.app",
+  messagingSenderId:"430184287073",
+  appId:"1:430184287073:web:826913002d74b394ac9320"
+};
+const app=initializeApp(FC);
+const auth=getAuth(app);
+const db=getDatabase(app);
+const ADMIN_UID="VcwNeVwESsOdR2Y2e0EGYOaiQO53";
+
+// ── STATE ──
+let CU=null,CW_ID=null,CW_DATA=null,IS_ADMIN=false;
+let guests={},budget={},vendors={},checklist={},timeline={},seatingCfg={tables:10,capacity:10};
+let LS=[],BL=[],VL=[],CL=[],TL=[];
+let dragGuest=null;
+let LANG='it';
+
+// ── TRANSLATIONS ──
+const T={
+  it:{
+    nav_dash:'Dashboard',nav_guests:'Ospiti',nav_seating:'Tavoli',nav_budget:'Budget',
+    nav_vendors:'Fornitori',nav_timeline:'Timeline',nav_checklist:'Checklist',
+    nav_weddings:'Matrimoni',nav_archive:'Archivio',
+    dash_title:'Dashboard',countdown_label:'Al matrimonio',
+    rsvp_status:'Stato RSVP',payment_alerts:'Pagamenti in scadenza',
+    rsvp_link_title:'Link RSVP ospiti',copy_link:'Copia link',copy_kitchen:'Link cucina',copy_checkin:'Link check-in staff',
+    add_guest:'Aggiungi Ospite',fname:'Nome',lname:'Cognome',table_n:'Tavolo N°',
+    phone:'Telefono',transfer:'Transfer',rsvp_stat:'RSVP',menu:'Menu',
+    allergens:'Allergeni rapidi',intolerances:'Intolleranze / Note',
+    private_note:'★ Nota admin',add_btn:'+ Aggiungi',no_guests:'Nessun ospite aggiunto',
+    rsvp_waiting:'In attesa',rsvp_yes:'Confermato',rsvp_no:'Assente',
+    num_tables:'N° tavoli',seats_per_table:'Posti per tavolo',
+    save_config:'Salva config',auto_assign:'Auto-assegna',unassigned:'Non assegnati',table_sposi:'Tavolo Sposi',table_staff:'Tavolo Staff',seating_chart_pdf:'Piantina PDF',custom_tables:'Tavoli personalizzati',add_custom_table:'+ Aggiungi',floorplan:'Piantina della Location',load_floorplan:'Carica',remove_floorplan:'Rimuovi',export_floorplan:'⤓ PDF',scenario_main:'Principale',scenario_b:'Piano B',
+    total_budget:'Budget Totale:',expense_item:'Voce di spesa',planned:'Previsto',
+    actual:'Effettivo',diff:'Differenza',due_date:'Scadenza',no_budget:'Nessuna voce',
+    add_vendor:'Aggiungi Fornitore',category:'Categoria',vendor_name:'Nome',
+    contact:'Contatto',contract_amount:'Importo',deposit_paid:'Acconto',deposits:'Acconti versati',add_deposit:'+ Acconto',
+    status:'Stato',notes:'Note',no_vendors:'Nessun fornitore',
+    st_contact:'Da contattare',st_confirmed:'Confermato',st_deposit:'Acconto pagato',st_paid:'Saldato',
+    timeline_title:'Timeline del Giorno',time:'Orario',event:'Evento',no_timeline:'Nessun evento',
+    add_task:'Aggiungi attività',task:'Attività',no_tasks:'Nessuna attività',
+    new_wedding:'Nuovo Matrimonio',spouse1:'Sposo/a 1',spouse2:'Sposo/a 2',
+    wedding_date:'Data Matrimonio',email_spouses:'Email Sposi',
+    wedding_location:'Location',pwd_spouses:'Password Sposi',create_wedding:'Crea Matrimonio',
+    nav_archive:'Archivio',no_archive:'Nessun matrimonio archiviato',
+    pdf_table:'PDF per tavolo',pdf_alpha:'PDF alfabetica',export_csv:'Esporta CSV',backup_xls:'Backup XLS',checkin_btn:'✓ Check-in',tl_pdf:'PDF',tl_xls:'Excel',tl_csv:'CSV',tl_cat:'Categoria',tl_view_cat:'Timeline',
+    edit_guest:'Modifica Ospite',edit_vendor:'Modifica Fornitore',save:'Salva modifiche',cancel:'Annulla',
+    al_gluten:'Glutine',al_lactose:'Lattosio',al_nuts:'Frutta secca',al_shellfish:'Crostacei',
+    al_eggs:'Uova',al_soy:'Soia',al_fish:'Pesce',al_sesame:'Sesamo',al_other:'Altro',
+    menu_normal:'Normale',menu_meat:'Carne',menu_veg:'Vegetariano',menu_vegan:'Vegano',menu_fish:'Pesce',
+    menu_staff:'Staff',menu_child:'Bambino',menu_baby:'Neonato',menu_other:'Altro',
+    days:'Giorni',hours:'Ore',mins:'Minuti',secs:'Secondi',
+    confirmed:'Confermati',waiting:'In attesa',absent:'Assenti',
+    kitchen_title:'Lista Cucina — Per il Catering',
+    table:'Tavolo',guests_total:'Ospiti Totali',
+    rsvp_invite:'Sei invitato al loro matrimonio. Conferma la tua presenza.',
+    rsvp_thanks_yes:'Grazie! Non vediamo l ora di festeggiare con te.',
+    rsvp_thanks_no:'Grazie per la risposta. Ci dispiace non potrai esserci.',
+  },
+  en:{
+    nav_dash:'Dashboard',nav_guests:'Guests',nav_seating:'Seating',nav_budget:'Budget',
+    nav_vendors:'Vendors',nav_timeline:'Timeline',nav_checklist:'Checklist',
+    nav_weddings:'Weddings',nav_archive:'Archive',
+    dash_title:'Dashboard',countdown_label:'To the wedding',
+    rsvp_status:'RSVP Status',payment_alerts:'Upcoming payments',
+    rsvp_link_title:'Guest RSVP link',copy_link:'Copy link',copy_kitchen:'Kitchen link',
+    add_guest:'Add Guest',fname:'First name',lname:'Last name',table_n:'Table N°',
+    phone:'Phone',transfer:'Transfer',rsvp_stat:'RSVP',menu:'Menu',
+    allergens:'Quick allergens',intolerances:'Intolerances / Notes',
+    private_note:'★ Admin note',add_btn:'+ Add',no_guests:'No guests added',
+    rsvp_waiting:'Pending',rsvp_yes:'Confirmed',rsvp_no:'Absent',
+    num_tables:'N° tables',seats_per_table:'Seats per table',
+    save_config:'Save config',auto_assign:'Auto-assign',unassigned:'Unassigned',table_sposi:'Couple table',table_staff:'Staff table',seating_chart_pdf:'Layout PDF',custom_tables:'Custom tables',add_custom_table:'+ Add',floorplan:'Venue Floor Plan',load_floorplan:'Load',remove_floorplan:'Remove',export_floorplan:'⤓ PDF',scenario_main:'Principale',scenario_b:'Piano B',
+    total_budget:'Total Budget:',expense_item:'Expense',planned:'Planned',
+    actual:'Actual',diff:'Difference',due_date:'Due date',no_budget:'No items',
+    add_vendor:'Add Vendor',category:'Category',vendor_name:'Name',
+    contact:'Contact',contract_amount:'Amount',deposit_paid:'Deposit',deposits:'Deposits paid',add_deposit:'+ Deposit',
+    status:'Status',notes:'Notes',no_vendors:'No vendors',
+    st_contact:'To contact',st_confirmed:'Confirmed',st_deposit:'Deposit paid',st_paid:'Paid in full',
+    timeline_title:'Day Timeline',time:'Time',event:'Event',no_timeline:'No events',
+    add_task:'Add task',task:'Task',no_tasks:'No tasks',
+    new_wedding:'New Wedding',spouse1:'Partner 1',spouse2:'Partner 2',
+    wedding_date:'Wedding date',email_spouses:'Couple email',
+    wedding_location:'Venue',pwd_spouses:'Couple password',create_wedding:'Create Wedding',
+    nav_archive:'Archive',no_archive:'No archived weddings',
+    pdf_table:'PDF by table',pdf_alpha:'PDF alphabetical',export_csv:'Export CSV',backup_xls:'Backup XLS',checkin_btn:'✓ Check-in',tl_pdf:'PDF',tl_xls:'Excel',tl_csv:'CSV',tl_cat:'Category',tl_view_cat:'Timeline',
+    edit_guest:'Edit Guest',edit_vendor:'Edit Vendor',save:'Save changes',cancel:'Cancel',
+    al_gluten:'Gluten',al_lactose:'Lactose',al_nuts:'Tree nuts',al_shellfish:'Shellfish',
+    al_eggs:'Eggs',al_soy:'Soy',al_fish:'Fish',al_sesame:'Sesame',al_other:'Other',
+    menu_normal:'Standard',menu_meat:'Meat',menu_veg:'Vegetarian',menu_vegan:'Vegan',menu_fish:'Fish',
+    menu_staff:'Staff',menu_child:'Child',menu_baby:'Baby',menu_other:'Other',
+    days:'Days',hours:'Hours',mins:'Minutes',secs:'Seconds',
+    confirmed:'Confirmed',waiting:'Pending',absent:'Absent',
+    kitchen_title:'Kitchen List — For Catering',
+    table:'Table',guests_total:'Total Guests',
+    rsvp_invite:'You are invited to their wedding. Please confirm your attendance.',
+    rsvp_thanks_yes:'Thank you! We cant wait to celebrate with you.',
+    rsvp_thanks_no:'Thank you for your reply. Were sorry you wont be able to join.',
+  }
+};
+
+function t(key){return T[LANG][key]||T['it'][key]||key}
+
+window.toggleMobileMenu=function(){
+  const sidebar=document.querySelector('.sidebar');
+  const overlay=document.getElementById('mobile-overlay');
+  const btn=document.getElementById('hamburger-btn');
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('active');
+  btn.classList.toggle('open');
+};
+
+window.closeMobileMenu=function(){
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  document.getElementById('mobile-overlay').classList.remove('active');
+  document.getElementById('hamburger-btn').classList.remove('open');
+};
+
+// Close menu when nav item clicked on mobile
+const origShowView=window.showView;
+window.showView=function(name){
+  if(window.innerWidth<=900)closeMobileMenu();
+  origShowView(name);
+};
+
+window.setLang=function(l){
+  LANG=l;
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    const k=el.getAttribute('data-t');
+    if(el.tagName==='OPTION')el.textContent=t(k);
+    else if(el.tagName==='INPUT'&&el.placeholder){}
+    else el.textContent=t(k);
+  });
+  // Update placeholders
+  const placeholders={
+    'g-nome': l==='en'?'Marco':'Marco',
+    'g-cognome': l==='en'?'Smith':'Rossi',
+    'g-tel': l==='en'?'+44 333...':'+39 333...',
+    'g-intoll': l==='en'?'e.g. gluten free...':'es. senza glutine...',
+    'g-nota-admin': l==='en'?'Only you can read this':'Solo tu puoi leggere questo',
+    'g-search': l==='en'?'Search by last name, table...':'Cerca per cognome, tavolo...',
+    'b-desc': l==='en'?'e.g. Florist, Venue...':'es. Fiorista, Location...',
+    'f-nome': l==='en'?'e.g. Studio Smith':'es. Studio Rossi',
+    'f-cont': l==='en'?'phone / email':'tel / email',
+    'f-note': l==='en'?'Additional notes...':'Note aggiuntive...',
+    'cl-text': l==='en'?'e.g. Confirm florist':'es. Confermare fiorista',
+    'tl-txt': l==='en'?'e.g. Church ceremony':'es. Cerimonia in chiesa',
+    'm-n1': l==='en'?'Sofia':'Sofia',
+    'm-n2': l==='en'?'Marco':'Marco',
+    'm-email': l==='en'?'couple@email.com':'sposi@email.com',
+    'm-location': l==='en'?'e.g. Villa Borghese, Rome':'es. Villa Borghese, Roma',
+    'login-email': l==='en'?'your email':'la tua email',
+  };
+  Object.entries(placeholders).forEach(([id,ph])=>{
+    const el=document.getElementById(id);
+    if(el)el.placeholder=ph;
+  });
+  // Update filter selects
+  const rsvpSel=document.getElementById('g-filter-rsvp');
+  if(rsvpSel){
+    rsvpSel.options[0].text=l==='en'?'All RSVP':'Tutti RSVP';
+    rsvpSel.options[1].text=l==='en'?'Confirmed':'Confermati';
+    rsvpSel.options[2].text=l==='en'?'Pending':'In attesa';
+    rsvpSel.options[3].text=l==='en'?'Absent':'Assenti';
+  }
+  const menuSel=document.getElementById('g-filter-menu');
+  if(menuSel){
+    menuSel.options[0].text=l==='en'?'All menus':'Tutti menu';
+  }
+  document.getElementById('lang-sel').value=l;
+  if(CW_ID)renderAll();
+}
+
+// ── URL PARAMS ──
+const urlP=new URLSearchParams(location.search);
+const MODE=urlP.get('mode'); // 'rsvp' | 'cucina' | 'checkin'
+const WID_PARAM=urlP.get('w');
+const KEY_PARAM=urlP.get('key');
+
+// ── SCREEN SWITCHER ──
+function showScreen(id){
+  ['s-login','s-rsvp','s-cucina','s-checkin','s-app'].forEach(s=>{
+    const el=document.getElementById(s);
+    el.classList.remove('active');
+    el.style.display='none';
+    el.style.visibility='hidden';
+  });
+  const el=document.getElementById(id);
+  el.classList.add('active');
+  el.style.visibility='visible';
+  if(id==='s-login')el.style.display='flex';
+  else if(id==='s-rsvp')el.style.display='flex';
+  else el.style.display='block';
+}
+
+// ── RSVP MODE ──
+// Hide all screens on load
+['s-rsvp','s-cucina','s-app'].forEach(s=>{
+  const el=document.getElementById(s);
+  if(el){el.style.display='none';el.style.visibility='hidden';}
+});
+
+if(MODE==='rsvp'&&WID_PARAM){
+  showScreen('s-rsvp');
+  loadRsvpPage(WID_PARAM);
+}else if(MODE==='cucina'&&WID_PARAM){
+  showScreen('s-cucina');
+  loadKitchenPage(WID_PARAM);
+}else if(MODE==='checkin'&&WID_PARAM){
+  showScreen('s-checkin');
+  loadCheckinPage(WID_PARAM,KEY_PARAM);
+}
+
+let rsvpSelection=null;
+window.selectRsvp=function(v){
+  rsvpSelection=v;
+  document.getElementById('rsvp-yes-btn').className=v==='yes'?'btn-rsvp-yes rsvp-selected-yes':'btn-rsvp-yes';
+  document.getElementById('rsvp-no-btn').className=v==='no'?'btn-rsvp-no rsvp-selected-no':'btn-rsvp-no';
+}
+
+async function loadRsvpPage(wid){
+  const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
+  if(!snap.exists())return;
+  const w=snap.val();
+  document.getElementById('rsvp-couple').textContent=`${w.nome1} & ${w.nome2}`;
+  document.getElementById('rsvp-date').textContent=formatDate(w.data);
+  const lang=w.lang||'it';
+  LANG=lang;
+  document.getElementById('rsvp-invite-text').textContent=t('rsvp_invite');
+  document.getElementById('rsvp-yes-btn').textContent='✓ '+( lang==='en'?'Confirm attendance':'Confermo la presenza');
+  document.getElementById('rsvp-no-btn').textContent='✕ '+(lang==='en'?"I won't be able to attend":'Non potrò essere presente');
+  document.getElementById('r-send').textContent=lang==='en'?'Send confirmation':'Invia conferma';
+}
+
+window.submitRsvp=async function(){
+  if(!rsvpSelection){document.getElementById('rsvp-err').textContent='Seleziona una risposta';return;}
+  const nome=document.getElementById('rsvp-nome').value.trim();
+  const cognome=document.getElementById('rsvp-cognome').value.trim();
+  if(!nome||!cognome){document.getElementById('rsvp-err').textContent='Nome e cognome obbligatori';return;}
+  const allergeni=Array.from(document.querySelectorAll('.rsvp-allerg-cb:checked')).map(c=>c.value);
+  const guest={
+    nome,cognome,
+    email:document.getElementById('rsvp-email').value.trim(),
+    tel:document.getElementById('rsvp-tel').value.trim(),
+    menu:document.getElementById('rsvp-menu').value,
+    allergeni:allergeni.join(', '),
+    intolleranze:document.getElementById('rsvp-note').value.trim(),
+    rsvp:rsvpSelection==='yes'?'Confermato':'Assente',
+    tavolo:'',transfer:'No',notaAdmin:''
+  };
+  // Cerca corrispondenza tra gli ospiti gia in lista (nome+cognome normalizzati)
+  const norm=s=>(s||'').trim().toLowerCase().replace(/\s+/g,' ');
+  const key=norm(nome)+'|'+norm(cognome);
+  let matchId=null;
+  try{
+    const allSnap=await get(ref(db,`matrimoni/${WID_PARAM}/ospiti`));
+    if(allSnap.exists()){
+      const all=allSnap.val();
+      for(const gid in all){
+        if(norm(all[gid].nome)+'|'+norm(all[gid].cognome)===key){matchId=gid;break;}
+      }
+    }
+  }catch(e){console.error('RSVP match lookup failed',e);}
+  if(matchId){
+    // Ospite gia in lista: aggiorna conservando il tavolo, nessun flag
+    const {tavolo,...fields}=guest;
+    fields.source='verificato';
+    await update(ref(db,`matrimoni/${WID_PARAM}/ospiti/${matchId}`),fields);
+  }else{
+    // Ospite non in lista: crea nuovo record marcato per la verifica
+    guest.source='rsvp';
+    await push(ref(db,`matrimoni/${WID_PARAM}/ospiti`),guest);
+  }
+  document.getElementById('rsvp-form-wrap').style.display='none';
+  const thanks=document.getElementById('rsvp-thanks');
+  thanks.style.display='block';
+  thanks.querySelector('.icon').textContent=rsvpSelection==='yes'?'✦':'♡';
+  thanks.querySelector('h3').textContent=rsvpSelection==='yes'?'Grazie!':'Risposta registrata';
+  thanks.querySelector('p').textContent=t(rsvpSelection==='yes'?'rsvp_thanks_yes':'rsvp_thanks_no');
+}
+
+// ── CUCINA MODE ──
+// ── MODALITÀ CHECK-IN STAFF ──
+let ciStaffGuests={};
+let ciStaffTab='waiting';
+async function loadCheckinPage(wid,key){
+  const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
+  if(!snap.exists()){document.getElementById('ci-grid-staff').innerHTML='<p style="color:red;padding:20px">Matrimonio non trovato.</p>';return;}
+  const w=snap.val();
+  // Verifica chiave
+  if(key&&w.checkinKey&&w.checkinKey!==key){
+    document.getElementById('ci-grid-staff').innerHTML='<p style="color:red;padding:20px">Accesso non autorizzato.</p>';
+    return;
+  }
+  document.getElementById('ci-couple-title').textContent=`${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)}`;
+  // Ascolta ospiti in tempo reale
+  onValue(ref(db,`matrimoni/${wid}/ospiti`),(s)=>{
+    ciStaffGuests=s.exists()?s.val():{};
+    renderCheckinStaff();
+  });
+}
+let ciStaffTabVal='waiting';
+window.setCiStaffTab=function(tab){
+  ciStaffTabVal=tab;
+  ['waiting','arrived','all'].forEach(t=>{
+    document.getElementById('cis-tab-'+t).classList.toggle('active',t===tab);
+  });
+  renderCheckinStaff();
+};
+window.toggleCheckinStaff=async function(gid){
+  const g=ciStaffGuests[gid];
+  if(!g)return;
+  const presente=!g.checkin?.presente;
+  const ora=presente?new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}):'';
+  const upd={};
+  upd[`${gid}/checkin`]=presente?{presente:true,ora}:null;
+  await update(ref(db,`matrimoni/${WID_PARAM}/ospiti`),upd);
+};
+window.renderCheckinStaff=function(){
+  const all=Object.entries(ciStaffGuests);
+  const confirmed=all.filter(([,g])=>g.rsvp==='Confermato'||!g.rsvp);
+  const total=confirmed.length;
+  const arrived=confirmed.filter(([,g])=>g.checkin?.presente).length;
+  const pct=total>0?Math.round(arrived/total*100):0;
+  document.getElementById('ci-present-staff').textContent=arrived;
+  document.getElementById('ci-total-staff').textContent='/'+total;
+  document.getElementById('ci-bar-staff').style.width=pct+'%';
+  document.getElementById('ci-arrived-staff').textContent=arrived+' arrivati';
+  document.getElementById('ci-waiting-staff').textContent=(total-arrived)+' attesi';
+  document.getElementById('ci-pct-staff').textContent=pct+'%';
+  const q=(document.getElementById('ci-search-staff')?.value||'').toLowerCase();
+  let filtered=confirmed;
+  if(ciStaffTabVal==='waiting')filtered=confirmed.filter(([,g])=>!g.checkin?.presente);
+  if(ciStaffTabVal==='arrived')filtered=confirmed.filter(([,g])=>g.checkin?.presente);
+  if(q)filtered=filtered.filter(([,g])=>`${g.cognome} ${g.nome}`.toLowerCase().includes(q));
+  filtered.sort((a,b)=>{
+    const ca=a[1].checkin?.presente?1:0,cb=b[1].checkin?.presente?1:0;
+    if(ca!==cb)return ca-cb;
+    return (a[1].cognome||'').localeCompare(b[1].cognome||'');
+  });
+  const grid=document.getElementById('ci-grid-staff');
+  const empty=document.getElementById('ci-empty-staff');
+  grid.innerHTML='';
+  empty.style.display=filtered.length===0?'block':'none';
+  grid.style.display=filtered.length===0?'none':'grid';
+  filtered.forEach(([gid,g])=>{
+    const presente=!!g.checkin?.presente;
+    const ora=g.checkin?.ora||'';
+    const tLabel=g.tavolo?(isNaN(g.tavolo)?g.tavolo:'Tavolo '+g.tavolo):'Senza tavolo';
+    const card=document.createElement('div');
+    card.className='ci-card'+(presente?' checked':'');
+    card.innerHTML=`
+      <div class="ci-circle">${presente?'✓':''}</div>
+      <div class="ci-info">
+        <div class="ci-name">${g.cognome||''} ${g.nome||''}</div>
+        <div class="ci-meta"><span>⊞ ${tLabel}</span>${g.posto?`<span>· posto ${g.posto}</span>`:''}</div>
+        ${ora?`<div class="ci-ora">✓ Arrivato alle ${ora}</div>`:''}
+      </div>`;
+    card.onclick=()=>toggleCheckinStaff(gid);
+    grid.appendChild(card);
+  });
+};
+
+async function loadKitchenPage(wid){
+  const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
+  if(!snap.exists())return;
+  const w=snap.val();
+  document.getElementById('cucina-couple').textContent=`${w.nome1} & ${w.nome2} — ${formatDate(w.data)}`;
+  window.customTableNames=w.tavoliNomi||{};
+  onValue(ref(db,`matrimoni/${wid}/ospiti`),(snap)=>{
+    const gs=snap.exists()?snap.val():{};
+    renderKitchen(gs,LANG);
+  });
+}
+
+window.setCucinaLang=function(l,btn){
+  LANG=l;
+  document.querySelectorAll('.cucina-lang-toggle .lang-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(WID_PARAM)get(ref(db,`matrimoni/${WID_PARAM}/ospiti`)).then(s=>renderKitchen(s.exists()?s.val():{},l));
+}
+
+function renderKitchen(gs,lang){
+  const all=Object.values(gs);
+  const confirmed=all.filter(g=>g.rsvp==='Confermato'||!g.rsvp);
+  // Stats
+  const menuCounts={};
+  const allergenCounts={};
+  confirmed.forEach(g=>{
+    const m=g.menu||'Normale';
+    menuCounts[m]=(menuCounts[m]||0)+1;
+    if(g.allergeni)g.allergeni.split(',').forEach(a=>{const k=a.trim();if(k)allergenCounts[k]=(allergenCounts[k]||0)+1});
+  });
+  const statsEl=document.getElementById('cucina-stats');
+  // Dettaglio menu per ciascun tavolo (totale + ripartizione menu)
+  const byTableAll={};
+  confirmed.forEach(g=>{const t=g.tavolo||'—';if(!byTableAll[t])byTableAll[t]=[];byTableAll[t].push(g);});
+  const menuBreakdown=(arr)=>{const c={};arr.forEach(g=>{const m=g.menu||'Normale';c[m]=(c[m]||0)+1;});return Object.entries(c).map(([m,n])=>`${n} ${m.toLowerCase()}`).join(', ');};
+  const tableKeys=Object.keys(byTableAll).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
+  const T=lang==='en'?{menu:'Menu',allerg:'Allergies / Intolerances',tables:'Tables',total:'Total'}:{menu:'Menu',allerg:'Allergie / Intolleranze',tables:'Tavoli',total:'Totale'};
+  const sectionTitle=(txt)=>`<div style="grid-column:1/-1;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin:14px 0 4px;font-weight:600">${txt}</div>`;
+  const stat=(n,l)=>`<div class="c-stat"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  let html=stat(confirmed.length,T.total);
+  // SEZIONE MENU
+  html+=sectionTitle(T.menu);
+  html+=Object.entries(menuCounts).map(([m,n])=>stat(n,m)).join('');
+  // SEZIONE ALLERGIE
+  if(Object.keys(allergenCounts).length){
+    html+=sectionTitle(T.allerg);
+    html+=Object.entries(allergenCounts).map(([a,n])=>stat(n,a)).join('');
+  }
+  // SEZIONE TAVOLI (totale + dettaglio menu per tavolo)
+  html+=sectionTitle(T.tables);
+  html+=tableKeys.map(t=>{
+    const arr=byTableAll[t];
+    const label=(t==='—')?(lang==='en'?'Unassigned':'Non assegnati'):tableLabel(t,lang);
+    return `<div class="c-stat" style="text-align:left"><div class="n" style="font-size:18px">${label}: ${arr.length}</div><div class="l" style="text-transform:none;letter-spacing:0;font-size:11px">${menuBreakdown(arr)}</div></div>`;
+  }).join('');
+  statsEl.innerHTML=html;
+
+  // Tables
+  const byTable={};
+  confirmed.forEach(g=>{
+    const t=g.tavolo||'—';
+    if(!byTable[t])byTable[t]=[];
+    byTable[t].push(g);
+  });
+  const bodyEl=document.getElementById('cucina-body');
+  bodyEl.innerHTML='';
+  const sorted=Object.keys(byTable).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
+  sorted.forEach(table=>{
+    const gs=byTable[table];
+    const sec=document.createElement('div');
+    sec.className='cucina-table-section';
+    sec.innerHTML=`<div class="cucina-table-title">${tableLabel(table,lang)} <span style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--gray);font-weight:400">(${gs.length} ${lang==='en'?'guests':'ospiti'})</span></div>
+    <table><thead><tr>
+      <th style="width:32px">#</th>
+      <th>${lang==='en'?'Last name':'Cognome'}</th>
+      <th>${lang==='en'?'First name':'Nome'}</th>
+      <th>Menu</th>
+      <th>${lang==='en'?'Allergens':'Allergeni'}</th>
+      <th>${lang==='en'?'Notes':'Note'}</th>
+    </tr></thead><tbody>${
+      gs.sort((a,b)=>((typeof a.posto==='number')?a.posto:9999)-((typeof b.posto==='number')?b.posto:9999)||(a.cognome||'').localeCompare(b.cognome||''))
+        .map((g,i)=>`<tr><td style="text-align:center;font-weight:600">${i+1}</td><td>${g.cognome}</td><td>${g.nome}</td>
+        <td><span class="badge ${menuBadge(g.menu)}">${g.menu||'Normale'}</span></td>
+        <td style="font-size:12px">${g.allergeni||'—'}</td>
+        <td style="font-size:12px">${g.intolleranze||'—'}</td></tr>`).join('')
+    }</tbody></table>`;
+    bodyEl.appendChild(sec);
+  });
+  document.getElementById('cucina-title').textContent=lang==='en'?'Kitchen List':'Lista Cucina';
+  const pdfLbl=document.getElementById('cucina-pdf-label');
+  if(pdfLbl)pdfLbl.textContent=lang==='en'?'Download PDF':'Scarica PDF';
+}
+
+function menuBadge(m){
+  const map={Normale:'b-gray',Carne:'b-red',Vegetariano:'b-green',Vegano:'b-teal',Pesce:'b-blue',Staff:'b-gray',Bambino:'b-orange',Neonato:'b-gold',Altro:'b-gray'};
+  return map[m]||'b-gray';
+}
+// Mappa globale id->nome dei tavoli personalizzati (popolata sia in admin sia in cucina)
+window.customTableNames={};
+function isCustomTable(t){return t==='staff'||(typeof t==='string'&&t.indexOf('ct_')===0);}
+// Normalizza il valore del campo tavolo
+window.normalizeTable=function(v){
+  const raw=(v||'').trim();
+  const s=raw.toLowerCase();
+  if(s==='sposi'||s==='sposo'||s==='sposa')return 'sposi';
+  if(s==='staff')return 'staff';
+  // Se corrisponde al NOME di un tavolo personalizzato, riconverti nel suo id
+  for(const id in window.customTableNames){
+    if((window.customTableNames[id]||'').trim().toLowerCase()===s)return id;
+  }
+  return raw;
+}
+// Ordina le chiavi tavolo: Sposi, poi tavoli personalizzati, poi numerici, poi non assegnati
+function tableSortKey(t){
+  if(t==='sposi')return -100;
+  if(isCustomTable(t))return -50;
+  if(t==='—'||t==='Non assegnato')return 99999;
+  const n=parseInt(t);return isNaN(n)?99998:n;
+}
+function tableLabel(t,lang){
+  if(t==='sposi')return lang==='en'?'Couple table':'Tavolo Sposi';
+  if(isCustomTable(t))return window.customTableNames[t]||(t==='staff'?'Staff':t);
+  return (lang==='en'?'Table ':'Tavolo ')+t;
+}
+// Etichetta leggibile del tavolo per export/liste (numero o nome, mai l'id interno)
+window.tavoloLabel=function(t){
+  if(!t)return '';
+  if(t==='sposi'||isCustomTable(t))return tableLabel(t,'it');
+  return t;
+};
+
+// Esporta la piantina dei tavoli in PDF (forma + numeri posto). Predisposta per piu forme, per ora solo tondo.
+window.exportSeatingChartPDF=function(){
+  if(!CW_ID)return;
+  const w=CW_DATA||{};
+  const numT=seatingCfg.tables||10;
+  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
+  const customTables=seatingCfg.customTables||[];
+  const so=g=>(typeof g.posto==='number')?g.posto:9999;
+  // Elenco tavoli da disegnare nell'ordine corretto
+  const tableIds=[];
+  if(showSposi)tableIds.push('sposi');
+  customTables.forEach(ct=>tableIds.push(ct.id));
+  for(let i=1;i<=numT;i++)tableIds.push(String(i));
+  // Disegna un tavolo tondo come SVG: cerchio centrale + posti numerati attorno
+  function drawTable(tId){
+    const occupanti=Object.entries(guests)
+      .filter(([,g])=>g.tavolo===tId)
+      .sort((a,b)=>so(a[1])-so(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||''));
+    if(!occupanti.length)return '';
+    const label=(tId==='sposi')?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||'Staff'):tId;
+    const n=occupanti.length;
+    const cx=150,cy=150,rTable=70,rSeat=14,rOrbit=rTable+30;
+    let seats='';
+    if(tId==='sposi'&&n>=2){
+      // Sposi (posti 1 e 2) affiancati in alto; gli altri distribuiti sull'arco inferiore
+      const posList=[];
+      // posto 1: leggermente a sinistra del centro-alto; posto 2: a destra
+      const spread=22; // distanza orizzontale tra i due sposi
+      posList.push({x:cx-spread,y:cy-rOrbit});
+      posList.push({x:cx+spread,y:cy-rOrbit});
+      // restanti ospiti lungo l'arco inferiore (da destra-alto a sinistra-alto passando dal basso)
+      const rest=n-2;
+      if(rest>0){
+        const startA=-40, endA=220; // archi in gradi (esclude la zona alta degli sposi)
+        for(let k=0;k<rest;k++){
+          const a=(startA+(endA-startA)*(rest===1?0.5:k/(rest-1)))*Math.PI/180;
+          posList.push({x:cx+rOrbit*Math.cos(a), y:cy-rOrbit*Math.sin(a)});
+        }
+      }
+      occupanti.forEach((o,idx)=>{
+        const p=posList[idx];
+        seats+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${rSeat}" fill="#fff" stroke="#b08d57" stroke-width="1"/>`
+          +`<text x="${p.x.toFixed(1)}" y="${(p.y+3.5).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:bold;fill:#1a1a1a">${idx+1}</text>`;
+      });
+    }else{
+      // posti in cerchio, partendo dall'alto (ore 12) in senso orario
+      occupanti.forEach((o,idx)=>{
+        const ang=(-90+(360/n)*idx)*Math.PI/180;
+        const sx=cx+rOrbit*Math.cos(ang);
+        const sy=cy+rOrbit*Math.sin(ang);
+        seats+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${rSeat}" fill="#fff" stroke="#b08d57" stroke-width="1"/>`
+          +`<text x="${sx.toFixed(1)}" y="${(sy+3.5).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:bold;fill:#1a1a1a">${idx+1}</text>`;
+      });
+    }
+    return `<div style="display:inline-block;width:300px;text-align:center;vertical-align:top;margin-bottom:10px;page-break-inside:avoid">
+      <svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="${cx}" cy="${cy}" r="${rTable}" fill="#faf7f2" stroke="#b08d57" stroke-width="1.5"/>
+        <text x="${cx}" y="${cy-4}" text-anchor="middle" style="font-size:15px;font-weight:bold;fill:#1a1a1a">${(tId==='sposi'||isCustomTable(tId))?label:'Tavolo '+label}</text>
+        <text x="${cx}" y="${cy+16}" text-anchor="middle" style="font-size:11px;fill:#888">${n} ospiti</text>
+        ${seats}
+      </svg></div>`;
+  }
+  const charts=tableIds.map(drawTable).filter(Boolean).join('');
+  const win=window.open('','_blank');
+  win.document.write(`<html><head><title>Piantina Tavoli — ${w.nome1||''} & ${w.nome2||''}</title></head>
+    <body style="font-family:Arial,sans-serif;padding:24px;color:#1a1a1a;text-align:center">
+      <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:64px"><br>
+      <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin:8px 0 20px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)} · Piantina Tavoli</div>
+      <div>${charts}</div>
+      <script>window.onload=function(){window.print();}<\/script>
+    </body></html>`);
+  win.document.close();
+};
+
+// Esporta la lista cucina in PDF stampabile (per tavolo, ordinata per posto)
+window.exportKitchenPDF=async function(){
+  if(!WID_PARAM)return;
+  const lang=LANG||'it';
+  const pSnap=await get(ref(db,`matrimoni/${WID_PARAM}/pubblico`));
+  const w=pSnap.exists()?pSnap.val():{};
+  const gSnap=await get(ref(db,`matrimoni/${WID_PARAM}/ospiti`));
+  const gs=gSnap.exists()?gSnap.val():{};
+  const confirmed=Object.values(gs).filter(g=>g.rsvp==='Confermato'||!g.rsvp);
+  const byTable={};
+  confirmed.forEach(g=>{const t=g.tavolo||'—';if(!byTable[t])byTable[t]=[];byTable[t].push(g);});
+  const sorted=Object.keys(byTable).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
+  const so=g=>(typeof g.posto==='number')?g.posto:9999;
+  // Riepilogo completo come nella vista a schermo: ogni menu + ogni allergene/intolleranza
+  const menuCounts={};
+  const allergenCounts={};
+  confirmed.forEach(g=>{
+    const m=g.menu||'Normale';
+    menuCounts[m]=(menuCounts[m]||0)+1;
+    if(g.allergeni)g.allergeni.split(',').forEach(a=>{const k=a.trim();if(k)allergenCounts[k]=(allergenCounts[k]||0)+1});
+  });
+  const tot=confirmed.length;
+  const neonati=confirmed.filter(g=>(g.menu||'')==='Neonato').length;
+  const porzioni=tot-neonati;
+  const L=lang==='en'
+    ?{title:'Kitchen List',table:'Table',guests:'guests',ln:'Last name',fn:'First name',menu:'Menu',al:'Allergens',no:'Notes',total:'Total',portions:'portions',babies:'babies, no portion'}
+    :{title:'Lista Cucina',table:'Tavolo',guests:'ospiti',ln:'Cognome',fn:'Nome',menu:'Menu',al:'Allergeni',no:'Note',total:'Totale',portions:'porzioni',babies:'neonati, no porzione'};
+  const cell=(n,label)=>`<div style="border:1px solid #ddd;border-radius:4px;padding:8px 10px;text-align:center;min-width:64px;background:#fff"><div style="font-size:20px;font-weight:bold;color:#1a1a1a">${n}</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-top:2px">${label}</div></div>`;
+  const T=lang==='en'?{menu:'Menu',allerg:'Allergies / Intolerances',tables:'Tables'}:{menu:'Menu',allerg:'Allergie / Intolleranze',tables:'Tavoli'};
+  const secT=(txt)=>`<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;font-weight:bold;margin:14px 0 6px">${txt}</div>`;
+  // ripartizione menu per tavolo
+  const menuBreakdown=(arr)=>{const c={};arr.forEach(g=>{const m=g.menu||'Normale';c[m]=(c[m]||0)+1;});return Object.entries(c).map(([m,n])=>`${n} ${m.toLowerCase()}`).join(', ');};
+  let menuCells=Object.entries(menuCounts).map(([m,n])=>cell(n,m)).join('');
+  let allergCells=Object.entries(allergenCounts).map(([a,n])=>cell(n,a)).join('');
+  let tableCells=sorted.map(t=>{
+    const arr=byTable[t];
+    const label=(t==='—')?(lang==='en'?'Unassigned':'Non assegnati'):tableLabel(t,lang);
+    return `<div style="border:1px solid #ddd;border-radius:4px;padding:8px 10px;min-width:120px;background:#fff"><div style="font-size:14px;font-weight:bold;color:#1a1a1a">${label}: ${arr.length}</div><div style="font-size:10px;color:#888;margin-top:2px">${menuBreakdown(arr)}</div></div>`;
+  }).join('');
+  const babyNote=neonati>0?`<div style="font-size:11px;color:#888;margin-top:8px">${porzioni} ${L.portions} · ${neonati} ${L.babies}</div>`:'';
+  const summaryBlock=`
+    <div style="background:#faf7f2;border:1px solid #e5ddd0;border-radius:6px;padding:14px 18px;margin-bottom:26px;text-align:left">
+      <div style="font-size:13px"><strong>${L.total}: ${tot}</strong></div>
+      ${secT(T.menu)}<div style="display:flex;flex-wrap:wrap;gap:8px">${menuCells}</div>
+      ${babyNote}
+      ${allergCells?secT(T.allerg)+`<div style="display:flex;flex-wrap:wrap;gap:8px">${allergCells}</div>`:''}
+      ${secT(T.tables)}<div style="display:flex;flex-wrap:wrap;gap:8px">${tableCells}</div>
+    </div>`;
+  const body=sorted.map(table=>`
+    <h2 style="font-family:serif;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin-top:22px">${tableLabel(table,lang)} <span style="font-weight:400;color:#888;font-size:14px">(${byTable[table].length} ${L.guests})</span></h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <tr style="background:#f5f0e8"><th style="width:30px;border:1px solid #ccc;padding:5px">#</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.ln}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.fn}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.menu}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.al}</th><th style="border:1px solid #ccc;padding:5px;text-align:left">${L.no}</th></tr>
+      ${byTable[table].sort((a,b)=>so(a)-so(b)||(a.cognome||'').localeCompare(b.cognome||'')).map((g,i)=>`<tr><td style="text-align:center;font-weight:bold;border:1px solid #ccc;padding:5px">${i+1}</td><td style="border:1px solid #ccc;padding:5px">${g.cognome||''}</td><td style="border:1px solid #ccc;padding:5px">${g.nome||''}</td><td style="border:1px solid #ccc;padding:5px">${g.menu||'Normale'}</td><td style="border:1px solid #ccc;padding:5px">${g.allergeni||'—'}</td><td style="border:1px solid #ccc;padding:5px">${g.intolleranze||'—'}</td></tr>`).join('')}
+    </table>`).join('');
+  const win=window.open('','_blank');
+  win.document.write(`<html><head><title>${L.title} — ${w.nome1||''} & ${w.nome2||''}</title></head>
+    <body style="font-family:Arial,sans-serif;padding:30px;color:#1a1a1a">
+      <div style="text-align:center;margin-bottom:20px">
+        <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:70px"><br>
+        <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin-top:8px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)}</div>
+      </div>
+      ${summaryBlock}
+      ${body}
+      <script>window.onload=function(){window.print();}<\/script>
+    </body></html>`);
+  win.document.close();
+};
+
+// ── AUTH ──
+window.doLogin=async function(){
+  const email=document.getElementById('login-email').value;
+  const pwd=document.getElementById('login-pwd').value;
+  document.getElementById('login-err').textContent='';
+  try{await signInWithEmailAndPassword(auth,email,pwd);}
+  catch(e){document.getElementById('login-err').textContent=LANG==='en'?'Invalid email or password.':'Email o password errati.';}
+};
+window.doLogout=async function(){await signOut(auth);};
+
+onAuthStateChanged(auth,async(user)=>{
+  if(MODE==='rsvp'||MODE==='cucina'||MODE==='checkin')return;
+  if(user){
+    CU=user;
+    const adminSnap=await get(ref(db,`admin/${user.uid}`));
+    IS_ADMIN=adminSnap.exists();
+    showScreen('s-app');
+    document.getElementById('user-chip').textContent=user.email;
+    document.getElementById('role-badge').style.display=IS_ADMIN?'inline':'none';
+    document.querySelectorAll('.admin-only').forEach(el=>el.style.display=IS_ADMIN?'':'none');
+    document.querySelectorAll('.admin-only-nav').forEach(el=>el.style.display=IS_ADMIN?'':'none');
+    if(IS_ADMIN){loadAdminWeddings();}
+    else{
+      const wSnap=await get(ref(db,'matrimoni'));
+      if(wSnap.exists()){
+        for(const [wid,w] of Object.entries(wSnap.val())){
+          if(w.uid===user.uid&&!w.archived){loadWedding(wid,w);return;}
+        }
+      }
+    }
+  }else{
+    CU=null;CW_ID=null;
+    if(MODE!=='rsvp'&&MODE!=='cucina'&&MODE!=='checkin')showScreen('s-login');
+  }
+});
+
+// ── ADMIN: WEDDINGS ──
+function loadAdminWeddings(){
+  showView('admin-weddings');
+  onValue(ref(db,'matrimoni'),(snap)=>{
+    const grid=document.getElementById('weddings-grid');
+    grid.innerHTML='';
+    if(snap.exists()){
+      for(const [wid,w] of Object.entries(snap.val())){
+        if(!w.pubblico&&w.nome1){update(ref(db,`matrimoni/${wid}/pubblico`),{nome1:w.nome1,nome2:w.nome2,data:w.data});}
+        if(w.archived)continue;
+        const gc=w.ospiti?Object.keys(w.ospiti).length:0;
+        const card=document.createElement('div');
+        card.style.cssText='background:white;border:1px solid var(--gray-l);padding:24px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden';
+        card.innerHTML=`<div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .3s" class="card-line"></div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:400;margin-bottom:6px">${w.nome1} & ${w.nome2}</h3>
+          <div style="color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">${formatDate(w.data)}</div>
+          <div style="font-size:13px;color:var(--gray);margin-bottom:6px">♡ ${gc} ospiti${w.location?' · '+w.location:''}</div>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <button class="btn-sm" onclick="event.stopPropagation();loadWeddingById('${wid}')">Gestisci</button>
+            <button class="btn-sm" onclick="event.stopPropagation();archiveWedding('${wid}')" style="color:var(--gray)">Archivia</button>
+            <button class="btn-sm" onclick="event.stopPropagation();deleteWeddingConfirm('${wid}','${w.nome1} & ${w.nome2}')" style="color:var(--red)">Elimina</button>
+          </div>`;
+        card.onmouseenter=()=>card.querySelector('.card-line').style.transform='scaleX(1)';
+        card.onmouseleave=()=>card.querySelector('.card-line').style.transform='scaleX(0)';
+        grid.appendChild(card);
+      }
+    }
+    const addCard=document.createElement('div');
+    addCard.style.cssText='background:transparent;border:1px dashed var(--gray-l);padding:24px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:140px;transition:all .3s';
+    addCard.innerHTML=`<div style="font-size:30px;color:var(--gold)">+</div><span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gray)" data-t="new_wedding">Nuovo Matrimonio</span>`;
+    addCard.onmouseenter=()=>{addCard.style.borderColor='var(--gold)';addCard.style.background='var(--gold-pale)'};
+    addCard.onmouseleave=()=>{addCard.style.borderColor='var(--gray-l)';addCard.style.background='transparent'};
+    addCard.onclick=()=>document.getElementById('modal-wedding').classList.add('active');
+    grid.appendChild(addCard);
+    // Archive
+    const archiveGrid=document.getElementById('archive-grid');
+    archiveGrid.innerHTML='';
+    let hasArchive=false;
+    if(snap.exists()){
+      for(const [wid,w] of Object.entries(snap.val())){
+        if(!w.archived)continue;
+        window._weddingCache[wid]=w;
+        hasArchive=true;
+        window._weddingCache[wid]=w;
+        const card=document.createElement('div');
+        card.className='archive-card';
+        card.innerHTML=`<h3>${w.nome1} & ${w.nome2}</h3>
+          <div class="arc-date">${formatDate(w.data)}</div>
+          <div style="font-size:13px;color:var(--gray);margin-bottom:12px">♡ ${w.ospiti?Object.keys(w.ospiti).length:0} ospiti</div>
+          <button class="btn-sm" onclick="loadWeddingById('${wid}')">Apri</button>
+          <button class="btn-sm" style="color:var(--green);margin-left:8px" onclick="unarchiveWedding('${wid}')">Ripristina</button>`;
+        archiveGrid.appendChild(card);
+      }
+    }
+    document.getElementById('empty-archive').style.display=hasArchive?'none':'block';
+  });
+}
+
+window._weddingCache={};
+
+window.loadWeddingById=function(wid){
+  const w=window._weddingCache[wid];
+  if(w){loadWedding(wid,w);}
+  else{get(ref(db,'matrimoni/'+wid)).then(function(s){if(s.exists())loadWedding(wid,s.val());});}
+};
+
+window.archiveWedding=async function(wid){
+  if(confirm('Archiviare questo matrimonio?')){await update(ref(db,`matrimoni/${wid}`),{archived:true});}
+};
+window.unarchiveWedding=async function(wid){await update(ref(db,`matrimoni/${wid}`),{archived:false});};
+window.deleteWeddingConfirm=async function(wid,name){
+  if(confirm(`Eliminare definitivamente ${name}? Questa azione non può essere annullata.`)){await remove(ref(db,`matrimoni/${wid}`));}
+};
+
+// ── LOAD WEDDING ──
+function loadWedding(wid,w){
+  CW_ID=wid;CW_DATA=w;
+  if(LS)LS.forEach(u=>u&&u());
+  [LS,BL,VL,CL,TL]=[],[],[],[],[];
+  guests={};budget={};vendors={};checklist={};timeline={};
+  document.getElementById('dash-couple-name').textContent=`${w.nome1} & ${w.nome2}`;
+  document.getElementById('dash-wedding-date').textContent=formatDate(w.data);
+  const rsvpUrl=`${location.origin}${location.pathname}?mode=rsvp&w=${wid}`;
+  const kitchenUrl=`${location.origin}${location.pathname}?mode=cucina&w=${wid}`;
+  document.getElementById('rsvp-link-display').textContent=rsvpUrl;
+  window._rsvpUrl=rsvpUrl;window._kitchenUrl=kitchenUrl;
+  // Popola la chiave check-in se già impostata
+  if(w.checkinKey){const inp=document.getElementById('checkin-key-input');if(inp)inp.value=w.checkinKey;}
+  startCountdown(w.data);
+  const L1=onValue(ref(db,`matrimoni/${wid}/ospiti`),(s)=>{guests=s.exists()?s.val():{};renderGuests();renderSeating();renderDashboard();if(document.getElementById('view-checkin')?.style.display!=='none')renderCheckin();});
+  const L2=onValue(ref(db,`matrimoni/${wid}/budget`),(s)=>{const d=s.exists()?s.val():{};budget=d.voci||{};document.getElementById('budget-max').value=d.max||20000;renderBudget();});
+  const L3=onValue(ref(db,`matrimoni/${wid}/fornitori`),(s)=>{vendors=s.exists()?s.val():{};renderVendors();renderDashboard();});
+  const L4=onValue(ref(db,`matrimoni/${wid}/checklist`),(s)=>{checklist=s.exists()?s.val():{};renderChecklist();});
+  const L5=onValue(ref(db,`matrimoni/${wid}/timeline`),(s)=>{timeline=s.exists()?s.val():{};renderTimeline();});
+  const L6=onValue(ref(db,`matrimoni/${wid}/seating`),(s)=>{
+    if(s.exists()){
+      seatingCfg=s.val();
+      // Migrazione: il vecchio tavolo "staff" diventa un tavolo personalizzato
+      if(!seatingCfg.customTables)seatingCfg.customTables=[];
+      if(seatingCfg.staff && !seatingCfg.customTables.some(t=>t.id==='staff')){
+        seatingCfg.customTables.unshift({id:'staff',nome:'Staff'});
+        delete seatingCfg.staff;
+      }
+      document.getElementById('seat-num-tables').value=seatingCfg.tables||10;
+      document.getElementById('seat-capacity').value=seatingCfg.capacity||10;
+      document.getElementById('seat-sposi').checked=!!seatingCfg.sposi;
+    }
+    window.customTableNames={};
+    (seatingCfg.customTables||[]).forEach(t=>{window.customTableNames[t.id]=t.nome;});
+    ensurePiantine(); // migra la vecchia piantina singola nel formato a scenari
+    renderCustomTableChips();
+    renderSeating();
+    renderPiantina(); // aggiorna piantina solo quando cambia la config tavoli
+    // La lista ospiti mostra i nomi dei tavoli: ridisegnala ora che la mappa nomi e pronta
+    if(typeof renderGuests==='function')renderGuests();
+  });
+  LS=[L1,L2,L3,L4,L5,L6];
+  showView('dashboard');
+}
+
+// ── COUNTDOWN ──
+function startCountdown(dateStr){
+  if(window._cdInterval)clearInterval(window._cdInterval);
+  function update(){
+    if(!dateStr)return;
+    const parts=dateStr.split('-');
+    const target=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+    const now=new Date();
+    const diff=target-now;
+    if(diff<=0){document.getElementById('countdown-units').innerHTML='<div class="cd-unit"><div class="cd-num" style="color:var(--gold)">✦</div><div class="cd-label">Oggi!</div></div>';return;}
+    const d=Math.floor(diff/86400000);
+    const h=Math.floor((diff%86400000)/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    document.getElementById('countdown-units').innerHTML=
+      `<div class="cd-unit"><div class="cd-num">${d}</div><div class="cd-label">${t('days')}</div></div>`+
+      `<div class="cd-unit"><div class="cd-num">${h}</div><div class="cd-label">${t('hours')}</div></div>`+
+      `<div class="cd-unit"><div class="cd-num">${m}</div><div class="cd-label">${t('mins')}</div></div>`+
+      `<div class="cd-unit"><div class="cd-num">${s}</div><div class="cd-label">${t('secs')}</div></div>`;
+  }
+  update();
+  window._cdInterval=setInterval(update,1000);
+}
+
+// ── DASHBOARD ──
+function renderDashboard(){
+  if(!CW_ID)return;
+  const all=Object.values(guests);
+  const conf=all.filter(g=>g.rsvp==='Confermato').length;
+  const wait=all.filter(g=>!g.rsvp||g.rsvp==='In attesa').length;
+  const abs=all.filter(g=>g.rsvp==='Assente').length;
+  const tot=all.length;
+  const vPct=tot>0?Math.round(conf/tot*100):0;
+  const allV=Object.values(vendors);
+  const vConf=allV.filter(v=>v.stato==='Confermato'||v.stato==='Acconto pagato'||v.stato==='Saldato').length;
+  const bVoci=Object.values(budget);
+  const bSpeso=bVoci.reduce((s,b)=>s+(b.real||0),0);
+  const bMax=parseFloat(document.getElementById('budget-max').value)||0;
+  const bPct=bMax>0?Math.round(bSpeso/bMax*100):0;
+  document.getElementById('dash-kpi').innerHTML=`
+    <div class="kpi"><div class="kpi-n">${tot}</div><div class="kpi-l">${t('nav_guests')}</div><div class="progress-bar"><div class="progress-fill" style="width:${vPct}%"></div></div></div>
+    <div class="kpi green"><div class="kpi-n">${conf}</div><div class="kpi-l">${t('confirmed')}</div></div>
+    <div class="kpi"><div class="kpi-n">${wait}</div><div class="kpi-l">${t('waiting')}</div></div>
+    <div class="kpi red"><div class="kpi-n">${abs}</div><div class="kpi-l">${t('absent')}</div></div>
+    <div class="kpi gold"><div class="kpi-n">${vConf}/${allV.length}</div><div class="kpi-l">${t('nav_vendors')}</div></div>
+    <div class="kpi ${bPct>80?'red':'gold'}"><div class="kpi-n">€${Math.round(bSpeso/1000)}k</div><div class="kpi-l">${t('nav_budget')}</div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(bPct,100)}%;background:${bPct>80?'var(--red)':'var(--gold)'}"></div></div></div>`;
+  // RSVP list
+  const recent=Object.values(guests).filter(g=>g.source==='rsvp').slice(-5);
+  document.getElementById('dash-rsvp-list').innerHTML=recent.length?
+    recent.map(g=>`<div class="rsvp-item"><span>${g.nome} ${g.cognome}</span><span class="badge ${g.rsvp==='Confermato'?'b-green':'b-red'}">${g.rsvp}</span></div>`).join('')
+    :`<div style="color:var(--gray);font-size:13px;padding:8px 0">Nessuna risposta RSVP ancora</div>`;
+  // Payment alerts
+  const today=new Date();
+  const upcoming=Object.values(vendors).filter(v=>{
+    if(v.stato==='Saldato')return false;
+    if(!v.scadenza)return false;
+    const d=new Date(v.scadenza);
+    return (d-today)<=30*86400000;
+  });
+  document.getElementById('dash-payments').innerHTML=upcoming.length?
+    upcoming.map(v=>`<div class="alert-payment"><span><strong>${v.nome}</strong> — ${v.cat}</span><span style="color:var(--orange);font-size:12px">${v.scadenza||''}</span></div>`).join('')
+    :`<div style="color:var(--gray);font-size:13px;padding:8px 0">Nessun pagamento in scadenza</div>`;
+}
+
+// ── GUESTS ──
+window.addGuest=async function(){
+  const nome=document.getElementById('g-nome').value.trim();
+  const cognome=document.getElementById('g-cognome').value.trim();
+  if(!nome||!cognome){alert('Nome e cognome obbligatori');return;}
+  const allergeni=Array.from(document.querySelectorAll('#allerg-form input:checked')).map(c=>c.value).filter(v=>v!=='__altro__');
+  const altroTxt=document.getElementById('allerg-altro-cb').checked?document.getElementById('allerg-altro-txt').value.trim():'';
+  if(altroTxt)allergeni.push(altroTxt);
+  const g={
+    nome,cognome,
+    tavolo:window.normalizeTable(document.getElementById('g-tavolo').value),
+    tel:document.getElementById('g-tel').value.trim(),
+    email:document.getElementById('g-email').value.trim(),
+    transfer:document.getElementById('g-transfer').value,
+    rsvp:document.getElementById('g-rsvp').value,
+    menu:document.getElementById('g-menu').value,
+    allergeni:allergeni.join(', '),
+    intolleranze:document.getElementById('g-intoll').value.trim(),
+    notaAdmin:document.getElementById('g-nota-admin').value.trim()
+  };
+  await push(ref(db,`matrimoni/${CW_ID}/ospiti`),g);
+  ['g-nome','g-cognome','g-tavolo','g-tel','g-email','g-intoll','g-nota-admin'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('g-transfer').value='No';
+  document.getElementById('g-menu').value='Normale';
+  document.getElementById('g-rsvp').value='In attesa';
+  document.querySelectorAll('#allerg-form input').forEach(c=>c.checked=false);
+  document.getElementById('allerg-altro-txt').value='';
+  document.getElementById('allerg-altro-wrap').style.display='none';
+};
+
+window.deleteGuest=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/ospiti/${id}`));};
+window.clearRsvpFlag=async function(id){await set(ref(db,`matrimoni/${CW_ID}/ospiti/${id}/source`),'verificato');};
+window.updateGuest=async function(id,field,value){await set(ref(db,`matrimoni/${CW_ID}/ospiti/${id}/${field}`),value);};
+
+window.renderGuests=function(){
+  const q=(document.getElementById('g-search').value||'').toLowerCase();
+  const fRsvp=document.getElementById('g-filter-rsvp').value;
+  const fMenu=document.getElementById('g-filter-menu').value;
+  let arr=Object.entries(guests).filter(([,g])=>{
+    if(q&&!g.cognome?.toLowerCase().includes(q)&&!g.nome?.toLowerCase().includes(q)&&!String(g.tavolo).includes(q))return false;
+    if(fRsvp&&g.rsvp!==fRsvp)return false;
+    if(fMenu&&g.menu!==fMenu)return false;
+    return true;
+  }).sort((a,b)=>a[1].cognome?.localeCompare(b[1].cognome)||0);
+
+  const all=Object.values(guests);
+  const conf=all.filter(g=>g.rsvp==='Confermato').length;
+  const wait=all.filter(g=>!g.rsvp||g.rsvp==='In attesa').length;
+  const abs=all.filter(g=>g.rsvp==='Assente').length;
+  const transfer=all.filter(g=>g.transfer==='Sì').length;
+  const carne=all.filter(g=>g.menu==='Carne').length;
+  const veg=all.filter(g=>g.menu==='Vegetariano').length;
+  const vegan=all.filter(g=>g.menu==='Vegano').length;
+  const bambini=all.filter(g=>g.menu==='Bambino').length;
+  const neonati=all.filter(g=>g.menu==='Neonato').length;
+  const altro=all.filter(g=>g.menu==='Altro').length;
+  const allerg=all.filter(g=>g.allergeni&&g.allergeni.length>0).length;
+  document.getElementById('ospiti-stats').innerHTML=`
+    <div class="stat-i"><div class="sn">${all.length}</div><div class="sl">Totale</div></div>
+    <div class="stat-i green"><div class="sn">${conf}</div><div class="sl">${t('confirmed')}</div></div>
+    <div class="stat-i"><div class="sn">${wait}</div><div class="sl">${t('waiting')}</div></div>
+    <div class="stat-i red"><div class="sn">${abs}</div><div class="sl">${t('absent')}</div></div>
+    <div class="stat-i gold"><div class="sn">${transfer}</div><div class="sl">Transfer</div></div>
+    <div class="stat-i red"><div class="sn">${carne}</div><div class="sl">${t('menu_meat')}</div></div>
+    <div class="stat-i green"><div class="sn">${veg}</div><div class="sl">Vegetariani</div></div>
+    <div class="stat-i teal"><div class="sn">${vegan}</div><div class="sl">Vegani</div></div>
+    <div class="stat-i orange"><div class="sn">${bambini}</div><div class="sl">Bambini</div></div>
+    <div class="stat-i gold"><div class="sn">${neonati}</div><div class="sl">${t('menu_baby')}</div></div>
+    <div class="stat-i purple"><div class="sn">${allerg}</div><div class="sl">Allergeni</div></div>
+    <div class="stat-i"><div class="sn">${altro}</div><div class="sl">${t('menu_other')}</div></div>`;
+
+  const tbody=document.getElementById('tbody-guests');
+  tbody.innerHTML='';
+  document.getElementById('empty-guests').style.display=all.length===0?'block':'none';
+  arr.forEach(([id,g])=>{
+    const rsvpB=g.rsvp==='Confermato'?'b-green':g.rsvp==='Assente'?'b-red':'b-gray';
+    const isUnmatched=g.source==='rsvp';
+    const rsvpFlag=isUnmatched?`<span class="rsvp-flag">RSVP<span class="rsvp-tip">${LANG==='en'?'RSVP not matched to your guest list — review and merge if needed':'RSVP non corrispondente alla lista — verifica ed eventualmente unisci'}</span></span><button class="rsvp-ok" onclick="event.stopPropagation();clearRsvpFlag('${id}')" title="${LANG==='en'?'Mark as verified':'Segna come verificato'}">✓</button>`:'';
+    const tr=document.createElement('tr');
+    if(isUnmatched&&IS_ADMIN)tr.className='rsvp-unmatched';
+    tr.style.cursor='pointer';
+    tr.addEventListener('click',function(e){
+      if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION'){
+        openGuestEdit(id);
+      }
+    });
+    tr.innerHTML=`
+      <td contenteditable="true" onblur="updateGuest('${id}','cognome',this.textContent.trim())">${g.cognome||''}</td>
+      <td contenteditable="true" onblur="updateGuest('${id}','nome',this.textContent.trim())">${g.nome||''}</td>
+      <td contenteditable="true" onblur="updateGuest('${id}','tavolo',normalizeTable(this.textContent))">${(g.tavolo&&(g.tavolo==='sposi'||isCustomTable(g.tavolo)))?tableLabel(g.tavolo,LANG):(g.tavolo||'')}</td>
+      <td><select class="badge ${rsvpB}" onchange="updateGuest('${id}','rsvp',this.value);const m={Confermato:'b-green',Assente:'b-red','In attesa':'b-gray'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
+        ${[['In attesa',t('rsvp_waiting')],['Confermato',t('rsvp_yes')],['Assente',t('rsvp_no')]].map(([v,label])=>`<option value="${v}" ${(g.rsvp||'In attesa')===v?'selected':''}>${label}</option>`).join('')}
+      </select></td>
+      <td><span class="badge ${g.transfer==='Sì'?'b-gold':'b-gray'}">${g.transfer==='Sì'?(LANG==='en'?'Yes':'Sì'):'No'}</span></td>
+      <td><select class="badge ${menuBadge(g.menu)}" onchange="updateGuest('${id}','menu',this.value);const mm={'Normale':'b-gray','Carne':'b-red','Vegetariano':'b-green','Vegano':'b-teal','Pesce':'b-blue','Staff':'b-gray','Bambino':'b-orange','Neonato':'b-gold','Altro':'b-gray'};this.className='badge '+(mm[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
+        ${[['Normale',t('menu_normal')],['Carne',t('menu_meat')],['Vegetariano',t('menu_veg')],['Vegano',t('menu_vegan')],['Pesce',t('menu_fish')],['Staff',t('menu_staff')],['Bambino',t('menu_child')],['Neonato',t('menu_baby')],['Altro',t('menu_other')]].map(([v,label])=>`<option value="${v}" ${(g.menu||'Normale')===v?'selected':''}>${label}</option>`).join('')}
+      </select></td>
+      <td style="font-size:12px;max-width:120px">${g.allergeni||'—'}</td>
+      <td contenteditable="true" onblur="updateGuest('${id}','intolleranze',this.textContent.trim())" style="min-width:80px">${g.intolleranze||''}</td>
+      <td class="admin-only" contenteditable="true" onblur="updateGuest('${id}','notaAdmin',this.textContent.trim())" style="color:var(--gray);font-size:12px;min-width:80px">${g.notaAdmin||''}</td>
+      <td class="admin-only" style="white-space:nowrap">${rsvpFlag}</td>
+      <td><button class="btn-icon" onclick="deleteGuest('${id}')">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  if(!IS_ADMIN)document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');
+};
+
+// ── CHECK-IN ──
+let ciTab='waiting'; // 'waiting' | 'arrived' | 'all'
+const canCheckin=()=>IS_ADMIN||IS_SPOSI; // admin e sposi possono fare check-in (staff = sposi)
+
+window.showCheckin=function(){
+  document.getElementById('view-ospiti').style.display='none';
+  document.getElementById('view-checkin').style.display='block';
+  renderCheckin();
+};
+window.hideCheckin=function(){
+  document.getElementById('view-checkin').style.display='none';
+  document.getElementById('view-ospiti').style.display='block';
+};
+window.setCiTab=function(tab){
+  ciTab=tab;
+  ['waiting','arrived','all'].forEach(t=>{
+    document.getElementById('ci-tab-'+t).classList.toggle('active',t===tab);
+  });
+  renderCheckin();
+};
+window.toggleCheckin=async function(gid){
+  if(!canCheckin())return;
+  const g=guests[gid];
+  if(!g)return;
+  const presente=!g.checkin?.presente;
+  const ora=presente?new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}):'';
+  const upd={};
+  upd[`${gid}/checkin`]=presente?{presente:true,ora}:null;
+  await update(ref(db,`matrimoni/${CW_ID}/ospiti`),upd);
+};
+window.renderCheckin=function(){
+  const all=Object.entries(guests);
+  const confirmed=all.filter(([,g])=>g.rsvp==='Confermato'||!g.rsvp);
+  const total=confirmed.length;
+  const arrivedList=confirmed.filter(([,g])=>g.checkin?.presente);
+  const arrived=arrivedList.length;
+  const pct=total>0?Math.round(arrived/total*100):0;
+  // Aggiorna contatore
+  document.getElementById('ci-present').textContent=arrived;
+  document.getElementById('ci-total').textContent='/'+total;
+  document.getElementById('ci-bar').style.width=pct+'%';
+  document.getElementById('ci-arrived-lbl').textContent=arrived+' arrivati';
+  document.getElementById('ci-waiting-lbl').textContent=(total-arrived)+' attesi';
+  document.getElementById('ci-pct').textContent=pct+'%';
+  // Filtra per tab e ricerca
+  const q=(document.getElementById('ci-search')?.value||'').toLowerCase();
+  let filtered=confirmed;
+  if(ciTab==='waiting')filtered=confirmed.filter(([,g])=>!g.checkin?.presente);
+  if(ciTab==='arrived')filtered=confirmed.filter(([,g])=>g.checkin?.presente);
+  if(q)filtered=filtered.filter(([,g])=>`${g.cognome} ${g.nome}`.toLowerCase().includes(q));
+  // Ordine: non arrivati prima, poi arrivati; alfabetico per cognome
+  filtered.sort((a,b)=>{
+    const ca=a[1].checkin?.presente?1:0, cb=b[1].checkin?.presente?1:0;
+    if(ca!==cb)return ca-cb;
+    return (a[1].cognome||'').localeCompare(b[1].cognome||'');
+  });
+  const grid=document.getElementById('ci-grid');
+  const empty=document.getElementById('ci-empty');
+  grid.innerHTML='';
+  empty.style.display=filtered.length===0?'block':'none';
+  grid.style.display=filtered.length===0?'none':'grid';
+  filtered.forEach(([gid,g])=>{
+    const presente=!!g.checkin?.presente;
+    const ora=g.checkin?.ora||'';
+    const tLabel=g.tavolo?(g.tavolo==='sposi'||isCustomTable(g.tavolo))?tableLabel(g.tavolo,'it'):'Tavolo '+g.tavolo:'Senza tavolo';
+    const card=document.createElement('div');
+    card.className='ci-card'+(presente?' checked':'');
+    card.innerHTML=`
+      <div class="ci-circle">${presente?'✓':''}</div>
+      <div class="ci-info">
+        <div class="ci-name">${g.cognome||''} ${g.nome||''}</div>
+        <div class="ci-meta">
+          <span>⊞ ${tLabel}</span>
+          ${g.posto?`<span>· posto ${g.posto}</span>`:''}
+          <span class="badge ${menuBadge(g.menu)}" style="font-size:9px;padding:1px 6px">${g.menu||'Normale'}</span>
+        </div>
+        ${ora?`<div class="ci-ora">✓ Arrivato alle ${ora}</div>`:''}
+      </div>`;
+    if(canCheckin())card.onclick=()=>toggleCheckin(gid);
+    grid.appendChild(card);
+  });
+};
+// Sincronizza i nomi dei tavoli custom nel nodo pubblico (leggibile dalla cucina)
+async function syncPublicTableNames(){
+  const map={};
+  (seatingCfg.customTables||[]).forEach(t=>{map[t.id]=t.nome;});
+  await set(ref(db,`matrimoni/${CW_ID}/pubblico/tavoliNomi`),map);
+}
+
+window.saveSeatingConfig=async function(){
+  const cfg={
+    tables:parseInt(document.getElementById('seat-num-tables').value)||10,
+    capacity:parseInt(document.getElementById('seat-capacity').value)||10,
+    sposi:document.getElementById('seat-sposi').checked,
+    customTables:seatingCfg.customTables||[]
+  };
+  seatingCfg=cfg;
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),cfg);
+  renderSeating();
+};
+
+// Aggiunge un tavolo personalizzato a nome libero (capacita libera)
+window.addCustomTable=async function(){
+  const inp=document.getElementById('new-custom-table');
+  const nome=(inp.value||'').trim();
+  if(!nome)return;
+  if(!seatingCfg.customTables)seatingCfg.customTables=[];
+  // id univoco basato sul nome + timestamp, senza caratteri problematici
+  const id='ct_'+Date.now().toString(36);
+  seatingCfg.customTables.push({id,nome});
+  inp.value='';
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicTableNames();
+  renderSeating();
+};
+
+window.removeCustomTable=async function(id){
+  const ct=(seatingCfg.customTables||[]).find(t=>t.id===id);
+  const occupanti=Object.values(guests).filter(g=>g.tavolo===id).length;
+  let msg='Rimuovere il tavolo "'+(ct?ct.nome:id)+'"?';
+  if(occupanti>0)msg+='\n\n'+occupanti+' ospiti torneranno tra i non assegnati.';
+  if(!confirm(msg))return;
+  // Libera gli ospiti assegnati a questo tavolo
+  const updates={};
+  Object.entries(guests).forEach(([gid,g])=>{if(g.tavolo===id){updates[`${gid}/tavolo`]='';updates[`${gid}/posto`]=null;}});
+  if(Object.keys(updates).length)await update(ref(db,`matrimoni/${CW_ID}/ospiti`),updates);
+  seatingCfg.customTables=(seatingCfg.customTables||[]).filter(t=>t.id!==id);
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicTableNames();
+  renderSeating();
+};
+
+function renderCustomTableChips(){
+  const wrap=document.getElementById('custom-tables-chips');
+  if(!wrap)return;
+  const list=seatingCfg.customTables||[];
+  wrap.innerHTML=list.map(t=>`<span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--gold);border-radius:14px;padding:3px 10px;font-size:12px">${t.nome}<button onclick="removeCustomTable('${t.id}')" style="border:none;background:none;color:var(--gray);cursor:pointer;font-size:13px;padding:0;line-height:1">✕</button></span>`).join('');
+}
+
+// ── PIANTINA LOCATION ──
+window.onPiantinaError=function(){
+  const err=document.getElementById('piantina-error');
+  const markers=document.getElementById('piantina-markers');
+  if(err)err.style.display='flex';
+  if(markers)markers.style.display='none';
+};
+// Converte automaticamente i link di condivisione in link diretti all'immagine
+function normalizePiantinaUrl(url){
+  const u=(url||'').trim();
+  // Google Drive: .../file/d/ID/view -> uc?export=view&id=ID
+  const gd=u.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if(gd)return 'https://drive.google.com/uc?export=view&id='+gd[1];
+  // Dropbox: ?dl=0 -> ?raw=1
+  if(u.includes('dropbox.com'))return u.replace(/\?dl=0/,'?raw=1').replace(/\?dl=1/,'?raw=1');
+  return u;
+}
+// Scenario piantina attualmente visualizzato ('principale' | 'planB')
+let piantinaScenario='principale';
+// Migra la vecchia struttura a singola piantina nel nuovo formato a scenari
+function ensurePiantine(){
+  if(!seatingCfg.piantine){
+    seatingCfg.piantine={
+      principale:{url:seatingCfg.piantina||'',posizioni:seatingCfg.posizioni||{}},
+      planB:{url:'',posizioni:{}}
+    };
+    delete seatingCfg.piantina;
+    delete seatingCfg.posizioni;
+  }
+  if(!seatingCfg.piantine.principale)seatingCfg.piantine.principale={url:'',posizioni:{}};
+  if(!seatingCfg.piantine.planB)seatingCfg.piantine.planB={url:'',posizioni:{}};
+  return seatingCfg.piantine;
+}
+function currentPiantina(){return ensurePiantine()[piantinaScenario];}
+
+window.switchPiantinaScenario=function(s){
+  piantinaScenario=s;
+  document.getElementById('pt-principale').classList.toggle('active',s==='principale');
+  document.getElementById('pt-planB').classList.toggle('active',s==='planB');
+  renderPiantina();
+};
+
+window.savePiantinaUrl=async function(){
+  const raw=(document.getElementById('piantina-url').value||'').trim();
+  if(!raw){alert('Incolla il link di un\'immagine');return;}
+  ensurePiantine();
+  seatingCfg.piantine[piantinaScenario].url=normalizePiantinaUrl(raw);
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicPiantina();
+  renderPiantina();
+};
+window.removePiantina=async function(){
+  const nome=piantinaScenario==='planB'?'Piano B':'Principale';
+  if(!confirm('Rimuovere la piantina "'+nome+'"? Le posizioni dei tavoli di questo scenario andranno perse.'))return;
+  ensurePiantine();
+  seatingCfg.piantine[piantinaScenario]={url:'',posizioni:{}};
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicPiantina();
+  renderPiantina();
+};
+// Sincronizza le piantine nel nodo pubblico (per la vista sposi)
+async function syncPublicPiantina(){
+  ensurePiantine();
+  await set(ref(db,`matrimoni/${CW_ID}/pubblico/piantina`),seatingCfg.piantine);
+}
+// Salva la posizione (in %) di un tavolo nello scenario corrente
+async function savePiantinaPos(tId,xPct,yPct){
+  const p=currentPiantina();
+  if(!p.posizioni)p.posizioni={};
+  p.posizioni[tId]={x:Math.round(xPct*10)/10,y:Math.round(yPct*10)/10};
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicPiantina();
+}
+
+// Esporta la piantina con i marker in PDF stampabile
+window.exportPiantinaPDF=function(){
+  const url=currentPiantina().url||'';
+  if(!url){alert('Nessuna piantina caricata');return;}
+  const w=CW_DATA||{};
+  const numT=seatingCfg.tables||10;
+  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
+  const customTables=seatingCfg.customTables||[];
+  const ids=[];
+  if(showSposi)ids.push('sposi');
+  customTables.forEach(ct=>ids.push(ct.id));
+  for(let i=1;i<=numT;i++)ids.push(String(i));
+  const pos=currentPiantina().posizioni||{};
+  let markers='';
+  ids.forEach((tId,idx)=>{
+    const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
+    if(count===0)return;
+    const p=pos[tId]||{x:5+(idx%10)*9, y:6+Math.floor(idx/10)*12};
+    const label=(tId==='sposi')?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):tId;
+    markers+=`<div style="position:absolute;left:${p.x}%;top:${p.y}%;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid #b08d57;border-radius:20px;padding:3px 9px;display:flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2)">
+      <span style="font-size:11px;font-weight:700;color:#1a1a1a">${label}</span>
+      <span style="font-size:9px;background:#b08d57;color:#fff;border-radius:10px;padding:1px 6px;font-weight:700">${count}</span>
+    </div>`;
+  });
+  const win=window.open('','_blank');
+  win.document.write(`<html><head><title>Piantina — ${w.nome1||''} & ${w.nome2||''}</title>
+    <style>@media print{@page{size:landscape;margin:10mm}}</style></head>
+    <body style="font-family:Arial,sans-serif;padding:20px;color:#1a1a1a;text-align:center;margin:0">
+      <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:56px"><br>
+      <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin:8px 0 16px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)} · Piantina ${piantinaScenario==='planB'?'Piano B':'Principale'}</div>
+      <div style="position:relative;display:inline-block;max-width:100%">
+        <img id="pfimg" src="${url}" style="display:block;max-width:100%;height:auto">
+        ${markers}
+      </div>
+      <script>
+        var im=document.getElementById('pfimg');
+        function go(){setTimeout(function(){window.print();},300);}
+        if(im.complete)go(); else im.onload=go;
+      <\/script>
+    </body></html>`);
+  win.document.close();
+};
+
+window.renderPiantina=function(){
+  const wrap=document.getElementById('piantina-wrap');
+  const empty=document.getElementById('piantina-empty');
+  const img=document.getElementById('piantina-img');
+  const markers=document.getElementById('piantina-markers');
+  const hint=document.getElementById('piantina-hint');
+  if(!wrap)return;
+  const url=currentPiantina().url||'';
+  const exportBtn=document.getElementById('piantina-export-btn');
+  if(exportBtn)exportBtn.style.display=url?'inline-block':'none';
+  const urlInput=document.getElementById('piantina-url');
+  if(urlInput&&document.activeElement!==urlInput)urlInput.value=url;
+  if(!url){
+    wrap.style.display='none';empty.style.display='block';
+    if(hint)hint.style.display='none';
+    return;
+  }
+  wrap.style.display='inline-block';empty.style.display='none';
+  if(hint)hint.style.display=IS_ADMIN?'block':'none';
+  const errEl=document.getElementById('piantina-error');
+  if(errEl)errEl.style.display='none';
+  markers.style.display='block';
+  if(img.getAttribute('src')!==url){
+    img.onerror=window.onPiantinaError; // agganciato qui: la funzione esiste di sicuro
+    img.onload=function(){if(errEl)errEl.style.display='none';markers.style.display='block';};
+    img.src=url;
+  }
+  // Elenco tavoli con almeno un ospite, come nella griglia
+  const numT=seatingCfg.tables||10;
+  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
+  const customTables=seatingCfg.customTables||[];
+  const ids=[];
+  if(showSposi)ids.push('sposi');
+  customTables.forEach(ct=>ids.push(ct.id));
+  for(let i=1;i<=numT;i++)ids.push(String(i));
+  const pos=currentPiantina().posizioni||{};
+  markers.innerHTML='';
+  if(IS_ADMIN)initPiantinaEvents(); // delegation: un solo listener, non uno per marker
+  ids.forEach((tId,idx)=>{
+    const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
+    if(count===0)return; // mostra solo i tavoli occupati
+    const p=pos[tId]||{x:5+(idx%10)*9, y:6+Math.floor(idx/10)*12}; // posizione iniziale a griglia
+    const label=(tId==='sposi')?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):tId;
+    const m=document.createElement('div');
+    m.className='piantina-marker';
+    m.dataset.tid=tId;
+    m.style.left=p.x+'%';
+    m.style.top=p.y+'%';
+    m.title=label+' — '+count+' ospiti';
+    m.innerHTML=`<span class="pm-label">${label}</span><span class="pm-count">${count}</span>`;
+    if(IS_ADMIN)m.dataset.draggable='1';
+    markers.appendChild(m);
+  });
+};
+
+// Trascinamento marker sulla piantina — event delegation (un solo listener sul contenitore)
+let dragMarker=null;
+function initPiantinaEvents(){
+  const markers=document.getElementById('piantina-markers');
+  if(!markers||markers._delegated)return;
+  markers._delegated=true;
+  markers.addEventListener('pointerdown',function(e){
+    if(!IS_ADMIN)return;
+    const m=e.target.closest('[data-draggable]');
+    if(!m)return;
+    startMarkerDrag(e,m);
+  });
+}
+function startMarkerDrag(e,m){
+  e.preventDefault();
+  dragMarker=m;
+  dragMarker.style.cursor='grabbing';
+  dragMarker.setPointerCapture(e.pointerId);
+  dragMarker.addEventListener('pointermove',onMarkerDrag);
+  dragMarker.addEventListener('pointerup',endMarkerDrag,{once:true});
+}
+function onMarkerDrag(e){
+  if(!dragMarker)return;
+  const wrap=document.getElementById('piantina-wrap');
+  const r=wrap.getBoundingClientRect();
+  let x=((e.clientX-r.left)/r.width)*100;
+  let y=((e.clientY-r.top)/r.height)*100;
+  x=Math.max(0,Math.min(100,x));
+  y=Math.max(0,Math.min(100,y));
+  dragMarker.style.left=x+'%';
+  dragMarker.style.top=y+'%';
+}
+async function endMarkerDrag(e){
+  if(!dragMarker)return;
+  const m=dragMarker;
+  m.removeEventListener('pointermove',onMarkerDrag);
+  m.style.cursor='grab';
+  dragMarker=null;
+  const wrap=document.getElementById('piantina-wrap');
+  const r=wrap.getBoundingClientRect();
+  let x=((e.clientX-r.left)/r.width)*100;
+  let y=((e.clientY-r.top)/r.height)*100;
+  x=Math.max(0,Math.min(100,x));
+  y=Math.max(0,Math.min(100,y));
+  await savePiantinaPos(m.dataset.tid,x,y);
+}
+
+window.renderSeating=function(){
+  const area=document.getElementById('seating-area');
+  const pool=document.getElementById('pool-guests');
+  const numT=seatingCfg.tables||10;
+  const cap=seatingCfg.capacity||10;
+  const allGuests=Object.entries(guests);
+  area.innerHTML='';
+  // Legge i flag: dalla config salvata o dai checkbox correnti
+  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
+  // Costruisce una card tavolo (cap=null => capacita libera, nessun limite)
+  function buildCard(tId,label,capLimit){
+    const tGuests=allGuests.filter(([,g])=>g.tavolo===tId);
+    const card=document.createElement('div');
+    card.className='table-card';
+    card.dataset.table=tId;
+    card.ondragover=e=>{e.preventDefault();card.classList.add('drag-over');};
+    card.ondragleave=()=>card.classList.remove('drag-over');
+    card.ondrop=e=>{e.preventDefault();card.classList.remove('drag-over');onDropTable(e,tId);};
+    const isFull=capLimit!==null && tGuests.length>=capLimit;
+    const capLabel=capLimit!==null?`${tGuests.length}/${capLimit}`:`${tGuests.length}`;
+    card.innerHTML=`<div class="table-card-head">
+      <div class="table-card-name">${label}</div>
+      <div class="table-capacity ${isFull?'full':''}">${capLabel}</div>
+    </div>
+    <div class="table-guests" id="tg-${tId}">
+      ${tGuests.sort((a,b)=>seatOrder(a[1])-seatOrder(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||'')).map(([gid,g],idx,arr)=>
+        `<div class="guest-chip" draggable="true" data-gid="${gid}" data-table="${tId}" ondragstart="onDragStart(event,'${gid}')" ondragover="onChipDragOver(event)" ondragleave="onChipDragLeave(event)" ondrop="onChipDrop(event,'${gid}','${tId}')">
+          <span class="seat-num">${idx+1}</span>
+          <span class="guest-chip-name">${g.cognome} ${g.nome}</span>
+          <span class="guest-chip-menu badge ${menuBadge(g.menu)}" style="font-size:9px;padding:1px 5px">${(g.menu||'N').substring(0,3)}</span>
+          <span class="seat-arrows">
+            <button class="seat-arrow" onclick="event.stopPropagation();moveSeat('${gid}',-1)" ${idx===0?'disabled':''} title="Su">▲</button>
+            <button class="seat-arrow" onclick="event.stopPropagation();moveSeat('${gid}',1)" ${idx===arr.length-1?'disabled':''} title="Giù">▼</button>
+          </span>
+        </div>`).join('')}
+    </div>`;
+    area.appendChild(card);
+  }
+  // Tavoli speciali (capacita libera) prima dei numerici
+  const customTables=seatingCfg.customTables||[];
+  if(showSposi)buildCard('sposi',LANG==='en'?'Couple table':'Tavolo Sposi',null);
+  customTables.forEach(ct=>buildCard(ct.id,ct.nome,null));
+  for(let i=1;i<=numT;i++){
+    buildCard(String(i),(LANG==='en'?'Table ':'Tavolo ')+i,cap);
+  }
+  // Pool
+  const unassigned=allGuests.filter(([,g])=>!g.tavolo||g.tavolo==='');
+  // Aggiorna il datalist con le opzioni tavolo disponibili (sposi + custom + numerici)
+  const dl=document.getElementById('tavoli-list');
+  if(dl){
+    let opts='';
+    if(showSposi)opts+='<option value="sposi">Tavolo Sposi</option>';
+    customTables.forEach(ct=>opts+=`<option value="${ct.nome}">${ct.nome}</option>`);
+    for(let i=1;i<=numT;i++)opts+=`<option value="${i}">Tavolo ${i}</option>`;
+    dl.innerHTML=opts;
+  }
+  document.getElementById('unassigned-count').textContent=unassigned.length;
+  pool.innerHTML=unassigned.map(([gid,g])=>
+    `<div class="guest-chip" draggable="true" data-gid="${gid}" ondragstart="onDragStart(event,'${gid}')" style="margin:0">
+      <span class="guest-chip-name">${g.cognome} ${g.nome}</span>
+      <span class="guest-chip-menu" style="font-size:10px;color:var(--gray)">${g.menu||''}</span>
+    </div>`).join('');
+  // NON chiama renderPiantina qui: si aggiorna solo quando cambia seatingCfg, non gli ospiti
+};
+
+window.onDragStart=function(e,gid){dragGuest=gid;e.dataTransfer.setData('text/plain',gid);};
+// Riordino dentro al tavolo per trascinamento (drop di un chip sopra un altro dello stesso tavolo)
+window.onChipDragOver=function(e){
+  const srcT=guests[dragGuest]?guests[dragGuest].tavolo:null;
+  const chip=e.currentTarget;
+  if(srcT && chip.dataset.table===srcT && chip.dataset.gid!==dragGuest){
+    e.preventDefault(); // consente il drop solo se stesso tavolo
+    chip.classList.add('chip-drop-target');
+  }
+};
+window.onChipDragLeave=function(e){e.currentTarget.classList.remove('chip-drop-target');};
+window.onChipDrop=async function(e,targetGid,tId){
+  e.preventDefault();
+  e.stopPropagation(); // evita che parta anche onDropTable della card
+  e.currentTarget.classList.remove('chip-drop-target');
+  const movedGid=dragGuest;
+  if(!movedGid||movedGid===targetGid)return;
+  if(!guests[movedGid]||guests[movedGid].tavolo!==tId)return; // solo stesso tavolo
+  // Ordine corrente del tavolo
+  const ordered=Object.entries(guests)
+    .filter(([,g])=>g.tavolo===tId)
+    .sort((a,b)=>seatOrder(a[1])-seatOrder(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||''))
+    .map(([id])=>id);
+  const from=ordered.indexOf(movedGid);
+  const to=ordered.indexOf(targetGid);
+  if(from<0||to<0)return;
+  ordered.splice(from,1);          // rimuove l'ospite trascinato
+  ordered.splice(to,0,movedGid);   // lo reinserisce nella posizione del target
+  const updates={};
+  ordered.forEach((id,i)=>{updates[`${id}/posto`]=i+1;});
+  await update(ref(db,`matrimoni/${CW_ID}/ospiti`),updates);
+};
+// Sposta un ospite su/giu nell'ordine del proprio tavolo
+window.moveSeat=async function(gid,dir){
+  const tId=guests[gid]?guests[gid].tavolo:null;
+  if(!tId)return;
+  // Ospiti del tavolo nell'ordine corrente (posto, poi alfabetico come fallback)
+  const ordered=Object.entries(guests)
+    .filter(([,g])=>g.tavolo===tId)
+    .sort((a,b)=>seatOrder(a[1])-seatOrder(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||''));
+  const idx=ordered.findIndex(([id])=>id===gid);
+  const swap=idx+dir;
+  if(idx<0||swap<0||swap>=ordered.length)return;
+  // Scambia le posizioni e riscrive l'intero ordine (1..n) per coerenza
+  const reordered=ordered.map(([id])=>id);
+  [reordered[idx],reordered[swap]]=[reordered[swap],reordered[idx]];
+  const updates={};
+  reordered.forEach((id,i)=>{updates[`${id}/posto`]=i+1;});
+  await update(ref(db,`matrimoni/${CW_ID}/ospiti`),updates);
+};
+// Valore di ordinamento: posto se presente, altrimenti un numero alto (vanno in fondo)
+function seatOrder(g){return (typeof g.posto==='number')?g.posto:9999;}
+window.onDragOverPool=function(e){e.preventDefault();document.getElementById('pool-guests').classList.add('drag-over');};
+window.onDropPool=async function(e){
+  e.preventDefault();
+  document.getElementById('pool-guests').classList.remove('drag-over');
+  const gid=e.dataTransfer.getData('text/plain');
+  if(gid)await update(ref(db,`matrimoni/${CW_ID}/ospiti/${gid}`),{tavolo:'',posto:null});
+};
+window.onDropTable=async function(e,tId){
+  const gid=e.dataTransfer.getData('text/plain');
+  if(!gid)return;
+  // Se cambia tavolo, mettilo in fondo alla fila del nuovo tavolo
+  if(guests[gid] && guests[gid].tavolo!==tId){
+    const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
+    await update(ref(db,`matrimoni/${CW_ID}/ospiti/${gid}`),{tavolo:tId,posto:count+1});
+  }
+};
+window.autoAssign=async function(){
+  const numT=seatingCfg.tables||10;
+  const cap=seatingCfg.capacity||10;
+  const unassigned=Object.entries(guests).filter(([,g])=>!g.tavolo||g.tavolo==='');
+  const counts={};
+  for(let i=1;i<=numT;i++){counts[i]=Object.values(guests).filter(g=>g.tavolo===String(i)).length;}
+  for(const [gid] of unassigned){
+    for(let i=1;i<=numT;i++){
+      if(counts[i]<cap){await update(ref(db,`matrimoni/${CW_ID}/ospiti/${gid}`),{tavolo:String(i),posto:counts[i]+1});counts[i]++;break;}
+    }
+  }
+};
+
+// ── BUDGET ──
+window.addBudgetItem=async function(){
+  const desc=document.getElementById('b-desc').value.trim();
+  if(!desc){alert('Inserisci una voce');return;}
+  const item={desc,prev:parseFloat(document.getElementById('b-prev').value)||0,real:parseFloat(document.getElementById('b-real').value)||0,scadenza:document.getElementById('b-scad').value};
+  await push(ref(db,`matrimoni/${CW_ID}/budget/voci`),item);
+  ['b-desc','b-prev','b-real','b-scad'].forEach(id=>document.getElementById(id).value='');
+};
+window.deleteBudgetItem=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/budget/voci/${id}`));};
+window.updateBudgetItem=async function(id,f,v){await set(ref(db,`matrimoni/${CW_ID}/budget/voci/${id}/${f}`),isNaN(v)?v:parseFloat(v)||0);};
+window.saveBudgetMax=async function(){await set(ref(db,`matrimoni/${CW_ID}/budget/max`),parseFloat(document.getElementById('budget-max').value)||0);};
+
+function renderBudget(){
+  const entries=Object.entries(budget);
+  const max=parseFloat(document.getElementById('budget-max').value)||0;
+  let totP=0,totR=0;
+  const today=new Date();
+  const alerts=[];
+  const tbody=document.getElementById('tbody-budget');
+  tbody.innerHTML='';
+  document.getElementById('empty-budget').style.display=entries.length===0?'block':'none';
+  entries.forEach(([id,b])=>{
+    totP+=b.prev||0;totR+=b.real||0;
+    const diff=(b.prev||0)-(b.real||0);
+    if(b.scadenza&&!b.paid){const d=new Date(b.scadenza);if((d-today)<=15*86400000&&d>=today)alerts.push(b);}
+    const tr=document.createElement('tr');
+    tr.style.cursor='pointer';
+    tr.addEventListener('click',function(e){
+      if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION'){
+        openGuestEdit(id);
+      }
+    });
+    tr.innerHTML=`
+      <td contenteditable="true" onblur="updateBudgetItem('${id}','desc',this.textContent.trim())">${b.desc}</td>
+      <td contenteditable="true" onblur="updateBudgetItem('${id}','prev',this.textContent.replace('€','').trim())">${(b.prev||0).toLocaleString('it-IT')}</td>
+      <td contenteditable="true" onblur="updateBudgetItem('${id}','real',this.textContent.replace('€','').trim())" style="border-bottom:1px solid var(--gold)">${(b.real||0).toLocaleString('it-IT')}</td>
+      <td class="${diff>=0?'diff-pos':'diff-neg'}">€ ${diff.toLocaleString('it-IT')}</td>
+      <td style="font-size:12px">${b.scadenza||'—'}</td>
+      <td><button class="btn-icon" onclick="deleteBudgetItem('${id}')">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  const pct=max>0?Math.min(Math.round(totR/max*100),100):0;
+  document.getElementById('budget-stats').innerHTML=`
+    <div class="stat-i"><div class="sn">€ ${Math.round(totP/1000)}k</div><div class="sl">Previsto</div></div>
+    <div class="stat-i gold"><div class="sn">€ ${Math.round(totR/1000)}k</div><div class="sl">Speso</div></div>
+    <div class="stat-i ${pct>80?'red':'green'}"><div class="sn">€ ${Math.round((max-totR)/1000)}k</div><div class="sl">Rimanente</div></div>
+    <div class="stat-i"><div class="sn">${pct}%</div><div class="sl">Utilizzato</div></div>`;
+  document.getElementById('budget-alerts').innerHTML=alerts.map(b=>`<div class="alert-payment"><span><strong>${b.desc}</strong></span><span>⚠ Scadenza: ${b.scadenza}</span></div>`).join('');
+}
+
+// ── VENDORS ──
+window.addVendor=async function(){
+  const nome=document.getElementById('f-nome').value.trim();
+  if(!nome){alert('Nome obbligatorio');return;}
+  const primoAcc=parseFloat(document.getElementById('f-acc').value)||0;
+  const v={
+    cat:document.getElementById('f-cat').value,nome,
+    contatto:document.getElementById('f-cont').value.trim(),
+    importo:parseFloat(document.getElementById('f-imp').value)||0,
+    acconti:primoAcc>0?[{importo:primoAcc,data:''}]:[],
+    scadenza:document.getElementById('f-scad').value,
+    stato:document.getElementById('f-stato').value,
+    note:document.getElementById('f-note').value.trim()
+  };
+  await push(ref(db,`matrimoni/${CW_ID}/fornitori`),v);
+  ['f-nome','f-cont','f-imp','f-acc','f-scad','f-note'].forEach(id=>document.getElementById(id).value='');
+};
+window.deleteVendor=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/fornitori/${id}`));};
+window.updateVendor=async function(id,f,v){await set(ref(db,`matrimoni/${CW_ID}/fornitori/${id}/${f}`),isNaN(v)?v:parseFloat(v)||0);};
+window.updateVendorText=async function(id,f,v){await set(ref(db,`matrimoni/${CW_ID}/fornitori/${id}/${f}`),v);};
+
+// Totale acconti versati: somma la lista 'acconti' + eventuale vecchio campo singolo 'acconto'
+function accontiTotal(v){
+  let tot=0;
+  if(Array.isArray(v.acconti))v.acconti.forEach(a=>{tot+=parseFloat(a.importo)||0;});
+  else if(v.acconto)tot+=parseFloat(v.acconto)||0; // retrocompatibilita
+  return tot;
+}
+
+function renderVendors(){
+  const entries=Object.entries(vendors);
+  const tbody=document.getElementById('tbody-fornitori');
+  tbody.innerHTML='';
+  document.getElementById('empty-fornitori').style.display=entries.length===0?'block':'none';
+  entries.forEach(([id,v])=>{
+    const sb={
+      'Da contattare':'b-gray','Confermato':'b-green',
+      'Acconto pagato':'b-gold','Saldato':'b-teal'
+    }[v.stato]||'b-gray';
+    const accTot=accontiTotal(v);
+    const saldo=v.importo&&accTot?v.importo-accTot:null;
+    const canEdit=IS_ADMIN;
+    const ce=canEdit?'contenteditable="true"':''; // celle editabili solo per admin
+    const tr=document.createElement('tr');
+    if(canEdit){
+      tr.style.cursor='pointer';
+      tr.addEventListener('click',(e)=>{
+        if(e.target.tagName!=='BUTTON'&&e.target.tagName!=='SELECT'&&e.target.tagName!=='OPTION'&&e.target.getAttribute('contenteditable')!=='true'){
+          openVendorEdit(id);
+        }
+      });
+    }
+    // Stato: modificabile (select) per admin, badge statico per sposi
+    const statoCell=canEdit
+      ?`<td><select class="badge ${sb}" onchange="updateVendorText('${id}','stato',this.value);const m={'Da contattare':'b-gray','Confermato':'b-green','Acconto pagato':'b-gold','Saldato':'b-teal'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">${['Da contattare','Confermato','Acconto pagato','Saldato'].map(s=>`<option ${v.stato===s?'selected':''}>${s}</option>`).join('')}</select></td>`
+      :`<td><span class="badge ${sb}" style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">${v.stato||'Da contattare'}</span></td>`;
+    tr.innerHTML=`
+      <td><span class="badge b-gray" style="font-size:10px">${v.cat}</span></td>
+      <td ${ce} onblur="updateVendorText('${id}','nome',this.textContent.trim())" style="font-weight:500">${v.nome}</td>
+      <td ${ce} onblur="updateVendorText('${id}','contatto',this.textContent.trim())" style="font-size:12px">${v.contatto||'—'}</td>
+      <td>€ ${(v.importo||0).toLocaleString('it-IT')}</td>
+      <td style="font-size:12px">${accTot?'€ '+accTot.toLocaleString('it-IT'):'—'}${saldo?' <span style="color:var(--orange);font-size:11px">(saldo: €'+saldo.toLocaleString('it-IT')+')</span>':''}</td>
+      <td style="font-size:12px;color:${v.scadenza&&new Date(v.scadenza)-new Date()<15*86400000?'var(--red)':'inherit'}">${v.scadenza||'—'}</td>
+      ${statoCell}
+      <td ${ce} onblur="updateVendorText('${id}','note',this.textContent.trim())" style="font-size:12px;min-width:80px">${v.note||''}</td>
+      <td class="admin-only"><button class="btn-icon" onclick="deleteVendor('${id}')">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  if(!IS_ADMIN)document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');
+}
+
+// ── CHECKLIST ──
+window.addChecklistItem=async function(){
+  const text=document.getElementById('cl-text').value.trim();
+  if(!text){alert('Inserisci un attività');return;}
+  await push(ref(db,`matrimoni/${CW_ID}/checklist`),{text,date:document.getElementById('cl-date').value,cat:document.getElementById('cl-cat').value,done:false});
+  document.getElementById('cl-text').value='';document.getElementById('cl-date').value='';
+};
+window.toggleChecklist=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/checklist/${id}`),{done:!done});};
+window.deleteChecklistItem=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/checklist/${id}`));};
+
+let clEditingId=null;
+window.editChecklistItem=function(id){clEditingId=id;renderChecklist();};
+window.cancelChecklistEdit=function(){clEditingId=null;renderChecklist();};
+window.saveChecklistItem=async function(id){
+  const text=document.getElementById('cl-edit-text-'+id).value.trim();
+  if(!text){alert('Inserisci un\'attività');return;}
+  const date=document.getElementById('cl-edit-date-'+id).value;
+  const cat=document.getElementById('cl-edit-cat-'+id).value;
+  clEditingId=null;
+  await update(ref(db,`matrimoni/${CW_ID}/checklist/${id}`),{text,date,cat});
+};
+
+function renderChecklist(){
+  const entries=Object.entries(checklist).sort((a,b)=>(a[1].date||'z').localeCompare(b[1].date||'z'));
+  const done=entries.filter(([,c])=>c.done).length;
+  const pct=entries.length>0?Math.round(done/entries.length*100):0;
+  document.getElementById('cl-progress-fill').style.width=pct+'%';
+  document.getElementById('cl-progress-label').textContent=`${done}/${entries.length} completate (${pct}%)`;
+  const list=document.getElementById('checklist-list');
+  list.innerHTML='';
+  document.getElementById('empty-checklist').style.display=entries.length===0?'block':'none';
+  const catColors={'Fornitori':'b-gold','Ospiti':'b-green','Logistica':'b-blue','Documenti':'b-purple','Altro':'b-gray'};
+  const cats=['Fornitori','Ospiti','Logistica','Documenti','Altro'];
+  entries.forEach(([id,c])=>{
+    const div=document.createElement('div');
+    div.className='checklist-item'+(c.done?' done':'')+(clEditingId===id?' editing':'');
+    const safeText=(c.text||'').replace(/"/g,'&quot;');
+    div.innerHTML=`
+      <input type="checkbox" ${c.done?'checked':''} onchange="toggleChecklist('${id}',${c.done})">
+      <span class="cl-text" onclick="editChecklistItem('${id}')" title="Clicca per modificare">${c.text}</span>
+      <span class="badge ${catColors[c.cat]||'b-gray'} cl-cat" onclick="editChecklistItem('${id}')">${c.cat}</span>
+      ${c.date?`<span class="cl-date" onclick="editChecklistItem('${id}')">${c.date}</span>`:''}
+      ${clEditingId===id?`<div class="cl-edit-row">
+        <input type="text" id="cl-edit-text-${id}" value="${safeText}" onkeydown="if(event.key==='Enter')saveChecklistItem('${id}');if(event.key==='Escape')cancelChecklistEdit()">
+        <input type="date" id="cl-edit-date-${id}" value="${c.date||''}">
+        <select id="cl-edit-cat-${id}">${cats.map(k=>`<option value="${k}" ${c.cat===k?'selected':''}>${k}</option>`).join('')}</select>
+        <button class="cl-save" onclick="saveChecklistItem('${id}')">✓</button>
+        <button class="cl-cancel" onclick="cancelChecklistEdit()">✕</button>
+      </div>`:''}
+      <button class="btn-icon" onclick="deleteChecklistItem('${id}')">✕</button>`;
+    list.appendChild(div);
+  });
+  if(clEditingId){const inp=document.getElementById('cl-edit-text-'+clEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+}
+
+// ── TIMELINE ──
+window.addTimelineItem=async function(){
+  const txt=document.getElementById('tl-txt').value.trim();
+  const ora=document.getElementById('tl-ora').value;
+  if(!txt||!ora){alert('Orario e evento obbligatori');return;}
+  const cat=document.getElementById('tl-cat').value||'Generale';
+  await push(ref(db,`matrimoni/${CW_ID}/timeline`),{ora,txt,done:false,cat});
+  document.getElementById('tl-txt').value='';document.getElementById('tl-ora').value='';
+};
+window.toggleTimeline=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{done:!done});};
+window.deleteTimelineItem=async function(id){await remove(ref(db,`matrimoni/${CW_ID}/timeline/${id}`));};
+
+let tlEditingId=null;
+window.editTimelineItem=function(id){tlEditingId=id;renderTimeline();};
+window.cancelTimelineEdit=function(){tlEditingId=null;renderTimeline();};
+window.saveTimelineItem=async function(id){
+  const txt=document.getElementById('tl-edit-txt-'+id).value.trim();
+  const ora=document.getElementById('tl-edit-ora-'+id).value;
+  if(!txt||!ora){alert('Orario e evento obbligatori');return;}
+  const catEl=document.getElementById('tl-edit-cat-'+id);
+  const cat=catEl?catEl.value:undefined;
+  tlEditingId=null;
+  const upd={ora,txt};if(cat!==undefined)upd.cat=cat;
+  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),upd);
+};
+
+function tlCat(c){const v=c||'Generale';return v==='Fiori'?'Flower Designer':v;}
+window.renderTimeline=function(){
+  // Se l'utente sta digitando nel campo di modifica, non ridisegnare: ruberebbe il focus
+  if(tlEditingId){
+    const activeInp=document.getElementById('tl-edit-txt-'+tlEditingId);
+    if(activeInp&&document.activeElement===activeInp)return;
+  }
+  const cats=['Generale','Chiesa','Musica','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Catering'];
+  const filterEl=document.getElementById('tl-cat-filter');
+  const filter=filterEl?filterEl.value:'__all__';
+  let entries=Object.entries(timeline).sort((a,b)=>(a[1].ora||'').localeCompare(b[1].ora||''));
+  if(filter!=='__all__')entries=entries.filter(([,it])=>tlCat(it.cat)===filter);
+  const list=document.getElementById('timeline-list');
+  list.innerHTML='';
+  document.getElementById('empty-timeline').style.display=entries.length===0?'block':'none';
+  entries.forEach(([id,item])=>{
+    const div=document.createElement('div');
+    div.className='tl-item'+(item.done?' done':'')+(tlEditingId===id?' editing':'');
+    const safeTxt=(item.txt||'').replace(/"/g,'&quot;');
+    const itemCat=tlCat(item.cat);
+    const catBadge=(filter==='__all__')?`<span class="tl-cat-badge">${itemCat}</span>`:'';
+    div.innerHTML=`
+      <div class="tl-dot"></div>
+      <div class="tl-time" onclick="editTimelineItem('${id}')">${item.ora}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" ${item.done?'checked':''} onchange="toggleTimeline('${id}',${item.done})" style="accent-color:var(--gold);width:14px;height:14px">
+        <div class="tl-text" onclick="editTimelineItem('${id}')" title="Clicca per modificare">${item.txt}</div>
+        ${catBadge}
+        <button class="btn-icon" onclick="deleteTimelineItem('${id}')" style="margin-left:auto">✕</button>
+      </div>
+      ${tlEditingId===id?`<div class="tl-edit-row">
+        <input type="time" id="tl-edit-ora-${id}" value="${item.ora||''}">
+        <input type="text" id="tl-edit-txt-${id}" value="${safeTxt}" onkeydown="if(event.key==='Enter')saveTimelineItem('${id}');if(event.key==='Escape')cancelTimelineEdit()">
+        <select id="tl-edit-cat-${id}">${cats.map(c=>`<option value="${c}" ${itemCat===c?'selected':''}>${c}</option>`).join('')}</select>
+        <button class="tl-save" onclick="saveTimelineItem('${id}')">✓</button>
+        <button class="tl-cancel" onclick="cancelTimelineEdit()">✕</button>
+      </div>`:''}`;
+    list.appendChild(div);
+  });
+  if(tlEditingId){const inp=document.getElementById('tl-edit-txt-'+tlEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+}
+
+// ── CREATE WEDDING ──
+// Modifica la data di un matrimonio gia creato (solo admin)
+window.editWeddingDate=async function(){
+  if(!IS_ADMIN||!CW_ID)return;
+  const current=(CW_DATA&&CW_DATA.data)?CW_DATA.data:'';
+  const nuova=prompt('Nuova data del matrimonio (formato AAAA-MM-GG):',current);
+  if(nuova===null)return; // annullato
+  const v=nuova.trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){alert('Formato non valido. Usa AAAA-MM-GG, es. 2026-10-10');return;}
+  await update(ref(db,`matrimoni/${CW_ID}`),{data:v});
+  await update(ref(db,`matrimoni/${CW_ID}/pubblico`),{data:v});
+  CW_DATA.data=v;
+  document.getElementById('dash-wedding-date').textContent=formatDate(v);
+  startCountdown(v);
+};
+
+window.createWedding=async function(){
+  const n1=document.getElementById('m-n1').value.trim();
+  const n2=document.getElementById('m-n2').value.trim();
+  const date=document.getElementById('m-date').value;
+  const email=document.getElementById('m-email').value.trim();
+  const pwd=document.getElementById('m-pwd').value;
+  const loc=document.getElementById('m-location').value.trim();
+  const errEl=document.getElementById('modal-err');
+  if(!n1||!n2||!date||!email||!pwd){errEl.textContent='Compila tutti i campi obbligatori';return;}
+  if(pwd.length<6){errEl.textContent='Password minimo 6 caratteri';return;}
+  try{
+    const uc=await createUserWithEmailAndPassword(auth,email,pwd);
+    const wRef=push(ref(db,'matrimoni'));
+    await set(wRef,{nome1:n1,nome2:n2,data:date,uid:uc.user.uid,email,location:loc,archived:false,pubblico:{nome1:n1,nome2:n2,data:date}});
+    closeModal('modal-wedding');
+    alert(`Matrimonio creato!
+
+Credenziali sposi:
+Email: ${email}
+Password: ${pwd}
+
+⚠️ Firebase ti ha spostato sull account sposi. Clicca ESCI e rientra con il tuo account admin.`);
+  }catch(e){
+    errEl.textContent=e.code==='auth/email-already-in-use'?'Email già in uso':'Errore: '+e.message;
+  }
+};
+
+// ── EXPORTS ──
+window.copyRsvpLink=function(){navigator.clipboard.writeText(window._rsvpUrl||'');alert('Link RSVP copiato!');};
+window.copyKitchenLink=function(){navigator.clipboard.writeText(window._kitchenUrl||'');alert('Link cucina copiato!');};
+window.copyCheckinLink=function(){
+  const key=document.getElementById('checkin-key-input')?.value.trim();
+  if(!key){alert('Imposta prima una chiave check-in e salvala.');return;}
+  const url=`${location.origin}${location.pathname}?mode=checkin&w=${CW_ID}&key=${encodeURIComponent(key)}`;
+  navigator.clipboard.writeText(url);
+  alert('Link check-in staff copiato!\n\n'+url);
+};
+window.saveCheckinKey=async function(){
+  const key=document.getElementById('checkin-key-input')?.value.trim();
+  if(!key){alert('Inserisci una chiave');return;}
+  await update(ref(db,`matrimoni/${CW_ID}/pubblico`),{checkinKey:key});
+  const saved=document.getElementById('checkin-key-saved');
+  if(saved){saved.style.display='inline';setTimeout(()=>saved.style.display='none',2000);}
+};
+
+window.exportGuestsCSV=function(){
+  let rows=[['Cognome','Nome','Tavolo','RSVP','Transfer','Menu','Allergeni','Intolleranze','Tel','Email']];
+  Object.values(guests).forEach(function(g){rows.push([g.cognome||'',g.nome||'',window.tavoloLabel(g.tavolo),g.rsvp||'In attesa',g.transfer||'No',g.menu||'Normale',g.allergeni||'',g.intolleranze||'',g.tel||'',g.email||'']);});
+  const csv=rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}), 'ospiti.csv');
+};
+
+window.exportGuestsXLS=function(){
+  const headers=['Cognome','Nome','Tavolo','RSVP','Transfer','Menu','Allergeni','Intolleranze','Tel','Email','Nota Admin'];
+  const rows=Object.values(guests).sort(function(a,b){return (a.cognome||'').localeCompare(b.cognome||'');}).map(function(g){
+    return {
+      'Cognome':g.cognome||'','Nome':g.nome||'','Tavolo':window.tavoloLabel(g.tavolo),
+      'RSVP':g.rsvp||'In attesa','Transfer':g.transfer||'No','Menu':g.menu||'Normale',
+      'Allergeni':g.allergeni||'','Intolleranze':g.intolleranze||'',
+      'Tel':g.tel||'','Email':g.email||'','Nota Admin':g.notaAdmin||''
+    };
+  });
+  const ws=XLSX.utils.json_to_sheet(rows,{header:headers});
+  // Style header row
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  for(let c=range.s.c;c<=range.e.c;c++){
+    const cell=ws[XLSX.utils.encode_cell({r:0,c:c})];
+    if(cell){cell.s={font:{bold:true},fill:{fgColor:{rgb:'F7F0D8'}}};}
+  }
+  // Auto column widths
+  ws['!cols']=headers.map(function(h){return {wch:Math.max(h.length,12)};});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Ospiti');
+  XLSX.writeFile(wb,'ospiti_backup.xlsx');
+}
+
+window.exportGuestsPDF=function(mode){
+  const w=window.open('','_blank');
+  const couple=CW_DATA?`${CW_DATA.nome1} & ${CW_DATA.nome2}`:'';
+  const date=CW_DATA?formatDate(CW_DATA.data):'';
+  let body='';
+  if(mode==='tavolo'){
+    const so=g=>(typeof g.posto==='number')?g.posto:9999;
+    const byTable={};
+    Object.values(guests).forEach(g=>{const t=g.tavolo||'Non assegnato';if(!byTable[t])byTable[t]=[];byTable[t].push(g);});
+    const sorted=Object.keys(byTable).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
+    body=sorted.map(table=>`
+      <h3 style="margin-top:24px;border-bottom:2px solid #1a1a1a;padding-bottom:6px">${table==='Non assegnato'?'Non assegnato':tableLabel(table,'it')} (${byTable[table].length} ospiti)</h3>
+      <table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:12px">
+        <tr style="background:#f5f0e8"><th style="width:32px">#</th><th>Cognome</th><th>Nome</th><th>Menu</th><th>Allergeni</th><th>Note</th></tr>
+        ${byTable[table].sort((a,b)=>so(a)-so(b)||(a.cognome||'').localeCompare(b.cognome||'')).map((g,i)=>`<tr><td style="text-align:center;font-weight:bold">${i+1}</td><td>${g.cognome}</td><td>${g.nome}</td><td>${g.menu||'Normale'}</td><td>${g.allergeni||'—'}</td><td>${g.intolleranze||'—'}</td></tr>`).join('')}
+      </table>`).join('');
+  }else{
+    const sorted=Object.values(guests).sort((a,b)=>a.cognome.localeCompare(b.cognome));
+    body=`<table border="1" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:12px">
+      <tr style="background:#f5f0e8"><th>Cognome</th><th>Nome</th><th>Tavolo</th><th>RSVP</th><th>Menu</th><th>Transfer</th><th>Allergeni</th></tr>
+      ${sorted.map(g=>`<tr><td>${g.cognome}</td><td>${g.nome}</td><td>${window.tavoloLabel(g.tavolo)||'—'}</td><td>${g.rsvp||'In attesa'}</td><td>${g.menu||'Normale'}</td><td>${g.transfer||'No'}</td><td>${g.allergeni||'—'}</td></tr>`).join('')}
+    </table>`;
+  }
+  w.document.write(`<html><head><title>${couple} — Lista Ospiti</title><style>body{font-family:Georgia,serif;margin:30px;color:#1a1a1a}h1{font-size:24px;margin-bottom:4px}h2{font-size:14px;color:#8a8a8a;font-weight:400;margin-bottom:24px}@media print{body{margin:15px}}</style></head><body><h1>${couple}</h1><h2>${date} — ${mode==='tavolo'?'Lista per Tavolo':'Lista Alfabetica'}</h2>${body}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),500);
+};
+
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();}
+
+// ── TIMELINE EXPORTS ──
+function timelineSorted(){
+  const filterEl=document.getElementById('tl-cat-filter');
+  const filter=filterEl?filterEl.value:'__all__';
+  let arr=Object.values(timeline);
+  if(filter!=='__all__')arr=arr.filter(it=>tlCat(it.cat)===filter);
+  return arr.sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
+}
+// Etichetta della timeline attualmente filtrata (per intestazioni export)
+function timelineActiveCat(){
+  const filterEl=document.getElementById('tl-cat-filter');
+  const f=filterEl?filterEl.value:'__all__';
+  return f==='__all__'?'Completa':f;
+}
+
+window.exportTimelineCSV=function(){
+  const rows=[['Orario','Evento','Categoria','Stato']];
+  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',tlCat(item.cat),item.done?'Fatto':'Da fare']));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}),'timeline.csv');
+};
+
+window.exportTimelineXLS=function(){
+  const headers=['Orario','Evento','Categoria','Stato'];
+  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Categoria':tlCat(item.cat),'Stato':item.done?'Fatto':'Da fare'}));
+  const ws=XLSX.utils.json_to_sheet(rows,{header:headers});
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  for(let c=range.s.c;c<=range.e.c;c++){
+    const cell=ws[XLSX.utils.encode_cell({r:0,c:c})];
+    if(cell){cell.s={font:{bold:true},fill:{fgColor:{rgb:'F7F0D8'}}};}
+  }
+  ws['!cols']=[{wch:12},{wch:48},{wch:16},{wch:14}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Timeline');
+  XLSX.writeFile(wb,'timeline.xlsx');
+};
+
+window.exportTimelinePDF=function(){
+  const w=window.open('','_blank');
+  const couple=CW_DATA?`${CW_DATA.nome1} & ${CW_DATA.nome2}`:'';
+  const date=CW_DATA?formatDate(CW_DATA.data):'';
+  const logo='https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png';
+  const showCat=timelineActiveCat()==='Completa';
+  const rows=timelineSorted().map(item=>`
+      <tr>
+        <td style="white-space:nowrap;font-weight:600;color:#b08d57;padding:14px 16px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:15px">${item.ora||'—'}</td>
+        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${tlCat(item.cat)}</span>`:''}</td>
+      </tr>`).join('');
+  w.document.write(`<html><head><title>${couple} — Timeline</title><style>
+    body{font-family:Georgia,'Times New Roman',serif;margin:48px;color:#1a1a1a}
+    .head{text-align:center;margin-bottom:36px;border-bottom:2px solid #b08d57;padding-bottom:24px}
+    .head img{height:70px;width:auto;margin-bottom:14px}
+    h1{font-size:26px;margin:0 0 4px;font-weight:400;letter-spacing:1px}
+    .sub{font-size:12px;color:#8a8a8a;letter-spacing:3px;text-transform:uppercase}
+    .tl-title{text-align:center;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#b08d57;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse}
+    @media print{body{margin:24px}}
+  </style></head><body>
+    <div class="head"><img src="${logo}" alt="Gisa"><h1>${couple}</h1><div class="sub">${date}</div></div>
+    <div class="tl-title">Timeline del Giorno${timelineActiveCat()!=='Completa'?' — '+timelineActiveCat():''}</div>
+    <table>${rows||'<tr><td style="text-align:center;color:#8a8a8a;padding:24px">Nessun evento</td></tr>'}</table>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),600);
+};
+
+// ── VIEW SWITCHER ──
+window.showView=function(name){
+  document.querySelectorAll('.view-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.sidebar-nav a').forEach(a=>a.classList.remove('active'));
+  const panel=document.getElementById('view-'+name);
+  if(panel){panel.style.display='block';}
+  const link=document.querySelector(`[data-view="${name}"]`);
+  if(link)link.classList.add('active');
+  if(name==='dashboard')renderDashboard();
+  if(name==='budget')renderBudget();
+};
+
+window.closeModal=function(id){document.getElementById(id).classList.remove('active');};
+
+// ── EDIT GUEST MODAL ──
+window.openGuestEdit=function(id){
+  const g=guests[id];
+  if(!g)return;
+  document.getElementById('edit-guest-id').value=id;
+  document.getElementById('eg-nome').value=g.nome||'';
+  document.getElementById('eg-cognome').value=g.cognome||'';
+  document.getElementById('eg-tavolo').value=(g.tavolo&&(g.tavolo==='sposi'||isCustomTable(g.tavolo)))?tableLabel(g.tavolo,LANG):(g.tavolo||'');
+  document.getElementById('eg-tel').value=g.tel||'';
+  document.getElementById('eg-email').value=g.email||'';
+  document.getElementById('eg-transfer').value=g.transfer||'No';
+  document.getElementById('eg-rsvp').value=g.rsvp||'In attesa';
+  document.getElementById('eg-menu').value=g.menu||'Normale';
+  document.getElementById('eg-intoll').value=g.intolleranze||'';
+  document.getElementById('eg-nota-admin').value=g.notaAdmin||'';
+  // Allergeni
+  const allergeniList=(g.allergeni||'').split(',').map(a=>a.trim()).filter(Boolean);
+  const standard=['Glutine','Lattosio','Frutta secca','Crostacei','Uova','Soia','Pesce','Sesamo'];
+  document.querySelectorAll('.eg-allerg').forEach(cb=>{
+    if(cb.value==='__altro__')return;
+    cb.checked=allergeniList.includes(cb.value);
+  });
+  // Allergeni non standard -> campo Altro
+  const custom=allergeniList.filter(a=>!standard.includes(a));
+  const altroCb=document.getElementById('eg-allerg-altro-cb');
+  const altroTxt=document.getElementById('eg-allerg-altro-txt');
+  const altroWrap=document.getElementById('eg-allerg-altro-wrap');
+  if(custom.length){altroCb.checked=true;altroTxt.value=custom.join(', ');altroWrap.style.display='block';}
+  else{altroCb.checked=false;altroTxt.value='';altroWrap.style.display='none';}
+  document.getElementById('edit-guest-err').textContent='';
+  document.getElementById('modal-guest').classList.add('active');
+};
+
+window.saveGuestEdit=async function(){
+  const id=document.getElementById('edit-guest-id').value;
+  const nome=document.getElementById('eg-nome').value.trim();
+  const cognome=document.getElementById('eg-cognome').value.trim();
+  if(!nome||!cognome){document.getElementById('edit-guest-err').textContent='Nome e cognome obbligatori';return;}
+  const allergeni=Array.from(document.querySelectorAll('.eg-allerg:checked')).map(c=>c.value).filter(v=>v!=='__altro__');
+  const egAltro=document.getElementById('eg-allerg-altro-cb').checked?document.getElementById('eg-allerg-altro-txt').value.trim():'';
+  if(egAltro)egAltro.split(',').map(s=>s.trim()).filter(Boolean).forEach(a=>allergeni.push(a));
+  const updates={
+    nome,cognome,
+    tavolo:window.normalizeTable(document.getElementById('eg-tavolo').value),
+    tel:document.getElementById('eg-tel').value.trim(),
+    email:document.getElementById('eg-email').value.trim(),
+    transfer:document.getElementById('eg-transfer').value,
+    rsvp:document.getElementById('eg-rsvp').value,
+    menu:document.getElementById('eg-menu').value,
+    allergeni:allergeni.join(', '),
+    intolleranze:document.getElementById('eg-intoll').value.trim(),
+    notaAdmin:document.getElementById('eg-nota-admin').value.trim()
+  };
+  await update(ref(db,`matrimoni/${CW_ID}/ospiti/${id}`),updates);
+  closeModal('modal-guest');
+};
+
+// ── EDIT VENDOR MODAL ──
+let evAcconti=[]; // stato temporaneo della lista acconti in modifica
+window.openVendorEdit=function(id){
+  const v=vendors[id];
+  if(!v)return;
+  document.getElementById('edit-vendor-id').value=id;
+  document.getElementById('ev-cat').value=v.cat||'Altro';
+  document.getElementById('ev-nome').value=v.nome||'';
+  document.getElementById('ev-cont').value=v.contatto||'';
+  document.getElementById('ev-imp').value=v.importo||'';
+  document.getElementById('ev-scad').value=v.scadenza||'';
+  document.getElementById('ev-stato').value=v.stato||'Da contattare';
+  document.getElementById('ev-note').value=v.note||'';
+  // Carica gli acconti: usa l'array se presente, altrimenti migra il vecchio campo singolo
+  if(Array.isArray(v.acconti))evAcconti=v.acconti.map(a=>({importo:parseFloat(a.importo)||0,data:a.data||''}));
+  else if(v.acconto)evAcconti=[{importo:parseFloat(v.acconto)||0,data:''}];
+  else evAcconti=[];
+  renderAccontiEditor();
+  document.getElementById('edit-vendor-err').textContent='';
+  document.getElementById('modal-vendor').classList.add('active');
+};
+
+function renderAccontiEditor(){
+  const list=document.getElementById('ev-acconti-list');
+  if(!list)return;
+  if(!evAcconti.length){list.innerHTML='<div style="font-size:12px;color:var(--gray)">Nessun acconto registrato</div>';}
+  else{
+    list.innerHTML=evAcconti.map((a,i)=>`<div style="display:flex;align-items:center;gap:10px;font-size:13px;background:var(--cream-d);padding:5px 10px;border-radius:4px">
+      <span style="font-weight:600">€ ${(a.importo||0).toLocaleString('it-IT')}</span>
+      <span style="color:var(--gray)">${a.data||'senza data'}</span>
+      <button type="button" onclick="removeAccontoRow(${i})" style="margin-left:auto;border:none;background:none;color:var(--gray);cursor:pointer;font-size:14px">✕</button>
+    </div>`).join('');
+  }
+  const tot=evAcconti.reduce((s,a)=>s+(parseFloat(a.importo)||0),0);
+  document.getElementById('ev-acconti-tot').textContent='Totale versato: € '+tot.toLocaleString('it-IT');
+}
+
+window.addAccontoRow=function(){
+  const imp=parseFloat(document.getElementById('ev-new-acc-importo').value)||0;
+  const data=document.getElementById('ev-new-acc-data').value;
+  if(imp<=0){alert('Inserisci un importo valido');return;}
+  evAcconti.push({importo:imp,data});
+  document.getElementById('ev-new-acc-importo').value='';
+  document.getElementById('ev-new-acc-data').value='';
+  renderAccontiEditor();
+};
+window.removeAccontoRow=function(i){evAcconti.splice(i,1);renderAccontiEditor();};
+
+window.saveVendorEdit=async function(){
+  const id=document.getElementById('edit-vendor-id').value;
+  const nome=document.getElementById('ev-nome').value.trim();
+  if(!nome){document.getElementById('edit-vendor-err').textContent='Il nome è obbligatorio';return;}
+  const updates={
+    cat:document.getElementById('ev-cat').value,
+    nome,
+    contatto:document.getElementById('ev-cont').value.trim(),
+    importo:parseFloat(document.getElementById('ev-imp').value)||0,
+    acconti:evAcconti,
+    acconto:null, // rimuove il vecchio campo singolo dopo la migrazione
+    scadenza:document.getElementById('ev-scad').value||'',
+    stato:document.getElementById('ev-stato').value,
+    note:document.getElementById('ev-note').value.trim()
+  };
+  await update(ref(db,`matrimoni/${CW_ID}/fornitori/${id}`),updates);
+  closeModal('modal-vendor');
+};
+
+// ── UTILS ──
+function formatDate(d){
+  if(!d)return '';
+  const p=d.split('-');
+  if(p.length!==3)return d;
+  return `${p[2]}/${p[1]}/${p[0]}`;
+}
+
+window.renderAll=function(){renderGuests();renderBudget();renderVendors();renderChecklist();renderTimeline();renderSeating();renderDashboard();};
+</script>
+</body>
+</html>
