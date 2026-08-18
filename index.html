@@ -493,8 +493,6 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
   </div>
 </div>
 
-</div>
-
 <!-- ══ CHECK-IN STAFF ══ -->
 <div id="s-checkin" style="display:none;min-height:100vh;background:var(--cream)">
   <div style="background:var(--black);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
@@ -697,8 +695,6 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           </table>
         </div>
         <div id="empty-guests" class="empty-state" style="display:none"><div class="ei">♡</div><p data-t="no_guests">Nessun ospite aggiunto</p></div>
-      </div>
-
       </div>
 
       <!-- CHECK-IN -->
@@ -1734,7 +1730,7 @@ window.doLogin=async function(){
 window.doLogout=async function(){await signOut(auth);};
 
 onAuthStateChanged(auth,async(user)=>{
-  if(MODE==='rsvp'||MODE==='cucina')return;
+  if(MODE==='rsvp'||MODE==='cucina'||MODE==='checkin')return;
   if(user){
     CU=user;
     const adminSnap=await get(ref(db,`admin/${user.uid}`));
@@ -1755,7 +1751,7 @@ onAuthStateChanged(auth,async(user)=>{
     }
   }else{
     CU=null;CW_ID=null;
-    if(MODE!=='rsvp'&&MODE!=='cucina')showScreen('s-login');
+    if(MODE!=='rsvp'&&MODE!=='cucina'&&MODE!=='checkin')showScreen('s-login');
   }
 });
 
