@@ -2149,7 +2149,9 @@ window.saveSeatingConfig=async function(){
     tables:parseInt(document.getElementById('seat-num-tables').value)||10,
     capacity:parseInt(document.getElementById('seat-capacity').value)||10,
     sposi:document.getElementById('seat-sposi').checked,
-    customTables:seatingCfg.customTables||[]
+    customTables:seatingCfg.customTables||[],
+    piantine:seatingCfg.piantine||{principale:{url:'',posizioni:{},elementi:[]},planB:{url:'',posizioni:{},elementi:[]}},
+    posizioni:seatingCfg.posizioni||{}
   };
   seatingCfg=cfg;
   await set(ref(db,`matrimoni/${CW_ID}/seating`),cfg);
