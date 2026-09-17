@@ -2897,8 +2897,9 @@ window.renderTimeline=function(){
     const activeInp=document.getElementById('tl-edit-txt-'+tlEditingId);
     if(activeInp&&document.activeElement===activeInp)return;
   }
-  const filterEl=document.getElementById('tl-cat-filter');
-  const filter=filterEl?filterEl.value:'__all__';
+  const activeFilterPill=document.querySelector('#tl-filter-pills .tl-pill.active');
+  const filter=activeFilterPill?activeFilterPill.dataset.cat:'__all__';
+
   let entries=Object.entries(timeline).sort((a,b)=>(a[1].ora||'').localeCompare(b[1].ora||''));
   if(filter!=='__all__')entries=entries.filter(([,it])=>tlCats(it).includes(filter));
   const list=document.getElementById('timeline-list');
@@ -3060,17 +3061,18 @@ function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=doc
 
 // ── TIMELINE EXPORTS ──
 function timelineSorted(){
-  const filterEl=document.getElementById('tl-cat-filter');
-  const filter=filterEl?filterEl.value:'__all__';
+  const activeFilterPill=document.querySelector('#tl-filter-pills .tl-pill.active');
+  const filter=activeFilterPill?activeFilterPill.dataset.cat:'__all__';
+
   let arr=Object.values(timeline);
   if(filter!=='__all__')arr=arr.filter(it=>tlCats(it).includes(filter));
   return arr.sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
 }
 // Etichetta della timeline attualmente filtrata (per intestazioni export)
 function timelineActiveCat(){
-  const filterEl=document.getElementById('tl-cat-filter');
-  const f=filterEl?filterEl.value:'__all__';
-  return f==='__all__'?'Completa':f;
+  const activeFilterPill=document.querySelector('#tl-filter-pills .tl-pill.active');
+  const filter=activeFilterPill?activeFilterPill.dataset.cat:'__all__';
+  return filter==='__all__'?'Completa':filter;
 }
 
 window.exportTimelineCSV=function(){
