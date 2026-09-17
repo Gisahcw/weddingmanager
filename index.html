@@ -2804,7 +2804,7 @@ window.addTimelineItem=async function(){
 window.toggleTimeline=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{done:!done});};
 window.deleteTimelineItem=async function(id){await remove(ref(db,`matrimoni/${CW_ID}/timeline/${id}`));};
 
-const TL_CATS=['Generale','Chiesa','Musica','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Catering'];
+const TL_CATS=['Generale','Chiesa','Musica','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Catering','Location','Wedding Planner','Assistente WP'];
 
 // Normalizza le categorie di un evento: ritorna sempre un array
 function tlCats(item){
@@ -2817,7 +2817,6 @@ function tlCats(item){
 function initTlFilterPills(){
   const wrap=document.getElementById('tl-filter-pills');
   if(!wrap||wrap.children.length>0)return;
-  // Pill "Tutte"
   const all=document.createElement('span');
   all.className='tl-pill tl-pill-all active';
   all.textContent='Tutte';
@@ -2825,8 +2824,6 @@ function initTlFilterPills(){
   all.onclick=()=>{
     wrap.querySelectorAll('.tl-pill').forEach(p=>p.classList.remove('active'));
     all.classList.add('active');
-    // aggiorna il select nascosto per compatibilità export
-    document.getElementById('tl-cat-filter').value='__all__';
     renderTimeline();
   };
   wrap.appendChild(all);
@@ -2836,9 +2833,9 @@ function initTlFilterPills(){
     p.textContent=cat;
     p.dataset.cat=cat;
     p.onclick=()=>{
-      wrap.querySelectorAll('.tl-pill').forEach(q=>q.classList.remove('active'));
-      p.classList.add('active');
-      document.getElementById('tl-cat-filter').value=cat;
+      p.classList.toggle('active');
+      const anyActive=[...wrap.querySelectorAll('.tl-pill:not(.tl-pill-all)')].some(q=>q.classList.contains('active'));
+      all.classList.toggle('active',!anyActive);
       renderTimeline();
     };
     wrap.appendChild(p);
@@ -2897,11 +2894,11 @@ window.renderTimeline=function(){
     const activeInp=document.getElementById('tl-edit-txt-'+tlEditingId);
     if(activeInp&&document.activeElement===activeInp)return;
   }
-  const activeFilterPill=document.querySelector('#tl-filter-pills .tl-pill.active');
-  const filter=activeFilterPill?activeFilterPill.dataset.cat:'__all__';
+  const activeCats=[...document.querySelectorAll('#tl-filter-pills .tl-pill.active')].map(p=>p.dataset.cat).filter(c=>c!=='__all__');
+  const filter=activeCats.length>0?activeCats:'__all__';
 
   let entries=Object.entries(timeline).sort((a,b)=>(a[1].ora||'').localeCompare(b[1].ora||''));
-  if(filter!=='__all__')entries=entries.filter(([,it])=>tlCats(it).includes(filter));
+  if(filter!=='__all__')entries=entries.filter(([,it])=>filter.some(f=>tlCats(it).includes(f)));
   const list=document.getElementById('timeline-list');
   list.innerHTML='';
   document.getElementById('empty-timeline').style.display=entries.length===0?'block':'none';
@@ -3061,18 +3058,17 @@ function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=doc
 
 // ── TIMELINE EXPORTS ──
 function timelineSorted(){
-  const activeFilterPill=document.querySelector('#tl-filter-pills .tl-pill.active');
-  const filter=activeFilterPill?activeFilterPill.dataset.cat:'__all__';
+  const activeCats=[...document.querySelectorAll('#tl-filter-pills .tl-pill.active')].map(p=>p.dataset.cat).filter(c=>c!=='__all__');
+  const filter=activeCats.length>0?activeCats:'__all__';
 
   let arr=Object.values(timeline);
-  if(filter!=='__all__')arr=arr.filter(it=>tlCats(it).includes(filter));
+  if(filter!=='__all__')arr=arr.filter(it=>filter.some(f=>tlCats(it).includes(f)));
   return arr.sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
 }
 // Etichetta della timeline attualmente filtrata (per intestazioni export)
 function timelineActiveCat(){
-  const activeFilterPill=document.querySelector('#tl-filter-pills .tl-pill.active');
-  const filter=activeFilterPill?activeFilterPill.dataset.cat:'__all__';
-  return filter==='__all__'?'Completa':filter;
+  const activeCats=[...document.querySelectorAll('#tl-filter-pills .tl-pill.active')].map(p=>p.dataset.cat).filter(c=>c!=='__all__');
+  return activeCats.length>0?activeCats.join(', '):'Completa';
 }
 
 window.exportTimelineCSV=function(){
