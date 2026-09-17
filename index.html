@@ -321,6 +321,9 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .tl-edit-row .tl-save{background:var(--gold);color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:13px}
 .tl-edit-row .tl-cancel{background:none;border:1px solid var(--gray-l);padding:6px 10px;border-radius:4px;cursor:pointer;font-size:13px;color:var(--gray)}
 .tl-add-form{display:flex;gap:10px;margin-bottom:20px;align-items:end;flex-wrap:wrap}
+.tl-cat-pills{display:flex;flex-wrap:wrap;gap:5px;padding:4px 0}
+.tl-pill{padding:4px 10px;border-radius:14px;border:1px solid var(--gray-l);background:#fff;font-size:11px;cursor:pointer;letter-spacing:.5px;color:var(--gray);transition:all .15s;user-select:none}
+.tl-pill.active{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:600}
 
 /* ── ARCHIVIO ── */
 .archive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
@@ -896,22 +899,9 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <div class="tl-add-form">
             <div class="ig"><label data-t="time">Orario</label><input type="time" id="tl-ora" style="width:110px"></div>
             <div class="ig" style="flex:1"><label data-t="event">Evento</label><input id="tl-txt" placeholder="es. Cerimonia in chiesa"></div>
-            <div class="ig"><label data-t="tl_cat">Categoria</label>
-              <select id="tl-cat" style="padding:8px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit">
-                <option value="Generale">Generale</option>
-                <option value="Chiesa">Chiesa</option>
-                <option value="Musica">Musica</option>
-                <option value="Flower Designer">Flower Designer</option>
-                <option value="Make-up">Make-up</option>
-                <option value="Hair Stylist">Hair Stylist</option>
-                <option value="Sposa">Sposa</option>
-                <option value="Sposo">Sposo</option>
-                <option value="Auto Sposi">Auto Sposi</option>
-                <option value="Foto/Video">Foto/Video</option>
-                <option value="Light Designer">Light Designer</option>
-                <option value="Animazione Bambini">Animazione Bambini</option>
-                <option value="Catering">Catering</option>
-              </select>
+            <div class="ig" style="flex:2">
+              <label data-t="tl_cat">Categorie</label>
+              <div id="tl-cat-pills" class="tl-cat-pills"></div>
             </div>
             <div class="ig" style="align-self:end"><button class="btn-add" onclick="addTimelineItem()" data-t="add_btn">+ Aggiungi</button></div>
           </div>
@@ -2809,12 +2799,51 @@ window.addTimelineItem=async function(){
   const txt=document.getElementById('tl-txt').value.trim();
   const ora=document.getElementById('tl-ora').value;
   if(!txt||!ora){alert('Orario e evento obbligatori');return;}
-  const cat=document.getElementById('tl-cat').value||'Generale';
-  await push(ref(db,`matrimoni/${CW_ID}/timeline`),{ora,txt,done:false,cat});
-  document.getElementById('tl-txt').value='';document.getElementById('tl-ora').value='';
+  const cats=getTlSelectedCats();
+  await push(ref(db,`matrimoni/${CW_ID}/timeline`),{ora,txt,done:false,cats});
+  document.getElementById('tl-txt').value='';
+  document.getElementById('tl-ora').value='';
+  resetTlCatPills();
 };
 window.toggleTimeline=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{done:!done});};
 window.deleteTimelineItem=async function(id){await remove(ref(db,`matrimoni/${CW_ID}/timeline/${id}`));};
+
+const TL_CATS=['Generale','Chiesa','Musica','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Catering'];
+
+// Normalizza le categorie di un evento: ritorna sempre un array
+function tlCats(item){
+  if(Array.isArray(item.cats))return item.cats.map(c=>c==='Fiori'?'Flower Designer':c);
+  const c=item.cat||'Generale';
+  return [c==='Fiori'?'Flower Designer':c];
+}
+
+// Inizializza le pill di selezione nel form di aggiunta
+function initTlCatPills(){
+  const wrap=document.getElementById('tl-cat-pills');
+  if(!wrap||wrap.children.length>0)return;
+  TL_CATS.forEach(cat=>{
+    const p=document.createElement('span');
+    p.className='tl-pill'+(cat==='Generale'?' active':'');
+    p.textContent=cat;
+    p.dataset.cat=cat;
+    p.onclick=()=>{p.classList.toggle('active');};
+    wrap.appendChild(p);
+  });
+}
+
+// Legge le categorie selezionate dalle pill
+function getTlSelectedCats(){
+  const pills=document.querySelectorAll('#tl-cat-pills .tl-pill.active');
+  const sel=[...pills].map(p=>p.dataset.cat);
+  return sel.length>0?sel:['Generale'];
+}
+
+// Resetta le pill (deseleziona tutto tranne Generale)
+function resetTlCatPills(){
+  document.querySelectorAll('#tl-cat-pills .tl-pill').forEach(p=>{
+    p.classList.toggle('active',p.dataset.cat==='Generale');
+  });
+}
 
 let tlEditingId=null;
 window.editTimelineItem=function(id){tlEditingId=id;renderTimeline();};
@@ -2823,25 +2852,26 @@ window.saveTimelineItem=async function(id){
   const txt=document.getElementById('tl-edit-txt-'+id).value.trim();
   const ora=document.getElementById('tl-edit-ora-'+id).value;
   if(!txt||!ora){alert('Orario e evento obbligatori');return;}
-  const catEl=document.getElementById('tl-edit-cat-'+id);
-  const cat=catEl?catEl.value:undefined;
+  // Legge categorie dalle pill di editing
+  const editPills=document.querySelectorAll(`#tl-edit-cats-${id} .tl-pill.active`);
+  const cats=editPills.length>0?[...editPills].map(p=>p.dataset.cat):tlCats(timeline[id]||{});
   tlEditingId=null;
-  const upd={ora,txt};if(cat!==undefined)upd.cat=cat;
-  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),upd);
+  // Salva cats (array) e rimuove il vecchio campo cat singolo (null = cancella su Firebase)
+  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{ora,txt,cats,cat:null});
 };
 
 function tlCat(c){const v=c||'Generale';return v==='Fiori'?'Flower Designer':v;}
 window.renderTimeline=function(){
-  // Se l'utente sta digitando nel campo di modifica, non ridisegnare: ruberebbe il focus
+  initTlCatPills();
+  // Se l'utente sta digitando nel campo di modifica, non ridisegnare
   if(tlEditingId){
     const activeInp=document.getElementById('tl-edit-txt-'+tlEditingId);
     if(activeInp&&document.activeElement===activeInp)return;
   }
-  const cats=['Generale','Chiesa','Musica','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Catering'];
   const filterEl=document.getElementById('tl-cat-filter');
   const filter=filterEl?filterEl.value:'__all__';
   let entries=Object.entries(timeline).sort((a,b)=>(a[1].ora||'').localeCompare(b[1].ora||''));
-  if(filter!=='__all__')entries=entries.filter(([,it])=>tlCat(it.cat)===filter);
+  if(filter!=='__all__')entries=entries.filter(([,it])=>tlCats(it).includes(filter));
   const list=document.getElementById('timeline-list');
   list.innerHTML='';
   document.getElementById('empty-timeline').style.display=entries.length===0?'block':'none';
@@ -2849,23 +2879,28 @@ window.renderTimeline=function(){
     const div=document.createElement('div');
     div.className='tl-item'+(item.done?' done':'')+(tlEditingId===id?' editing':'');
     const safeTxt=(item.txt||'').replace(/"/g,'&quot;');
-    const itemCat=tlCat(item.cat);
-    const catBadge=(filter==='__all__')?`<span class="tl-cat-badge">${itemCat}</span>`:'';
+    const itemCats=tlCats(item);
+    // Badge categorie (visibile su "Tutte", mostra solo quelle diverse dal filtro)
+    const catBadge=(filter==='__all__')?itemCats.map(c=>`<span class="tl-cat-badge">${c}</span>`).join(''):'';
+    // Pill di editing per questo evento
+    const editPillsHtml=TL_CATS.map(c=>`<span class="tl-pill${itemCats.includes(c)?' active':''}" data-cat="${c}" onclick="this.classList.toggle('active')">${c}</span>`).join('');
     div.innerHTML=`
       <div class="tl-dot"></div>
       <div class="tl-time" onclick="editTimelineItem('${id}')">${item.ora}</div>
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <input type="checkbox" ${item.done?'checked':''} onchange="toggleTimeline('${id}',${item.done})" style="accent-color:var(--gold);width:14px;height:14px">
         <div class="tl-text" onclick="editTimelineItem('${id}')" title="Clicca per modificare">${item.txt}</div>
         ${catBadge}
         <button class="btn-icon" onclick="deleteTimelineItem('${id}')" style="margin-left:auto">✕</button>
       </div>
-      ${tlEditingId===id?`<div class="tl-edit-row">
-        <input type="time" id="tl-edit-ora-${id}" value="${item.ora||''}">
-        <input type="text" id="tl-edit-txt-${id}" value="${safeTxt}" onkeydown="if(event.key==='Enter')saveTimelineItem('${id}');if(event.key==='Escape')cancelTimelineEdit()">
-        <select id="tl-edit-cat-${id}">${cats.map(c=>`<option value="${c}" ${itemCat===c?'selected':''}>${c}</option>`).join('')}</select>
-        <button class="tl-save" onclick="saveTimelineItem('${id}')">✓</button>
-        <button class="tl-cancel" onclick="cancelTimelineEdit()">✕</button>
+      ${tlEditingId===id?`<div class="tl-edit-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="time" id="tl-edit-ora-${id}" value="${item.ora||''}">
+          <input type="text" id="tl-edit-txt-${id}" value="${safeTxt}" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')saveTimelineItem('${id}');if(event.key==='Escape')cancelTimelineEdit()">
+          <button class="tl-save" onclick="saveTimelineItem('${id}')">✓</button>
+          <button class="tl-cancel" onclick="cancelTimelineEdit()">✕</button>
+        </div>
+        <div id="tl-edit-cats-${id}" class="tl-cat-pills">${editPillsHtml}</div>
       </div>`:''}`;
     list.appendChild(div);
   });
@@ -2999,7 +3034,7 @@ function timelineSorted(){
   const filterEl=document.getElementById('tl-cat-filter');
   const filter=filterEl?filterEl.value:'__all__';
   let arr=Object.values(timeline);
-  if(filter!=='__all__')arr=arr.filter(it=>tlCat(it.cat)===filter);
+  if(filter!=='__all__')arr=arr.filter(it=>tlCats(it).includes(filter));
   return arr.sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
 }
 // Etichetta della timeline attualmente filtrata (per intestazioni export)
@@ -3011,14 +3046,14 @@ function timelineActiveCat(){
 
 window.exportTimelineCSV=function(){
   const rows=[['Orario','Evento','Categoria','Stato']];
-  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',tlCat(item.cat),item.done?'Fatto':'Da fare']));
+  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',tlCats(item).join(', '),item.done?'Fatto':'Da fare']));
   const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}),'timeline.csv');
 };
 
 window.exportTimelineXLS=function(){
   const headers=['Orario','Evento','Categoria','Stato'];
-  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Categoria':tlCat(item.cat),'Stato':item.done?'Fatto':'Da fare'}));
+  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Categoria':tlCats(item).join(', '),'Stato':item.done?'Fatto':'Da fare'}));
   const ws=XLSX.utils.json_to_sheet(rows,{header:headers});
   const range=XLSX.utils.decode_range(ws['!ref']);
   for(let c=range.s.c;c<=range.e.c;c++){
@@ -3040,7 +3075,7 @@ window.exportTimelinePDF=function(){
   const rows=timelineSorted().map(item=>`
       <tr>
         <td style="white-space:nowrap;font-weight:600;color:#b08d57;padding:14px 16px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:15px">${item.ora||'—'}</td>
-        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${tlCat(item.cat)}</span>`:''}</td>
+        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${tlCats(item).join(', ')}</span>`:''}</td>
       </tr>`).join('');
   w.document.write(`<html><head><title>${couple} — Timeline</title><style>
     body{font-family:Georgia,'Times New Roman',serif;margin:48px;color:#1a1a1a}
