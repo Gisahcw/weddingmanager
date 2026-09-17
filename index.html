@@ -1043,7 +1043,19 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
         </select></div>
       <div class="ig span2"><label data-t="notes">Note</label><input id="ev-note"></div>
     </div>
-    <div style="display:flex;gap:12px">
+    <!-- SCHEDA TECNICA -->
+    <div style="margin-top:20px;border-top:1px solid var(--gray-l);padding-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <label style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gray)">Scheda Tecnica</label>
+      </div>
+      <div id="ev-campi-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="ev-new-campo" placeholder="Nome campo (es. Attrezzatura)" style="flex:1;min-width:150px;padding:7px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:13px">
+        <input id="ev-new-valore" placeholder="Valore" style="flex:2;min-width:180px;padding:7px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:13px" onkeydown="if(event.key==='Enter')addCampoTecnico()">
+        <button type="button" class="btn-sm" onclick="addCampoTecnico()">+ Aggiungi</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:20px">
       <button class="btn-primary" onclick="saveVendorEdit()" style="flex:1" data-t="save">Salva modifiche</button>
       <button class="btn-sm" onclick="closeModal('modal-vendor')" style="padding:16px 24px" data-t="cancel">Annulla</button>
     </div>
@@ -3194,7 +3206,9 @@ window.saveGuestEdit=async function(){
 };
 
 // ── EDIT VENDOR MODAL ──
-let evAcconti=[]; // stato temporaneo della lista acconti in modifica
+let evAcconti=[]; // stato temporaneo acconti
+let evCampi=[]; // stato temporaneo campi tecnici [{nome,valore}]
+
 window.openVendorEdit=function(id){
   const v=vendors[id];
   if(!v)return;
@@ -3206,14 +3220,43 @@ window.openVendorEdit=function(id){
   document.getElementById('ev-scad').value=v.scadenza||'';
   document.getElementById('ev-stato').value=v.stato||'Da contattare';
   document.getElementById('ev-note').value=v.note||'';
-  // Carica gli acconti: usa l'array se presente, altrimenti migra il vecchio campo singolo
+  // Acconti
   if(Array.isArray(v.acconti))evAcconti=v.acconti.map(a=>({importo:parseFloat(a.importo)||0,data:a.data||''}));
   else if(v.acconto)evAcconti=[{importo:parseFloat(v.acconto)||0,data:''}];
   else evAcconti=[];
   renderAccontiEditor();
+  // Campi tecnici
+  evCampi=Array.isArray(v.campiTecnici)?v.campiTecnici.map(c=>({nome:c.nome||'',valore:c.valore||''})):[];
+  renderCampiTecnici();
   document.getElementById('edit-vendor-err').textContent='';
   document.getElementById('modal-vendor').classList.add('active');
 };
+
+function renderCampiTecnici(){
+  const list=document.getElementById('ev-campi-list');
+  if(!list)return;
+  if(!evCampi.length){
+    list.innerHTML='<div style="font-size:12px;color:var(--gray);font-style:italic">Nessun campo tecnico aggiunto</div>';
+    return;
+  }
+  list.innerHTML=evCampi.map((c,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;background:var(--cream-d);border-radius:4px;padding:6px 10px">
+      <span style="font-size:12px;font-weight:600;color:var(--gray);min-width:120px">${c.nome}</span>
+      <input value="${(c.valore||'').replace(/"/g,'&quot;')}" oninput="evCampi[${i}].valore=this.value" style="flex:1;border:none;background:transparent;font-family:inherit;font-size:13px;outline:none">
+      <button type="button" onclick="removeCampoTecnico(${i})" style="border:none;background:none;color:var(--gray);cursor:pointer;font-size:14px;padding:0">✕</button>
+    </div>`).join('');
+}
+window.addCampoTecnico=function(){
+  const nome=document.getElementById('ev-new-campo').value.trim();
+  const valore=document.getElementById('ev-new-valore').value.trim();
+  if(!nome)return;
+  evCampi.push({nome,valore});
+  document.getElementById('ev-new-campo').value='';
+  document.getElementById('ev-new-valore').value='';
+  renderCampiTecnici();
+  document.getElementById('ev-new-campo').focus();
+};
+window.removeCampoTecnico=function(i){evCampi.splice(i,1);renderCampiTecnici();};
 
 function renderAccontiEditor(){
   const list=document.getElementById('ev-acconti-list');
@@ -3251,7 +3294,8 @@ window.saveVendorEdit=async function(){
     contatto:document.getElementById('ev-cont').value.trim(),
     importo:parseFloat(document.getElementById('ev-imp').value)||0,
     acconti:evAcconti,
-    acconto:null, // rimuove il vecchio campo singolo dopo la migrazione
+    acconto:null,
+    campiTecnici:evCampi.length>0?evCampi:null, // rimuove il vecchio campo singolo dopo la migrazione
     scadenza:document.getElementById('ev-scad').value||'',
     stato:document.getElementById('ev-stato').value,
     note:document.getElementById('ev-note').value.trim()
