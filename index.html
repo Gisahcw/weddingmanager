@@ -324,6 +324,13 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .tl-cat-pills{display:flex;flex-wrap:wrap;gap:5px;padding:4px 0}
 .tl-pill{padding:4px 10px;border-radius:14px;border:1px solid var(--gray-l);background:#fff;font-size:11px;cursor:pointer;letter-spacing:.5px;color:var(--gray);transition:all .15s;user-select:none}
 .tl-pill.active{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:600}
+/* Pill filtro: più grandi e prominenti */
+#tl-filter-pills .tl-pill{font-size:12px;padding:6px 14px}
+#tl-filter-pills .tl-pill.active{box-shadow:0 2px 6px rgba(176,141,87,.35)}
+/* Pill-tutte: stile diverso quando selezionata */
+#tl-filter-pills .tl-pill-all.active{background:var(--black);border-color:var(--black)}
+/* Pill aggiunta evento: più piccole */
+#tl-cat-pills .tl-pill{font-size:10px;padding:3px 8px}
 
 /* ── ARCHIVIO ── */
 .archive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
@@ -877,34 +884,23 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
               <button class="btn-sm" onclick="exportTimelineCSV()" data-t="tl_csv">CSV</button>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 14px">
-            <label data-t="tl_view_cat" style="font-size:12px;color:var(--gray);letter-spacing:1px;text-transform:uppercase">Timeline</label>
-            <select id="tl-cat-filter" onchange="renderTimeline()" style="padding:6px 10px;border:1px solid var(--gold);border-radius:4px;font-family:inherit;font-size:13px">
-              <option value="__all__">Tutte</option>
-              <option value="Generale">Generale</option>
-              <option value="Chiesa">Chiesa</option>
-              <option value="Musica">Musica</option>
-              <option value="Flower Designer">Flower Designer</option>
-              <option value="Make-up">Make-up</option>
-                <option value="Hair Stylist">Hair Stylist</option>
-              <option value="Sposa">Sposa</option>
-              <option value="Sposo">Sposo</option>
-              <option value="Auto Sposi">Auto Sposi</option>
-              <option value="Foto/Video">Foto/Video</option>
-              <option value="Light Designer">Light Designer</option>
-              <option value="Animazione Bambini">Animazione Bambini</option>
-              <option value="Catering">Catering</option>
-            </select>
+          <div style="margin:10px 0 14px">
+            <label style="font-size:11px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:8px">Filtra timeline</label>
+            <div id="tl-filter-pills" class="tl-cat-pills" style="gap:6px"></div>
           </div>
           <div class="tl-add-form">
             <div class="ig"><label data-t="time">Orario</label><input type="time" id="tl-ora" style="width:110px"></div>
             <div class="ig" style="flex:1"><label data-t="event">Evento</label><input id="tl-txt" placeholder="es. Cerimonia in chiesa"></div>
             <div class="ig" style="flex:2">
-              <label data-t="tl_cat">Categorie</label>
-              <div id="tl-cat-pills" class="tl-cat-pills"></div>
+              <label data-t="tl_cat" style="font-size:11px">Categorie evento</label>
+              <div id="tl-cat-pills" class="tl-cat-pills" style="gap:4px"></div>
             </div>
             <div class="ig" style="align-self:end"><button class="btn-add" onclick="addTimelineItem()" data-t="add_btn">+ Aggiungi</button></div>
           </div>
+          <!-- filtro nascosto per compatibilità con le funzioni export -->
+          <select id="tl-cat-filter" style="display:none">
+            <option value="__all__" selected></option>
+          </select>
         </div>
         <div class="timeline-list" id="timeline-list"></div>
         <div id="empty-timeline" class="empty-state" style="display:none"><div class="ei">◷</div><p data-t="no_timeline">Nessun evento nella timeline</p></div>
@@ -2817,6 +2813,38 @@ function tlCats(item){
   return [c==='Fiori'?'Flower Designer':c];
 }
 
+// Inizializza le pill-filtro in cima (una sola selezione attiva alla volta)
+function initTlFilterPills(){
+  const wrap=document.getElementById('tl-filter-pills');
+  if(!wrap||wrap.children.length>0)return;
+  // Pill "Tutte"
+  const all=document.createElement('span');
+  all.className='tl-pill tl-pill-all active';
+  all.textContent='Tutte';
+  all.dataset.cat='__all__';
+  all.onclick=()=>{
+    wrap.querySelectorAll('.tl-pill').forEach(p=>p.classList.remove('active'));
+    all.classList.add('active');
+    // aggiorna il select nascosto per compatibilità export
+    document.getElementById('tl-cat-filter').value='__all__';
+    renderTimeline();
+  };
+  wrap.appendChild(all);
+  TL_CATS.forEach(cat=>{
+    const p=document.createElement('span');
+    p.className='tl-pill';
+    p.textContent=cat;
+    p.dataset.cat=cat;
+    p.onclick=()=>{
+      wrap.querySelectorAll('.tl-pill').forEach(q=>q.classList.remove('active'));
+      p.classList.add('active');
+      document.getElementById('tl-cat-filter').value=cat;
+      renderTimeline();
+    };
+    wrap.appendChild(p);
+  });
+}
+
 // Inizializza le pill di selezione nel form di aggiunta
 function initTlCatPills(){
   const wrap=document.getElementById('tl-cat-pills');
@@ -2862,6 +2890,7 @@ window.saveTimelineItem=async function(id){
 
 function tlCat(c){const v=c||'Generale';return v==='Fiori'?'Flower Designer':v;}
 window.renderTimeline=function(){
+  initTlFilterPills();
   initTlCatPills();
   // Se l'utente sta digitando nel campo di modifica, non ridisegnare
   if(tlEditingId){
