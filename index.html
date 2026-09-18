@@ -627,6 +627,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
             <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="text" id="g-tavolo" placeholder="1" list="tavoli-list" autocomplete="off"></div>
             <div class="ig"><label data-t="phone">Telefono</label><input id="g-tel" placeholder="+39 333..."></div>
             <div class="ig"><label>Email</label><input type="email" id="g-email" placeholder="email@..."></div>
+            <div class="ig"><label data-t="hotel">Hotel</label><input id="g-hotel" placeholder="es. Villa Paradiso"></div>
             <div class="ig"><label data-t="transfer">Transfer</label>
               <select id="g-transfer"><option value="No">No</option><option value="Sì">Sì</option></select></div>
             <div class="ig"><label data-t="rsvp_stat">RSVP</label>
@@ -702,6 +703,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
               <th data-t="table_n">Tavolo</th><th>RSVP</th>
               <th data-t="transfer">Transfer</th><th data-t="menu">Menu</th>
               <th data-t="allergens">Allergeni</th><th data-t="intolerances">Note</th>
+              <th data-t="hotel">Hotel</th>
               <th class="admin-only" data-t="private_note">★ Admin</th><th class="admin-only"></th><th></th>
             </tr></thead>
             <tbody id="tbody-guests"></tbody>
@@ -895,6 +897,10 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
               <label data-t="tl_cat" style="font-size:11px">Categorie evento</label>
               <div id="tl-cat-pills" class="tl-cat-pills" style="gap:4px"></div>
             </div>
+            <div class="ig" style="flex:3">
+              <label style="font-size:11px">Note operative</label>
+              <textarea id="tl-note" placeholder="es. PLANNER: coordinamento sposa / ARPISTA: cambio brano..." style="width:100%;padding:7px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:12px;resize:vertical;min-height:54px;line-height:1.4"></textarea>
+            </div>
             <div class="ig" style="align-self:end"><button class="btn-add" onclick="addTimelineItem()" data-t="add_btn">+ Aggiungi</button></div>
           </div>
           <!-- filtro nascosto per compatibilità con le funzioni export -->
@@ -956,6 +962,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
       <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="text" id="eg-tavolo" list="tavoli-list" autocomplete="off"></div>
       <div class="ig"><label data-t="phone">Telefono</label><input id="eg-tel"></div>
       <div class="ig"><label>Email</label><input type="email" id="eg-email"></div>
+      <div class="ig"><label data-t="hotel">Hotel</label><input id="eg-hotel" placeholder="es. Villa Paradiso"></div>
       <div class="ig"><label data-t="transfer">Transfer</label>
         <select id="eg-transfer"><option value="No">No</option><option value="Sì">Sì</option></select></div>
       <div class="ig"><label data-t="rsvp_stat">RSVP</label>
@@ -1117,7 +1124,7 @@ const T={
     rsvp_status:'Stato RSVP',payment_alerts:'Pagamenti in scadenza',
     rsvp_link_title:'Link RSVP ospiti',copy_link:'Copia link',copy_kitchen:'Link cucina',copy_checkin:'Link check-in staff',
     add_guest:'Aggiungi Ospite',fname:'Nome',lname:'Cognome',table_n:'Tavolo N°',
-    phone:'Telefono',transfer:'Transfer',rsvp_stat:'RSVP',menu:'Menu',
+    phone:'Telefono',hotel:'Hotel',transfer:'Transfer',rsvp_stat:'RSVP',menu:'Menu',
     allergens:'Allergeni rapidi',intolerances:'Intolleranze / Note',
     private_note:'★ Nota admin',add_btn:'+ Aggiungi',no_guests:'Nessun ospite aggiunto',
     rsvp_waiting:'In attesa',rsvp_yes:'Confermato',rsvp_no:'Assente',
@@ -1157,7 +1164,7 @@ const T={
     rsvp_status:'RSVP Status',payment_alerts:'Upcoming payments',
     rsvp_link_title:'Guest RSVP link',copy_link:'Copy link',copy_kitchen:'Kitchen link',
     add_guest:'Add Guest',fname:'First name',lname:'Last name',table_n:'Table N°',
-    phone:'Phone',transfer:'Transfer',rsvp_stat:'RSVP',menu:'Menu',
+    phone:'Phone',hotel:'Hotel',transfer:'Transfer',rsvp_stat:'RSVP',menu:'Menu',
     allergens:'Quick allergens',intolerances:'Intolerances / Notes',
     private_note:'★ Admin note',add_btn:'+ Add',no_guests:'No guests added',
     rsvp_waiting:'Pending',rsvp_yes:'Confirmed',rsvp_no:'Absent',
@@ -1959,6 +1966,7 @@ window.addGuest=async function(){
     tavolo:window.normalizeTable(document.getElementById('g-tavolo').value),
     tel:document.getElementById('g-tel').value.trim(),
     email:document.getElementById('g-email').value.trim(),
+    hotel:document.getElementById('g-hotel').value.trim(),
     transfer:document.getElementById('g-transfer').value,
     rsvp:document.getElementById('g-rsvp').value,
     menu:document.getElementById('g-menu').value,
@@ -1967,7 +1975,7 @@ window.addGuest=async function(){
     notaAdmin:document.getElementById('g-nota-admin').value.trim()
   };
   await push(ref(db,`matrimoni/${CW_ID}/ospiti`),g);
-  ['g-nome','g-cognome','g-tavolo','g-tel','g-email','g-intoll','g-nota-admin'].forEach(id=>document.getElementById(id).value='');
+  ['g-nome','g-cognome','g-tavolo','g-tel','g-email','g-hotel','g-intoll','g-nota-admin'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('g-transfer').value='No';
   document.getElementById('g-menu').value='Normale';
   document.getElementById('g-rsvp').value='In attesa';
@@ -2045,6 +2053,7 @@ window.renderGuests=function(){
       </select></td>
       <td style="font-size:12px;max-width:120px">${g.allergeni||'—'}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','intolleranze',this.textContent.trim())" style="min-width:80px">${g.intolleranze||''}</td>
+      <td contenteditable="true" onblur="updateGuest('${id}','hotel',this.textContent.trim())" style="font-size:12px;min-width:80px">${g.hotel||''}</td>
       <td class="admin-only" contenteditable="true" onblur="updateGuest('${id}','notaAdmin',this.textContent.trim())" style="color:var(--gray);font-size:12px;min-width:80px">${g.notaAdmin||''}</td>
       <td class="admin-only" style="white-space:nowrap">${rsvpFlag}</td>
       <td><button class="btn-icon" onclick="deleteGuest('${id}')">✕</button></td>`;
@@ -2808,15 +2817,17 @@ window.addTimelineItem=async function(){
   const ora=document.getElementById('tl-ora').value;
   if(!txt||!ora){alert('Orario e evento obbligatori');return;}
   const cats=getTlSelectedCats();
-  await push(ref(db,`matrimoni/${CW_ID}/timeline`),{ora,txt,done:false,cats});
+  const note=document.getElementById('tl-note').value.trim();
+  await push(ref(db,`matrimoni/${CW_ID}/timeline`),{ora,txt,done:false,cats,...(note?{note}:{})});
   document.getElementById('tl-txt').value='';
   document.getElementById('tl-ora').value='';
+  document.getElementById('tl-note').value='';
   resetTlCatPills();
 };
 window.toggleTimeline=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{done:!done});};
 window.deleteTimelineItem=async function(id){await remove(ref(db,`matrimoni/${CW_ID}/timeline/${id}`));};
 
-const TL_CATS=['Generale','Chiesa','Musica','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Catering','Location','Wedding Planner','Assistente WP'];
+const TL_CATS=['Generale','Chiesa','Musica Generale','Musica Chiesa','Musica Cocktail','Musica Cena','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Intrattenimento','Catering','Location','Wedding Planner','Assistente WP'];
 
 // Normalizza le categorie di un evento: ritorna sempre un array
 function tlCats(item){
@@ -2892,9 +2903,10 @@ window.saveTimelineItem=async function(id){
   // Legge categorie dalle pill di editing
   const editPills=document.querySelectorAll(`#tl-edit-cats-${id} .tl-pill.active`);
   const cats=editPills.length>0?[...editPills].map(p=>p.dataset.cat):tlCats(timeline[id]||{});
+  const noteEl=document.getElementById('tl-edit-note-'+id);
+  const note=noteEl?noteEl.value.trim():'';
   tlEditingId=null;
-  // Salva cats (array) e rimuove il vecchio campo cat singolo (null = cancella su Firebase)
-  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{ora,txt,cats,cat:null});
+  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{ora,txt,cats,cat:null,...(note!==undefined?{note:note||null}:{})});
 };
 
 function tlCat(c){const v=c||'Generale';return v==='Fiori'?'Flower Designer':v;}
@@ -2918,6 +2930,7 @@ window.renderTimeline=function(){
     const div=document.createElement('div');
     div.className='tl-item'+(item.done?' done':'')+(tlEditingId===id?' editing':'');
     const safeTxt=(item.txt||'').replace(/"/g,'&quot;');
+    const safeNote=(item.note||'').replace(/"/g,'&quot;');
     const itemCats=tlCats(item);
     // Badge categorie (visibile su "Tutte", mostra solo quelle diverse dal filtro)
     const catBadge=(filter==='__all__')?itemCats.map(c=>`<span class="tl-cat-badge">${c}</span>`).join(''):'';
@@ -2932,6 +2945,7 @@ window.renderTimeline=function(){
         ${catBadge}
         <button class="btn-icon" onclick="deleteTimelineItem('${id}')" style="margin-left:auto">✕</button>
       </div>
+      ${item.note?`<div style="font-size:12px;color:var(--gray);margin:4px 0 0 22px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}
       ${tlEditingId===id?`<div class="tl-edit-row" style="flex-direction:column;align-items:flex-start;gap:8px">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <input type="time" id="tl-edit-ora-${id}" value="${item.ora||''}">
@@ -2939,8 +2953,9 @@ window.renderTimeline=function(){
           <button class="tl-save" onclick="saveTimelineItem('${id}')">✓</button>
           <button class="tl-cancel" onclick="cancelTimelineEdit()">✕</button>
         </div>
+        <textarea id="tl-edit-note-${id}" placeholder="Note operative..." style="width:100%;padding:7px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:12px;resize:vertical;min-height:60px">${safeNote}</textarea>
         <div id="tl-edit-cats-${id}" class="tl-cat-pills">${editPillsHtml}</div>
-      </div>`:''}`;
+      </div>`:''}`; 
     list.appendChild(div);
   });
   if(tlEditingId){const inp=document.getElementById('tl-edit-txt-'+tlEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
@@ -3009,7 +3024,7 @@ window.saveCheckinKey=async function(){
 
 window.exportGuestsCSV=function(){
   let rows=[['Cognome','Nome','Tavolo','RSVP','Transfer','Menu','Allergeni','Intolleranze','Tel','Email']];
-  Object.values(guests).forEach(function(g){rows.push([g.cognome||'',g.nome||'',window.tavoloLabel(g.tavolo),g.rsvp||'In attesa',g.transfer||'No',g.menu||'Normale',g.allergeni||'',g.intolleranze||'',g.tel||'',g.email||'']);});
+  Object.values(guests).forEach(function(g){rows.push([g.cognome||'',g.nome||'',window.tavoloLabel(g.tavolo),g.rsvp||'In attesa',g.transfer||'No',g.menu||'Normale',g.allergeni||'',g.intolleranze||'',g.hotel||'',g.tel||'',g.email||'']);});
   const csv=rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}), 'ospiti.csv');
 };
@@ -3021,7 +3036,7 @@ window.exportGuestsXLS=function(){
       'Cognome':g.cognome||'','Nome':g.nome||'','Tavolo':window.tavoloLabel(g.tavolo),
       'RSVP':g.rsvp||'In attesa','Transfer':g.transfer||'No','Menu':g.menu||'Normale',
       'Allergeni':g.allergeni||'','Intolleranze':g.intolleranze||'',
-      'Tel':g.tel||'','Email':g.email||'','Nota Admin':g.notaAdmin||''
+      'Tel':g.tel||'','Email':g.email||'','Hotel':g.hotel||'','Nota Admin':g.notaAdmin||''
     };
   });
   const ws=XLSX.utils.json_to_sheet(rows,{header:headers});
@@ -3158,6 +3173,7 @@ window.openGuestEdit=function(id){
   document.getElementById('eg-tavolo').value=(g.tavolo&&(g.tavolo==='sposi'||isCustomTable(g.tavolo)))?tableLabel(g.tavolo,LANG):(g.tavolo||'');
   document.getElementById('eg-tel').value=g.tel||'';
   document.getElementById('eg-email').value=g.email||'';
+  document.getElementById('eg-hotel').value=g.hotel||'';
   document.getElementById('eg-transfer').value=g.transfer||'No';
   document.getElementById('eg-rsvp').value=g.rsvp||'In attesa';
   document.getElementById('eg-menu').value=g.menu||'Normale';
@@ -3194,6 +3210,7 @@ window.saveGuestEdit=async function(){
     tavolo:window.normalizeTable(document.getElementById('eg-tavolo').value),
     tel:document.getElementById('eg-tel').value.trim(),
     email:document.getElementById('eg-email').value.trim(),
+    hotel:document.getElementById('eg-hotel').value.trim(),
     transfer:document.getElementById('eg-transfer').value,
     rsvp:document.getElementById('eg-rsvp').value,
     menu:document.getElementById('eg-menu').value,
