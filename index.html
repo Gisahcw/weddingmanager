@@ -3099,22 +3099,22 @@ function timelineActiveCat(){
 }
 
 window.exportTimelineCSV=function(){
-  const rows=[['Orario','Evento','Categoria','Stato']];
-  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',tlCats(item).join(', '),item.done?'Fatto':'Da fare']));
+  const rows=[['Orario','Evento','Note operative','Categoria','Stato']];
+  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',item.note||'',tlCats(item).join(', '),item.done?'Fatto':'Da fare']));
   const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}),'timeline.csv');
 };
 
 window.exportTimelineXLS=function(){
-  const headers=['Orario','Evento','Categoria','Stato'];
-  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Categoria':tlCats(item).join(', '),'Stato':item.done?'Fatto':'Da fare'}));
+  const headers=['Orario','Evento','Note operative','Categoria','Stato'];
+  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Note operative':item.note||'','Categoria':tlCats(item).join(', '),'Stato':item.done?'Fatto':'Da fare'}));
   const ws=XLSX.utils.json_to_sheet(rows,{header:headers});
   const range=XLSX.utils.decode_range(ws['!ref']);
   for(let c=range.s.c;c<=range.e.c;c++){
     const cell=ws[XLSX.utils.encode_cell({r:0,c:c})];
     if(cell){cell.s={font:{bold:true},fill:{fgColor:{rgb:'F7F0D8'}}};}
   }
-  ws['!cols']=[{wch:12},{wch:48},{wch:16},{wch:14}];
+  ws['!cols']=[{wch:12},{wch:48},{wch:40},{wch:20},{wch:14}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Timeline');
   XLSX.writeFile(wb,'timeline.xlsx');
@@ -3129,7 +3129,7 @@ window.exportTimelinePDF=function(){
   const rows=timelineSorted().map(item=>`
       <tr>
         <td style="white-space:nowrap;font-weight:600;color:#b08d57;padding:14px 16px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:15px">${item.ora||'—'}</td>
-        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${tlCats(item).join(', ')}</span>`:''}</td>
+        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${tlCats(item).join(', ')}</span>`:''}${item.note?`<div style="font-size:12px;color:#666;margin-top:6px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}</td>
       </tr>`).join('');
   w.document.write(`<html><head><title>${couple} — Timeline</title><style>
     body{font-family:Georgia,'Times New Roman',serif;margin:48px;color:#1a1a1a}
