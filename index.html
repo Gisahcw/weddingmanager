@@ -2218,6 +2218,9 @@ function normalizePiantinaUrl(url){
   if(gd)return 'https://drive.google.com/uc?export=view&id='+gd[1];
   // Dropbox: ?dl=0 -> ?raw=1
   if(u.includes('dropbox.com'))return u.replace(/\?dl=0/,'?raw=1').replace(/\?dl=1/,'?raw=1');
+  // GitHub: converti link pagina HTML in raw.githubusercontent
+  const gh=u.match(/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)/);
+  if(gh)return `https://raw.githubusercontent.com/${gh[1]}/${gh[2]}/${gh[3]}/${gh[4]}`;
   return u;
 }
 // Scenario piantina attualmente visualizzato ('principale' | 'planB')
@@ -2392,8 +2395,16 @@ window.renderPiantina=function(){
   const pos=currentPiantina().posizioni||{};
   markers.innerHTML='';
   if(IS_ADMIN)initPiantinaEvents(); // delegation: un solo listener, non uno per marker
+  // Mappa id custom table -> nome (per match retrocompatibile)
+  const ctNameMap={};
+  customTables.forEach(ct=>{ctNameMap[ct.id]=ct.nome;});
   ids.forEach((tId,idx)=>{
-    const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
+    const ctNome=ctNameMap[tId];
+    const count=Object.values(guests).filter(g=>{
+      if(g.tavolo===tId)return true;
+      if(ctNome&&g.tavolo&&g.tavolo.toLowerCase()===ctNome.toLowerCase())return true;
+      return false;
+    }).length;
     if(count===0)return; // mostra solo i tavoli occupati
     const p=pos[tId]||{x:5+(idx%10)*9, y:6+Math.floor(idx/10)*12}; // posizione iniziale a griglia
     const label=(tId==='sposi')?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):tId;
@@ -2499,8 +2510,12 @@ window.renderSeating=function(){
   // Legge i flag: dalla config salvata o dai checkbox correnti
   const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
   // Costruisce una card tavolo (cap=null => capacita libera, nessun limite)
-  function buildCard(tId,label,capLimit){
-    const tGuests=allGuests.filter(([,g])=>g.tavolo===tId);
+  function buildCard(tId,label,capLimit,altNames){
+    const tGuests=allGuests.filter(([,g])=>{
+      if(g.tavolo===tId)return true;
+      if(altNames&&altNames.some(n=>g.tavolo&&g.tavolo.toLowerCase()===n.toLowerCase()))return true;
+      return false;
+    });
     const card=document.createElement('div');
     card.className='table-card';
     card.dataset.table=tId;
@@ -2530,7 +2545,7 @@ window.renderSeating=function(){
   // Tavoli speciali (capacita libera) prima dei numerici
   const customTables=seatingCfg.customTables||[];
   if(showSposi)buildCard('sposi',LANG==='en'?'Couple table':'Tavolo Sposi',null);
-  customTables.forEach(ct=>buildCard(ct.id,ct.nome,null));
+  customTables.forEach(ct=>buildCard(ct.id,ct.nome,null,[ct.nome]));
   for(let i=1;i<=numT;i++){
     buildCard(String(i),(LANG==='en'?'Table ':'Tavolo ')+i,cap);
   }
