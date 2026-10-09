@@ -926,7 +926,7 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
           <div class="tl-col tl-col-b">
             <div class="tl-col-header">
               <span class="tl-col-label">Piano B — Alternativo</span>
-              <span style="font-size:11px;color:var(--gray)">bozza / scenario</span>
+              <button class="btn-sm" onclick="copyTimelineAtoB()" style="font-size:11px" title="Sovrascrive il Piano B con tutti gli eventi del Piano A">⎘ Copia da Piano A</button>
             </div>
             <div class="form-card" style="margin-bottom:16px">
               <div class="tl-add-form">
@@ -3112,6 +3112,22 @@ window.renderTimelineB=function(){
     list.appendChild(div);
   });
   if(tlEditingIdB){const inp=document.getElementById('tlb-edit-txt-'+tlEditingIdB);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+};
+
+// Copia tutti gli eventi dal Piano A al Piano B (sovrascrive il B)
+window.copyTimelineAtoB=async function(){
+  const count=Object.keys(timeline).length;
+  if(count===0){alert('Il Piano A è vuoto, nulla da copiare.');return;}
+  if(Object.keys(timelineB).length>0){
+    if(!confirm(`Il Piano B ha già ${Object.keys(timelineB).length} eventi. Vuoi sovrascriverli con i ${count} eventi del Piano A?`))return;
+  }
+  // Cancella il Piano B esistente e riscrive con i dati del Piano A (senza l'id originale)
+  const newB={};
+  Object.values(timeline).forEach(item=>{
+    const key=push(ref(db,`matrimoni/${CW_ID}/timelineB`)).key; // genera nuovo id
+    newB[key]={ora:item.ora,txt:item.txt,done:false,cats:item.cats||[item.cat||'Generale'],...(item.note?{note:item.note}:{})};
+  });
+  await set(ref(db,`matrimoni/${CW_ID}/timelineB`),newB);
 };
 
 // ── CREATE WEDDING ──
