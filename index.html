@@ -3329,7 +3329,8 @@ window.exportTimelinePDFB=function(){
   const showCat=timelineActiveCat()==='Completa';
   const sorted=Object.entries(timelineB).map(([id,item])=>({id,...item})).sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
   const activeCat=timelineActiveCat();
-  const filtered=activeCat==='Completa'?sorted:sorted.filter(item=>(item.cats||[item.cat||'Generale']).includes(activeCat));
+  const selectedCats=[...document.querySelectorAll('#tl-filter-pills .tl-pill.active')].map(p=>p.dataset.cat).filter(c=>c!=='__all__');
+  const filtered=selectedCats.length===0?sorted:sorted.filter(item=>{const ic=item.cats||[item.cat||'Generale'];return selectedCats.some(c=>ic.includes(c));});
   const rows=filtered.map(item=>`
       <tr>
         <td style="white-space:nowrap;font-weight:600;color:#8a8a8a;padding:14px 16px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:15px">${item.ora||'—'}</td>
