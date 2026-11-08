@@ -321,6 +321,30 @@ tr.b-vendor{cursor:pointer}
 .budget-cat-sel{margin-top:6px}
 .toggle-card{cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .toggle-card .plus{color:var(--gold);font-size:26px;line-height:1;transition:transform .3s}
+
+@media(max-width:700px){#ospiti-stats{grid-template-columns:1fr 1fr}}
+.g-substats{display:flex;flex-wrap:wrap;gap:8px 22px;margin:-14px 0 24px;font-size:15px;color:var(--gray)}
+.g-substats span b{color:var(--black,#1a1a1a);font-weight:600;font-variant-numeric:lining-nums;margin-right:4px}
+.g-more-toggle{grid-column:1/-1}
+.g-more{grid-column:1/-1;display:none}
+.g-more.open{display:block}
+.g-more .span-all{grid-column:1/-1}
+.g-more .allerg-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+.exp-wrap{position:relative}
+.exp-menu{display:none;position:absolute;right:0;top:calc(100% + 4px);z-index:30;background:#fff;border:1px solid var(--gray-l);box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:190px}
+.exp-wrap.open .exp-menu{display:block}
+.exp-menu button{display:block;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--gray-l);padding:12px 16px;font:inherit;font-size:15px;cursor:pointer;color:inherit}
+.exp-menu button:last-child{border-bottom:none}
+.exp-menu button:hover{background:var(--cream,#f6f2ea)}
+.guest-tw td{white-space:nowrap;vertical-align:middle}
+.guest-tw .g-notes{display:flex;align-items:center;gap:6px;max-width:340px;overflow:hidden;font-size:15px}
+.guest-tw .g-notes .g-txt{overflow:hidden;text-overflow:ellipsis;color:var(--gray)}
+.guest-tw .chip{font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border:1px solid var(--gray-l);flex:none}
+.guest-tw .chip.al{color:#6b3fa0;border-color:#d9c8ee;background:#f5effb}
+.guest-tw .chip.tr{color:#8a6d1f;border-color:#e6d7a3;background:#fbf5df}
+.guest-tw .chip.ad{color:var(--gray)}
+.guest-tw .btn-icon{opacity:.3;transition:opacity .2s}
+.guest-tw tr:hover .btn-icon{opacity:1}
 .form-card.collapsed .form-grid{display:none}
 .form-card.collapsed h4{margin-bottom:0;padding-bottom:0;border-bottom:none}
 .form-card.collapsed .toggle-card .plus{transform:rotate(0)}
@@ -727,18 +751,14 @@ tr.b-vendor{cursor:pointer}
 
       <!-- OSPITI -->
       <div id="view-ospiti" class="view-panel fade-in" style="display:none">
-        <div class="stats-bar" id="ospiti-stats"></div>
-        <div class="form-card">
-          <h4 data-t="add_guest">Aggiungi Ospite</h4>
+        <div class="stats-bar wide" id="ospiti-stats"></div>
+        <div class="g-substats" id="ospiti-substats"></div>
+        <div class="form-card collapsed" id="guest-form-card">
+          <h4 class="toggle-card" onclick="document.getElementById('guest-form-card').classList.toggle('collapsed')"><span data-t="add_guest">Aggiungi Ospite</span><span class="plus">+</span></h4>
           <div class="form-grid">
             <div class="ig"><label data-t="fname">Nome *</label><input id="g-nome" placeholder="Marco"></div>
             <div class="ig"><label data-t="lname">Cognome *</label><input id="g-cognome" placeholder="Rossi"></div>
             <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="text" id="g-tavolo" placeholder="1" list="tavoli-list" autocomplete="off"></div>
-            <div class="ig"><label data-t="phone">Telefono</label><input id="g-tel" placeholder="+39 333..."></div>
-            <div class="ig"><label>Email</label><input type="email" id="g-email" placeholder="email@..."></div>
-            <div class="ig"><label data-t="hotel">Hotel</label><input id="g-hotel" placeholder="es. Villa Paradiso"></div>
-            <div class="ig"><label data-t="transfer">Transfer</label>
-              <select id="g-transfer"><option value="No">No</option><option value="Sì">Sì</option></select></div>
             <div class="ig"><label data-t="rsvp_stat">RSVP</label>
               <select id="g-rsvp">
                 <option value="In attesa" data-t="rsvp_waiting">In attesa</option>
@@ -757,7 +777,16 @@ tr.b-vendor{cursor:pointer}
                 <option value="Neonato">Neonato</option>
                 <option value="Altro">Altro</option>
               </select></div>
-            <div class="ig span2">
+            <div class="ig" style="align-self:end"><button class="btn-add" onclick="addGuest()" data-t="add_btn">+ Aggiungi</button></div>
+            <div class="g-more-toggle"><button type="button" class="btn-sm" id="g-more-btn" onclick="toggleGuestMore()">+ Altri dettagli (contatti, hotel, allergeni, note)</button></div>
+            <div class="g-more" id="g-more">
+              <div class="form-grid">
+                <div class="ig"><label data-t="phone">Telefono</label><input id="g-tel" placeholder="+39 333..."></div>
+                <div class="ig"><label>Email</label><input type="email" id="g-email" placeholder="email@..."></div>
+                <div class="ig"><label data-t="hotel">Hotel</label><input id="g-hotel" placeholder="es. Villa Paradiso"></div>
+                <div class="ig"><label data-t="transfer">Transfer</label>
+                  <select id="g-transfer"><option value="No">No</option><option value="Sì">Sì</option></select></div>
+                <div class="ig span-all">
               <label data-t="allergens">Allergeni rapidi</label>
               <div class="allerg-grid" id="allerg-form">
                 <label class="allerg-item"><input type="checkbox" value="Glutine"> <span data-t="al_gluten">Glutine</span></label>
@@ -773,14 +802,16 @@ tr.b-vendor{cursor:pointer}
               <div id="allerg-altro-wrap" style="display:none;margin-top:8px">
                 <input id="allerg-altro-txt" placeholder="Specifica (es. melanzane, nichel...)" style="width:100%">
               </div>
+                </div>
+                <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="g-intoll" placeholder="es. senza glutine..."></div>
+                <div class="ig admin-only"><label data-t="private_note">Nota privata (admin)</label><input id="g-nota-admin" placeholder="Solo tu puoi leggere questo"></div>
+              </div>
             </div>
-            <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="g-intoll" placeholder="es. senza glutine..."></div>
-            <div class="ig admin-only"><label data-t="private_note">Nota privata (admin)</label><input id="g-nota-admin" placeholder="Solo tu puoi leggere questo"></div>
-            <div class="ig" style="align-self:end"><button class="btn-add" onclick="addGuest()" data-t="add_btn">+ Aggiungi</button></div>
           </div>
         </div>
         <div class="search-row">
-          <input class="search-inp" id="g-search" placeholder="Cerca per cognome, tavolo..." oninput="renderGuests()">
+          <input class="search-inp" id="g-search" placeholder="Cerca per nome, cognome, tavolo..." oninput="renderGuests()">
+          <select class="filter-sel" id="g-filter-tavolo" onchange="renderGuests()"><option value="">Tutti i tavoli</option></select>
           <select class="filter-sel" id="g-filter-rsvp" onchange="renderGuests()">
             <option value="">Tutti RSVP</option>
             <option value="Confermato">Confermati</option>
@@ -799,21 +830,31 @@ tr.b-vendor{cursor:pointer}
             <option value="Neonato">Neonato</option>
             <option value="Altro">Altro</option>
           </select>
-          <button class="btn-sm" onclick="exportGuestsPDF('tavolo')" data-t="pdf_table">PDF per tavolo</button>
-          <button class="btn-sm" onclick="exportGuestsPDF('alfa')" data-t="pdf_alpha">PDF alfabetica</button>
-          <button class="btn-sm" onclick="exportGuestsCSV()" data-t="export_csv">CSV</button>
-          <button class="btn-sm" onclick="exportGuestsXLS()" data-t="backup_xls">Backup Excel</button>
+          <select class="filter-sel" id="g-filter-extra" onchange="renderGuests()">
+            <option value="">Tutti gli ospiti</option>
+            <option value="notable">Senza tavolo</option>
+            <option value="allerg">Con allergeni</option>
+            <option value="transfer">Con transfer</option>
+          </select>
+          <div class="exp-wrap" id="g-exp-wrap">
+            <button class="btn-sm" type="button" onclick="event.stopPropagation();document.getElementById('g-exp-wrap').classList.toggle('open')">Esporta ▾</button>
+            <div class="exp-menu">
+              <button onclick="exportGuestsPDF('tavolo')" data-t="pdf_table">PDF per tavolo</button>
+              <button onclick="exportGuestsPDF('alfa')" data-t="pdf_alpha">PDF alfabetica</button>
+              <button onclick="exportGuestsCSV()" data-t="export_csv">CSV</button>
+              <button onclick="exportGuestsXLS()" data-t="backup_xls">Backup Excel</button>
+            </div>
+          </div>
           <button class="btn-checkin" onclick="showCheckin()" data-t="checkin_btn">✓ Check-in</button>
         </div>
-        <div class="tw">
+        <div class="tw guest-tw">
           <table>
             <thead><tr>
               <th data-t="lname">Cognome</th><th data-t="fname">Nome</th>
               <th data-t="table_n">Tavolo</th><th>RSVP</th>
-              <th data-t="transfer">Transfer</th><th data-t="menu">Menu</th>
-              <th data-t="allergens">Allergeni</th><th data-t="intolerances">Note</th>
-              <th data-t="hotel">Hotel</th>
-              <th class="admin-only" data-t="private_note">★ Admin</th><th class="admin-only"></th><th></th>
+              <th data-t="menu">Menu</th>
+              <th data-t="intolerances">Allergeni / Note</th>
+              <th class="admin-only"></th><th></th>
             </tr></thead>
             <tbody id="tbody-guests"></tbody>
           </table>
@@ -1447,7 +1488,7 @@ window.setLang=function(l){
     'g-tel': l==='en'?'+44 333...':'+39 333...',
     'g-intoll': l==='en'?'e.g. gluten free...':'es. senza glutine...',
     'g-nota-admin': l==='en'?'Only you can read this':'Solo tu puoi leggere questo',
-    'g-search': l==='en'?'Search by last name, table...':'Cerca per cognome, tavolo...',
+    'g-search': l==='en'?'Search name, last name, table...':'Cerca per nome, cognome, tavolo...',
     'b-desc': l==='en'?'e.g. Florist, Venue...':'es. Fiorista, Location...',
     'f-nome': l==='en'?'e.g. Studio Smith':'es. Studio Rossi',
     'f-cont': l==='en'?'phone / email':'tel / email',
@@ -2219,6 +2260,11 @@ window.addGuest=async function(){
   document.getElementById('allerg-altro-wrap').style.display='none';
 };
 
+window.toggleGuestMore=function(){
+  const m=document.getElementById('g-more'),o=m.classList.toggle('open');
+  document.getElementById('g-more-btn').textContent=(o?'− ':'+ ')+'Altri dettagli (contatti, hotel, allergeni, note)';
+};
+document.addEventListener('click',e=>{const w=document.getElementById('g-exp-wrap');if(w&&!w.contains(e.target))w.classList.remove('open');});
 window.deleteGuest=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/ospiti/${id}`));};
 window.clearRsvpFlag=async function(id){await set(ref(db,`matrimoni/${CW_ID}/ospiti/${id}/source`),'verificato');};
 window.updateGuest=async function(id,field,value){await set(ref(db,`matrimoni/${CW_ID}/ospiti/${id}/${field}`),value);};
@@ -2227,8 +2273,26 @@ window.renderGuests=function(){
   const q=(document.getElementById('g-search').value||'').toLowerCase();
   const fRsvp=document.getElementById('g-filter-rsvp').value;
   const fMenu=document.getElementById('g-filter-menu').value;
+  // filtro tavolo (popolato dai tavoli realmente usati)
+  const tSel=document.getElementById('g-filter-tavolo');
+  const usedT=[...new Set(Object.values(guests).map(g=>g.tavolo).filter(v=>v!==undefined&&v!==null&&String(v).trim()!==''))]
+    .sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true}));
+  const tLab=v=>(v==='sposi'||isCustomTable(v))?tableLabel(v,LANG):(LANG==='en'?'Table ':'Tavolo ')+v;
+  const curT=tSel.value;
+  const sig=usedT.join('|');
+  if(tSel.dataset.sig!==sig){
+    tSel.innerHTML=`<option value="">${LANG==='en'?'All tables':'Tutti i tavoli'}</option>`+usedT.map(v=>`<option value="${String(v).replace(/"/g,'&quot;')}">${tLab(v)}</option>`).join('');
+    tSel.dataset.sig=sig;
+    tSel.value=usedT.map(String).includes(curT)?curT:'';
+  }
+  const fTav=tSel.value;
+  const fExtra=document.getElementById('g-filter-extra').value;
   let arr=Object.entries(guests).filter(([,g])=>{
-    if(q&&!g.cognome?.toLowerCase().includes(q)&&!g.nome?.toLowerCase().includes(q)&&!String(g.tavolo).includes(q))return false;
+    if(q&&!g.cognome?.toLowerCase().includes(q)&&!g.nome?.toLowerCase().includes(q)&&!String(g.tavolo||'').toLowerCase().includes(q))return false;
+    if(fTav&&String(g.tavolo)!==fTav)return false;
+    if(fExtra==='notable'&&g.tavolo&&String(g.tavolo).trim())return false;
+    if(fExtra==='allerg'&&!(g.allergeni&&g.allergeni.length))return false;
+    if(fExtra==='transfer'&&g.transfer!=='Sì')return false;
     if(fRsvp&&g.rsvp!==fRsvp)return false;
     if(fMenu&&g.menu!==fMenu)return false;
     return true;
@@ -2246,19 +2310,14 @@ window.renderGuests=function(){
   const neonati=all.filter(g=>g.menu==='Neonato').length;
   const altro=all.filter(g=>g.menu==='Altro').length;
   const allerg=all.filter(g=>g.allergeni&&g.allergeni.length>0).length;
+  const notab=all.filter(g=>!g.tavolo||!String(g.tavolo).trim()).length;
   document.getElementById('ospiti-stats').innerHTML=`
     <div class="stat-i"><div class="sn">${all.length}</div><div class="sl">Totale</div></div>
     <div class="stat-i green"><div class="sn">${conf}</div><div class="sl">${t('confirmed')}</div></div>
-    <div class="stat-i"><div class="sn">${wait}</div><div class="sl">${t('waiting')}</div></div>
-    <div class="stat-i red"><div class="sn">${abs}</div><div class="sl">${t('absent')}</div></div>
-    <div class="stat-i gold"><div class="sn">${transfer}</div><div class="sl">Transfer</div></div>
-    <div class="stat-i red"><div class="sn">${carne}</div><div class="sl">${t('menu_meat')}</div></div>
-    <div class="stat-i green"><div class="sn">${veg}</div><div class="sl">Vegetariani</div></div>
-    <div class="stat-i teal"><div class="sn">${vegan}</div><div class="sl">Vegani</div></div>
-    <div class="stat-i orange"><div class="sn">${bambini}</div><div class="sl">Bambini</div></div>
-    <div class="stat-i gold"><div class="sn">${neonati}</div><div class="sl">${t('menu_baby')}</div></div>
-    <div class="stat-i purple"><div class="sn">${allerg}</div><div class="sl">Allergeni</div></div>
-    <div class="stat-i"><div class="sn">${altro}</div><div class="sl">${t('menu_other')}</div></div>`;
+    <div class="stat-i gold"><div class="sn">${wait}</div><div class="sl">${t('waiting')}</div></div>
+    <div class="stat-i red"><div class="sn">${abs}</div><div class="sl">${t('absent')}</div></div>`;
+  const sub=[[carne,t('menu_meat')],[veg,'Vegetariani'],[vegan,'Vegani'],[bambini,'Bambini'],[neonati,t('menu_baby')],[altro,t('menu_other')],[allerg,'Allergeni'],[transfer,'Transfer'],[notab,LANG==='en'?'No table':'Senza tavolo']].filter(x=>x[0]>0);
+  document.getElementById('ospiti-substats').innerHTML=sub.map(x=>`<span><b>${x[0]}</b>${x[1]}</span>`).join('');
 
   const tbody=document.getElementById('tbody-guests');
   tbody.innerHTML='';
@@ -2275,6 +2334,12 @@ window.renderGuests=function(){
         openGuestEdit(id);
       }
     });
+    const esc=x=>String(x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    const chips=[];
+    if(g.allergeni)chips.push(`<span class="chip al" title="${esc(g.allergeni)}">${esc(g.allergeni.length>26?g.allergeni.slice(0,24)+'…':g.allergeni)}</span>`);
+    if(g.transfer==='Sì')chips.push(`<span class="chip tr">Transfer</span>`);
+    if(IS_ADMIN&&g.notaAdmin)chips.push(`<span class="chip ad" title="${esc(g.notaAdmin)}">★</span>`);
+    const notesCell=`<div class="g-notes">${chips.join('')}<span class="g-txt" title="${esc(g.intolleranze)}">${esc(g.intolleranze)}</span></div>`;
     tr.innerHTML=`
       <td contenteditable="true" onblur="updateGuest('${id}','cognome',this.textContent.trim())">${g.cognome||''}</td>
       <td contenteditable="true" onblur="updateGuest('${id}','nome',this.textContent.trim())">${g.nome||''}</td>
@@ -2282,16 +2347,12 @@ window.renderGuests=function(){
       <td><select class="badge ${rsvpB}" onchange="updateGuest('${id}','rsvp',this.value);const m={Confermato:'b-green',Assente:'b-red','In attesa':'b-gray'};this.className='badge '+(m[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
         ${[['In attesa',t('rsvp_waiting')],['Confermato',t('rsvp_yes')],['Assente',t('rsvp_no')]].map(([v,label])=>`<option value="${v}" ${(g.rsvp||'In attesa')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
-      <td><span class="badge ${g.transfer==='Sì'?'b-gold':'b-gray'}">${g.transfer==='Sì'?(LANG==='en'?'Yes':'Sì'):'No'}</span></td>
       <td><select class="badge ${menuBadge(g.menu)}" onchange="updateGuest('${id}','menu',this.value);const mm={'Normale':'b-gray','Carne':'b-red','Vegetariano':'b-green','Vegano':'b-teal','Pesce':'b-blue','Staff':'b-gray','Bambino':'b-orange','Neonato':'b-gold','Altro':'b-gray'};this.className='badge '+(mm[this.value]||'b-gray')" style="border:none;cursor:pointer;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px">
         ${[['Normale',t('menu_normal')],['Carne',t('menu_meat')],['Vegetariano',t('menu_veg')],['Vegano',t('menu_vegan')],['Pesce',t('menu_fish')],['Staff',t('menu_staff')],['Bambino',t('menu_child')],['Neonato',t('menu_baby')],['Altro',t('menu_other')]].map(([v,label])=>`<option value="${v}" ${(g.menu||'Normale')===v?'selected':''}>${label}</option>`).join('')}
       </select></td>
-      <td style="font-size:15px;max-width:120px">${g.allergeni||'—'}</td>
-      <td contenteditable="true" onblur="updateGuest('${id}','intolleranze',this.textContent.trim())" style="min-width:80px">${g.intolleranze||''}</td>
-      <td contenteditable="true" onblur="updateGuest('${id}','hotel',this.textContent.trim())" style="font-size:15px;min-width:80px">${g.hotel||''}</td>
-      <td class="admin-only" contenteditable="true" onblur="updateGuest('${id}','notaAdmin',this.textContent.trim())" style="color:var(--gray);font-size:15px;min-width:80px">${g.notaAdmin||''}</td>
+      <td>${notesCell}</td>
       <td class="admin-only" style="white-space:nowrap">${rsvpFlag}</td>
-      <td><button class="btn-icon" onclick="deleteGuest('${id}')">✕</button></td>`;
+      <td><button class="btn-icon" onclick="event.stopPropagation();deleteGuest('${id}')">✕</button></td>`;
     tbody.appendChild(tr);
   });
   if(!IS_ADMIN)document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');
