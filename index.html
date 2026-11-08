@@ -617,6 +617,27 @@ tr.b-vendor{cursor:pointer}
   .stats-bar{grid-template-columns:1fr 1fr}
   .kpi-grid{grid-template-columns:1fr 1fr}
 }
+@media(max-width:600px){
+  #user-chip{display:none}
+  .topbar-right{gap:10px}
+  .btn-logout{padding:5px 12px}
+  .guest-tw table,.guest-tw tbody{display:block;width:100%}
+  .guest-tw thead{display:none}
+  .guest-tw tr{display:grid!important;grid-template-columns:auto auto 1fr auto;gap:8px 12px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--gray-l)}
+  .guest-tw td{display:block;padding:0!important;border:none!important;white-space:normal;min-width:0}
+  .guest-tw td:nth-child(1){grid-column:1;grid-row:1;font-weight:600;font-size:19px}
+  .guest-tw td:nth-child(2){grid-column:2;grid-row:1;font-size:19px}
+  .guest-tw td:nth-child(7){grid-column:3;grid-row:1;justify-self:end}
+  .guest-tw td:nth-child(8){grid-column:4;grid-row:1;justify-self:end}
+  .guest-tw td:nth-child(3){grid-column:1;grid-row:2;color:var(--gray)}
+  .guest-tw td:nth-child(4){grid-column:2;grid-row:2}
+  .guest-tw td:nth-child(5){grid-column:3/5;grid-row:2;justify-self:start}
+  .guest-tw td:nth-child(6){grid-column:1/-1;grid-row:3}
+  .guest-tw td:nth-child(6) .g-notes{max-width:100%;flex-wrap:wrap}
+  .guest-tw td:nth-child(6):empty,.guest-tw .g-notes:empty{display:none}
+  .guest-tw .btn-icon{opacity:.6}
+  .guest-tw select.badge{font-size:11px!important;letter-spacing:.5px!important;padding:3px 4px!important;max-width:140px}
+}
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -823,7 +844,7 @@ tr.b-vendor{cursor:pointer}
           <h4 class="toggle-card" onclick="document.getElementById('dash-share-card').classList.toggle('collapsed')"><span>Condivisione e link</span><span class="plus">+</span></h4>
           <div class="rsvp-link-box" id="rsvp-link-display"></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn-copy" onclick="copyRsvpLink()" data-t="copy_link">Copia link RSVP</button>
+            <button class="btn-copy" onclick="copyRsvpLink()" >Copia link RSVP</button>
             <button class="btn-copy" onclick="copyKitchenLink()" style="background:var(--teal)" data-t="copy_kitchen">Link cucina</button>
             <button class="btn-copy" onclick="copyCheckinLink()" style="background:var(--gold)" data-t="copy_checkin">Link check-in staff</button>
           </div>
@@ -843,8 +864,8 @@ tr.b-vendor{cursor:pointer}
         <div class="form-card collapsed" id="guest-form-card">
           <h4 class="toggle-card" onclick="document.getElementById('guest-form-card').classList.toggle('collapsed')"><span data-t="add_guest">Aggiungi Ospite</span><span class="plus">+</span></h4>
           <div class="form-grid">
-            <div class="ig"><label data-t="fname">Nome *</label><input id="g-nome" placeholder="Marco"></div>
-            <div class="ig"><label data-t="lname">Cognome *</label><input id="g-cognome" placeholder="Rossi"></div>
+            <div class="ig"><label>Nome *</label><input id="g-nome" placeholder="Marco"></div>
+            <div class="ig"><label>Cognome *</label><input id="g-cognome" placeholder="Rossi"></div>
             <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="text" id="g-tavolo" placeholder="1" list="tavoli-list" autocomplete="off"></div>
             <div class="ig"><label data-t="rsvp_stat">RSVP</label>
               <select id="g-rsvp">
@@ -891,7 +912,7 @@ tr.b-vendor{cursor:pointer}
               </div>
                 </div>
                 <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="g-intoll" placeholder="es. senza glutine..."></div>
-                <div class="ig admin-only"><label data-t="private_note">Nota privata (admin)</label><input id="g-nota-admin" placeholder="Solo tu puoi leggere questo"></div>
+                <div class="ig admin-only"><label>Nota privata (admin)</label><input id="g-nota-admin" placeholder="Solo tu puoi leggere questo"></div>
               </div>
             </div>
           </div>
@@ -928,8 +949,8 @@ tr.b-vendor{cursor:pointer}
             <div class="exp-menu">
               <button onclick="exportGuestsPDF('tavolo')" data-t="pdf_table">PDF per tavolo</button>
               <button onclick="exportGuestsPDF('alfa')" data-t="pdf_alpha">PDF alfabetica</button>
-              <button onclick="exportGuestsCSV()" data-t="export_csv">CSV</button>
-              <button onclick="exportGuestsXLS()" data-t="backup_xls">Backup Excel</button>
+              <button onclick="exportGuestsCSV()">CSV</button>
+              <button onclick="exportGuestsXLS()">Backup Excel</button>
             </div>
           </div>
           <button class="btn-checkin" onclick="showCheckin()" data-t="checkin_btn">✓ Check-in</button>
@@ -938,9 +959,9 @@ tr.b-vendor{cursor:pointer}
           <table>
             <thead><tr>
               <th data-t="lname">Cognome</th><th data-t="fname">Nome</th>
-              <th data-t="table_n">Tavolo</th><th>RSVP</th>
+              <th>Tavolo</th><th>RSVP</th>
               <th data-t="menu">Menu</th>
-              <th data-t="intolerances">Allergeni / Note</th>
+              <th>Allergeni / Note</th>
               <th class="admin-only"></th><th></th>
             </tr></thead>
             <tbody id="tbody-guests"></tbody>
@@ -1004,12 +1025,12 @@ tr.b-vendor{cursor:pointer}
           </div>
         </div>
         <div class="seat-toolbar">
-          <button class="btn-sm admin-only" onclick="autoAssign()" data-t="auto_assign">Auto-assegna non assegnati</button>
+          <button class="btn-sm admin-only" onclick="autoAssign()">Auto-assegna non assegnati</button>
           <button class="btn-sm" onclick="exportSeatingChartPDF()" data-t="seating_chart_pdf">Piantina PDF</button>
           <label class="seat-hide"><input type="checkbox" id="seat-hide-empty" onchange="renderSeating()"> Nascondi tavoli vuoti</label>
         </div>
         <div class="unassigned-pool" id="unassigned-pool">
-          <h4><span data-t="unassigned_l">Senza tavolo</span> (<span id="unassigned-count">0</span>)</h4>
+          <h4><span>Senza tavolo</span> (<span id="unassigned-count">0</span>)</h4>
           <div class="pool-guests" id="pool-guests" ondragover="onDragOverPool(event)" ondrop="onDropPool(event)"></div>
         </div>
         <div class="seating-area" id="seating-area"></div>
@@ -1065,19 +1086,19 @@ tr.b-vendor{cursor:pointer}
           <div class="form-grid">
             <div class="ig"><label>Categoria</label><select id="b-cat"></select></div>
             <div class="ig span2"><label data-t="expense_item">Voce di spesa</label><input type="text" id="b-desc" placeholder="es. Bomboniere, Confetti..."></div>
-            <div class="ig"><label data-t="planned">Previsto (€)</label><input type="number" id="b-prev" placeholder="0"></div>
-            <div class="ig"><label data-t="actual">Effettivo (€)</label><input type="number" id="b-real" placeholder="0"></div>
-            <div class="ig"><label data-t="due_date">Scadenza pagamento</label><input type="date" id="b-scad"></div>
+            <div class="ig"><label>Previsto (€)</label><input type="number" id="b-prev" placeholder="0"></div>
+            <div class="ig"><label>Effettivo (€)</label><input type="number" id="b-real" placeholder="0"></div>
+            <div class="ig"><label>Scadenza pagamento</label><input type="date" id="b-scad"></div>
             <div class="ig" style="align-self:end"><button class="btn-add" onclick="addBudgetItem()" data-t="add_btn">+ Aggiungi</button></div>
           </div>
         </div>
         <p style="color:var(--gray);font-size:16px;margin:0 0 14px">Le voci con l'etichetta <span class="b-link" style="margin:0 4px">Fornitori</span> arrivano in automatico dalla pagina Fornitori (importo e acconti). Qui aggiungi solo le spese senza fornitore.</p>
         <div id="budget-alerts"></div>
         <div class="tw"><table>
-          <thead><tr><th data-t="expense_item">Voce</th><th class="num" data-t="planned">Previsto</th><th class="num" data-t="actual">Pagato</th><th class="num" data-t="diff">Da pagare</th><th data-t="due_date">Scadenza</th><th></th></tr></thead>
+          <thead><tr><th>Voce</th><th class="num" data-t="planned">Previsto</th><th class="num">Pagato</th><th class="num">Da pagare</th><th data-t="due_date">Scadenza</th><th></th></tr></thead>
           <tbody id="tbody-budget"></tbody>
         </table></div>
-        <div id="empty-budget" class="empty-state" style="display:none"><div class="ei">◎</div><p data-t="no_budget">Nessuna voce aggiunta</p></div>
+        <div id="empty-budget" class="empty-state" style="display:none"><div class="ei">◎</div><p>Nessuna voce aggiunta</p></div>
       </div>
 
       <!-- FORNITORI -->
@@ -1094,11 +1115,11 @@ tr.b-vendor{cursor:pointer}
                 <option>Transfer Ospiti</option><option>Light Designer</option>
                 <option>Flower Designer</option><option>Altro</option>
               </select></div>
-            <div class="ig"><label data-t="vendor_name">Nome Fornitore</label><input id="f-nome" placeholder="es. Studio Rossi"></div>
+            <div class="ig"><label>Nome Fornitore</label><input id="f-nome" placeholder="es. Studio Rossi"></div>
             <div class="ig"><label data-t="contact">Contatto</label><input id="f-cont" placeholder="tel / email"></div>
-            <div class="ig"><label data-t="contract_amount">Importo (€)</label><input type="number" id="f-imp" placeholder="0"></div>
-            <div class="ig admin-only"><label data-t="deposit_paid">Acconto pagato (€)</label><input type="number" id="f-acc" placeholder="0"></div>
-            <div class="ig admin-only"><label data-t="due_date">Scadenza saldo</label><input type="date" id="f-scad"></div>
+            <div class="ig"><label>Importo (€)</label><input type="number" id="f-imp" placeholder="0"></div>
+            <div class="ig admin-only"><label>Acconto pagato (€)</label><input type="number" id="f-acc" placeholder="0"></div>
+            <div class="ig admin-only"><label>Scadenza saldo</label><input type="date" id="f-scad"></div>
             <div class="ig"><label data-t="status">Stato</label>
               <select id="f-stato">
                 <option value="Da contattare" data-t="st_contact">Da contattare</option>
@@ -1112,7 +1133,7 @@ tr.b-vendor{cursor:pointer}
         </div>
         <div class="tw"><table>
           <thead><tr id="vendors-thead">
-            <th data-t="category">Cat.</th><th data-t="vendor_name">Nome</th>
+            <th>Cat.</th><th data-t="vendor_name">Nome</th>
             <th data-t="contact">Contatto</th><th data-t="contract_amount">Importo</th>
             <th data-t="deposit_paid">Acconto</th>
             <th data-t="due_date">Scadenza</th>
@@ -1120,7 +1141,7 @@ tr.b-vendor{cursor:pointer}
           </tr></thead>
           <tbody id="tbody-fornitori"></tbody>
         </table></div>
-        <div id="empty-fornitori" class="empty-state" style="display:none"><div class="ei">✦</div><p data-t="no_vendors">Nessun fornitore aggiunto</p></div>
+        <div id="empty-fornitori" class="empty-state" style="display:none"><div class="ei">✦</div><p>Nessun fornitore aggiunto</p></div>
       </div>
 
       <!-- CONCEPT & MOODBOARD -->
@@ -1285,7 +1306,7 @@ tr.b-vendor{cursor:pointer}
 
       <!-- ADMIN: MATRIMONI -->
       <div id="view-admin-weddings" class="view-panel admin-only fade-in" style="display:none">
-        <div class="dash-header"><h1 data-t="nav_weddings">I Matrimoni</h1></div>
+        <div class="dash-header"><h1>I Matrimoni</h1></div>
         <div id="weddings-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:24px"></div>
       </div>
 
@@ -1293,7 +1314,7 @@ tr.b-vendor{cursor:pointer}
       <div id="view-archivio" class="view-panel admin-only fade-in" style="display:none">
         <div class="dash-header"><h1 data-t="nav_archive">Archivio</h1></div>
         <div class="archive-grid" id="archive-grid"></div>
-        <div id="empty-archive" class="empty-state" style="display:none"><div class="ei">◻</div><p data-t="no_archive">Nessun matrimonio in archivio</p></div>
+        <div id="empty-archive" class="empty-state" style="display:none"><div class="ei">◻</div><p>Nessun matrimonio in archivio</p></div>
       </div>
     </div>
   </div>
@@ -1306,8 +1327,8 @@ tr.b-vendor{cursor:pointer}
     <h3 class="modal-title" data-t="edit_guest">Modifica Ospite</h3>
     <input type="hidden" id="edit-guest-id">
     <div class="form-grid" style="margin-bottom:16px">
-      <div class="ig"><label data-t="fname">Nome *</label><input id="eg-nome"></div>
-      <div class="ig"><label data-t="lname">Cognome *</label><input id="eg-cognome"></div>
+      <div class="ig"><label>Nome *</label><input id="eg-nome"></div>
+      <div class="ig"><label>Cognome *</label><input id="eg-cognome"></div>
       <div class="ig"><label data-t="table_n">Tavolo N°</label><input type="text" id="eg-tavolo" list="tavoli-list" autocomplete="off"></div>
       <div class="ig"><label data-t="phone">Telefono</label><input id="eg-tel"></div>
       <div class="ig"><label>Email</label><input type="email" id="eg-email"></div>
@@ -1350,7 +1371,7 @@ tr.b-vendor{cursor:pointer}
         </div>
       </div>
       <div class="ig span2"><label data-t="intolerances">Intolleranze / Note</label><input id="eg-intoll"></div>
-      <div class="ig admin-only span2"><label data-t="private_note">★ Nota privata (admin)</label><input id="eg-nota-admin"></div>
+      <div class="ig admin-only span2"><label>★ Nota privata (admin)</label><input id="eg-nota-admin"></div>
     </div>
     <div style="display:flex;gap:12px">
       <button class="btn-primary" onclick="saveGuestEdit()" style="flex:1" data-t="save">Salva modifiche</button>
@@ -1376,9 +1397,9 @@ tr.b-vendor{cursor:pointer}
           <option>Transfer Ospiti</option><option>Light Designer</option>
           <option>Flower Designer</option><option>Altro</option>
         </select></div>
-      <div class="ig"><label data-t="vendor_name">Nome Fornitore</label><input id="ev-nome"></div>
+      <div class="ig"><label>Nome Fornitore</label><input id="ev-nome"></div>
       <div class="ig"><label data-t="contact">Contatto</label><input id="ev-cont" placeholder="tel / email"></div>
-      <div class="ig"><label data-t="contract_amount">Importo (€)</label><input type="number" id="ev-imp" placeholder="0"></div>
+      <div class="ig"><label>Importo (€)</label><input type="number" id="ev-imp" placeholder="0"></div>
       <div class="ig admin-only span2">
         <label data-t="deposits">Acconti versati</label>
         <div id="ev-acconti-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
@@ -1389,7 +1410,7 @@ tr.b-vendor{cursor:pointer}
           <span id="ev-acconti-tot" style="margin-left:auto;font-size:16px;color:var(--gray)"></span>
         </div>
       </div>
-      <div class="ig admin-only"><label data-t="due_date">Scadenza saldo</label><input type="date" id="ev-scad"></div>
+      <div class="ig admin-only"><label>Scadenza saldo</label><input type="date" id="ev-scad"></div>
       <div class="ig"><label data-t="status">Stato</label>
         <select id="ev-stato">
           <option value="Da contattare">Da contattare</option>
@@ -1550,6 +1571,163 @@ const T={
 
 function t(key){return T[LANG][key]||T['it'][key]||key}
 
+// ── TRADUZIONE AUTOMATICA IT → EN (testi non coperti da data-t e testi dinamici) ──
+const EN_MAP={
+"+ Aggiungi":"+ Add","+ Altri dettagli (contatti, hotel, allergeni, note)":"+ More details (contacts, hotel, allergens, notes)","− Altri dettagli (contatti, hotel, allergeni, note)":"− More details (contacts, hotel, allergens, notes)",
+"ADMIN":"ADMIN","Accedi":"Sign in","Accedi come":"Sign in as","Acconto pagato":"Deposit paid","Affianca":"Side by side","Allergeni":"Allergens","Altre voci":"Other items","Altro":"Other",
+"Ancora da pagare":"Still to pay","Animazione Bambini":"Children's entertainment","Apri Tavoli e Piantina":"Open Tables & Floor plan","Apri il Percorso →":"Open the Journey →","Archivia":"Archive",
+"Arrivati":"Arrived","Assegnati":"Assigned","Assente":"Absent","Assenti":"Absent","Assistente WP":"WP assistant","Attività da fare":"Tasks to do","Auto Sposi":"Couple's car","Bambini":"Children","Bambino":"Child",
+"Bomboniere":"Favours","Budget":"Budget","Budget speso":"Budget spent","Carne":"Meat","Categoria":"Category","Categorie e note ▾":"Categories & notes ▾","Categorie evento":"Event categories","Catering":"Catering",
+"Cena":"Dinner","Cerimonia":"Ceremony","Check-in":"Check-in","Chiave check-in":"Check-in key","Chiesa":"Church","Chiesa / Celebrante":"Church / Officiant","Codice":"Code","Cognome *":"Last name *","Colore":"Colour",
+"Completate":"Completed","Con allergeni":"With allergens","Con transfer":"With transfer","Concept":"Concept","Concept & Moodboard":"Concept & Moodboard","Condivisione e link":"Sharing & links","Confermati":"Confirmed","Confermato":"Confirmed",
+"Da arrivare":"To arrive","Da contattare":"To contact","Da fare":"To do","Da fare ora":"To do now","Didascalia":"Caption","Documenti":"Documents","Elementi sala":"Room elements","Elimina":"Delete","Email":"Email",
+"Entro 7 giorni":"Within 7 days","Esci":"Sign out","Esporta ▾":"Export ▾","Estetica":"Aesthetics","Evento":"Event","Filtra per categoria":"Filter by category","Fine (facoltativa)":"End (optional)","Fornitori":"Vendors",
+"Foto/Video":"Photo/Video","Fotografo":"Photographer","GESTIONE":"MANAGEMENT","Generale":"General","Gestisci":"Manage","Gestisci i tuoi matrimoni":"Manage your weddings","Glutine":"Gluten","Grazie!":"Thank you!","Hotel":"Hotel",
+"Il vostro matrimonio è un abito cucito su misura":"Your wedding is a couture gown, made to measure","Il vostro matrimonio è un abito cucito su misura.":"Your wedding is a couture gown, made to measure.","Il vostro matrimonio, passo dopo passo":"Your wedding, step by step",
+"Immagine non caricata.":"Image not loaded.","Impostazioni tavoli":"Table settings","In attesa":"Pending","Intrattenimento":"Entertainment","Invia conferma":"Send confirmation",
+"La pianta della location e la disposizione dei tavoli si gestiscono nella pagina Tavoli.":"The venue floor plan and table layout are managed on the Tables page.","La tua risposta è stata registrata.":"Your reply has been recorded.",
+"Le modifiche si salvano automaticamente.":"Changes are saved automatically.","Le voci con l'etichetta":"Items labelled","Link dell'immagine":"Image link","Lista Cucina":"Kitchen list","Location":"Venue","Logistica":"Logistics",
+"Make-up":"Make-up","Makeup & Hair Stylist":"Make-up & Hair Stylist","Menu":"Menu","Moodboard":"Moodboard","Musica":"Music","Musica Cena":"Dinner music","Musica Chiesa":"Church music","Musica Cocktail":"Cocktail music","Musica Generale":"General music",
+"Nascondi tavoli vuoti":"Hide empty tables","Neonato":"Infant","Nessun evento":"No events","Nessun ospite in questa categoria":"No guests in this category","Nessuna piantina caricata.":"No floor plan uploaded.",
+"Nessuna risposta dal link RSVP ancora":"No replies from the RSVP link yet","No":"No","Nome *":"First name *","Nome del colore (facoltativo)":"Colour name (optional)","Normale":"Standard","Note":"Notes","Note operative":"Operational notes",
+"OSPITI PRESENTI":"GUESTS PRESENT","Oggi!":"Today!","Orario":"Time","Ospiti":"Guests","Ospiti confermati":"Confirmed guests","PANORAMICA":"OVERVIEW","PDF":"PDF","Pagato finora":"Paid so far","Palette colori":"Colour palettes",
+"Partecipazione":"Invitation","Per":"For","Pesce":"Fish","Piano A — Principale":"Plan A — Main","Piano B — Alternativo":"Plan B — Alternative","Piantina tavoli":"Seating chart","Planimetria & tavoli":"Floor plan & tables",
+"Posti liberi":"Seats free","Posti totali":"Total seats","Previsto":"Planned","Prossime":"Upcoming","Prova abito":"Dress fitting","Questa settimana":"This week","RSVP":"RSVP","Saldato":"Paid in full","Salva":"Save","Scadute":"Overdue",
+"Scarica PDF":"Download PDF","Scheda Tecnica":"Technical sheet","Sei invitato al loro matrimonio. Conferma la tua presenza.":"You are invited to their wedding. Please confirm your attendance.","Senza cipolla":"No onion","Senza data":"No date",
+"Senza tavolo":"No table","Sotto il budget":"Under budget","Sposa":"Bride","Sposi":"Couple","Sposo":"Groom","Staff":"Staff","Stationery":"Stationery","Sì":"Yes","Tavoli":"Tables","Tavolo Sposi":"Couple table","Telefono":"Phone",
+"Timeline":"Timeline","Totale":"Total","Transfer":"Transfer","Transfer Ospiti":"Guest transfers","Trascina i tavoli sulla piantina per posizionarli come nella sala reale.":"Drag the tables onto the floor plan to place them as in the real room.",
+"Tutte":"All","Tutti":"All","Tutti RSVP":"All RSVP","Tutti gli ospiti":"All guests","Tutti i tavoli":"All tables","Tutti menu":"All menus","Tutti sistemati ✧":"All seated ✧","Uova":"Eggs","Vecchia attività senza data":"Old task without date",
+"Vecchia voce senza categoria":"Old item without category","Vegani":"Vegans","Vegano":"Vegan","Vegetariani":"Vegetarians","Vegetariano":"Vegetarian","Verifica che il link punti direttamente al file (non alla pagina di anteprima) e che sia condiviso pubblicamente.":"Make sure the link points directly to the file (not the preview page) and that it is publicly shared.",
+"Videomaker":"Videographer","Wedding Planner":"Wedding Planner","arrivano in automatico dalla pagina Fornitori (importo e acconti). Qui aggiungi solo le spese senza fornitore.":"come automatically from the Vendors page (amount and deposits). Only add expenses without a vendor here.",
+"confermati":"confirmed","scaduto":"overdue","← Indietro":"← Back","← Lista ospiti":"← Guest list","⎘ Copia da Piano A":"⎘ Copy from Plan A","✓ Confermo la presenza":"✓ I will attend","✓ Salvata":"✓ Saved","✕ Non potrò essere presente":"✕ I cannot attend",
+"✦ Carica il percorso standard":"✦ Load the standard journey","✦ Carica il percorso standard del matrimonio":"✦ Load the standard wedding journey","Carica il percorso standard":"Load the standard journey",
+"Percorso":"Journey","Dashboard":"Dashboard","Sposi · ":"Couple · ","Totale ospiti":"Total guests","Calendario":"Calendar","Nuovo":"New","Aggiungi":"Add","Modifica":"Edit","Annulla":"Cancel","Chiudi":"Close","Salva modifiche":"Save changes",
+"Password":"Password","Archivio":"Archive","Matrimoni":"Weddings","Stato":"Status","Importo":"Amount","Scadenza":"Due date","Contatto":"Contact","Valore":"Value","Nome":"First name","Cognome":"Last name","Tavolo":"Table","Elimina evento":"Delete event",
+"Nessun evento in questa fascia":"No events in this slot","Principale":"Main","Piano B":"Plan B","Piano A":"Plan A","Palette":"Palette","Elenco":"List","Tutti gli eventi":"All events","Condividi":"Share","Copiato":"Copied",
+"Compila tutti i campi obbligatori":"Please fill in all required fields","Il nome è obbligatorio":"Name is required","Nome e cognome obbligatori":"First and last name are required","Password minimo 6 caratteri":"Password must be at least 6 characters","Seleziona una risposta":"Please select a reply",
+"Codice colore non valido (es. #8B3A4A)":"Invalid colour code (e.g. #8B3A4A)","Formato non valido. Usa AAAA-MM-GG, es. 2026-10-10":"Invalid format. Use YYYY-MM-DD, e.g. 2026-10-10","Il Piano A è vuoto, nulla da copiare.":"Plan A is empty, nothing to copy.",
+"Il percorso standard è già presente.":"The standard journey is already there.","Imposta prima la data del matrimonio (Dashboard).":"Set the wedding date first (Dashboard).","Imposta prima una chiave check-in e salvala.":"Set a check-in key first and save it.",
+"Incolla il link di un'immagine":"Paste an image link","Inserisci un importo valido":"Enter a valid amount","Inserisci un'attività":"Enter a task","Inserisci una chiave":"Enter a key","Inserisci una voce":"Enter an item","Link RSVP copiato!":"RSVP link copied!",
+"Link cucina copiato!":"Kitchen link copied!","Nessuna piantina caricata":"No floor plan uploaded","Nome obbligatorio":"Name is required","Orario e evento obbligatori":"Time and event are required",
+"Archiviare questo matrimonio?":"Archive this wedding?","Eliminare questo evento?":"Delete this event?","Eliminare?":"Delete?","Nuova data del matrimonio (formato AAAA-MM-GG):":"New wedding date (format YYYY-MM-DD):",
+"Link check-in staff copiato!":"Staff check-in link copied!","Link check-in staff":"Staff check-in link","Link cucina":"Kitchen link","Copia link RSVP":"Copy RSVP link",
+"Concept in una frase":"Concept in one sentence","Nessun pagamento in scadenza":"No payments due","Nessun ospite ancora":"No guests yet","Nulla di urgente: tutto in ordine ✧":"Nothing urgent: all in order ✧","Nessuna attività nel Percorso":"No tasks in the Journey",
+"Nessuna risposta RSVP ancora":"No RSVP replies yet","Non ancora definito":"Not yet defined","Nessuna palette":"No palette","Nessun momento inserito":"No moments added","Nessun'attività":"No tasks","nessuna scaduta":"none overdue","Tutti sistemati":"All seated",
+"Cliccare per mostrare l'anteprima":"Click to show the preview","Clicca per mostrare l'anteprima":"Click to show the preview","Si apre solo quando serve, per tenere l'app veloce":"Opens only when needed, to keep the app fast","Apri su Canva ↗":"Open on Canva ↗","Apri immagine ↗":"Open image ↗","Design Canva":"Canva design",
+"Nessuna immagine":"No images","Nessun colore in palette":"No colours in palette","Rimuovi":"Remove","Carica":"Upload","Esporta":"Export","Aggiungi attività":"Add task","Wedding Planner · Accedi":"Wedding Planner · Sign in",
+"Mostra i due piani affiancati":"Show both plans side by side","Sovrascrive il Piano B con tutti gli eventi del Piano A":"Overwrites Plan B with all Plan A events","Clicca per copiare il codice":"Click to copy the code","Clicca per modificare":"Click to edit","Modifica data":"Edit date",
+"Apri la scheda del fornitore":"Open the vendor card","Preleva un colore da qualsiasi punto dello schermo":"Pick a colour from anywhere on screen","Su":"Up","Giù":"Down","Fine (facoltativa)":"End (optional)",
+"Lista per Tavolo":"List by table","Lista Alfabetica":"Alphabetical list","Lista Ospiti":"Guest list","Non assegnato":"Unassigned","Menù":"Menu","Totale versato: € ":"Total paid: € ",
+"es. Fotografi":"e.g. Photographers","es. staff2026":"e.g. staff2026","facoltativa":"optional","minimo 6 caratteri":"minimum 6 characters","la tua email":"your email","Cerca ospite...":"Search guest...","Cerca per nome, cognome, tavolo...":"Search name, last name, table...",
+"Il concept in una frase":"The concept in one sentence","Racconta l'idea del matrimonio: atmosfera, riferimenti, scelte di stile...":"Describe the idea of the wedding: atmosphere, references, style choices...","Incolla il link dell'immagine (.jpg/.png)":"Paste the image link (.jpg/.png)",
+"Incolla il link (Canva, Google Drive, Dropbox, .jpg/.png)":"Paste the link (Canva, Google Drive, Dropbox, .jpg/.png)","es. Ingresso, Buffet, Palco...":"e.g. Entrance, Buffet, Stage...","es. Verde Uliveto":"e.g. Olive Green","es. Partecipazione, Menù":"e.g. Invitation, Menu",
+"es. Bomboniere, Confetti...":"e.g. Favours, Sugared almonds...","es. PLANNER: coordinamento sposa...":"e.g. PLANNER: bride coordination...","Nome campo (es. Attrezzatura)":"Field name (e.g. Equipment)","Importo €":"Amount €","Specifica (es. melanzane, nichel...)":"Specify (e.g. aubergine, nickel...)",
+"Solo tu puoi leggere questo":"Only you can read this","Note aggiuntive...":"Additional notes...","tel / email":"phone / email","es. Villa Borghese, Roma":"e.g. Villa Borghese, Rome","es. Villa Paradiso":"e.g. Villa Paradiso","es. senza glutine...":"e.g. gluten free...",
+"es. Cerimonia in chiesa":"e.g. Church ceremony","es. Confermare fiorista":"e.g. Confirm florist","es. Studio Rossi":"e.g. Studio Smith",
+"Definire concept e budget con gli sposi":"Define concept and budget with the couple","Scegliere e bloccare la location":"Choose and secure the venue","Definire data, rito e ufficiante":"Set date, ceremony and officiant","Prima lista ospiti":"First guest list","Save the date":"Save the date","Confermare fotografo e videomaker":"Confirm photographer and videographer","Scegliere catering e menu":"Choose catering and menu","Scegliere l'abito della sposa":"Choose the bridal gown","Confermare fiorista e allestimenti":"Confirm florist and decor","Confermare musica (band / DJ)":"Confirm music (band / DJ)","Definire stationery e grafica coordinata":"Define stationery and coordinated graphics","Scegliere l'abito dello sposo":"Choose the groom's outfit","Confermare hair & make-up":"Confirm hair & make-up","Organizzare transfer e alloggi ospiti":"Arrange guest transfers and accommodation","Inviare le partecipazioni":"Send the invitations","Documenti per il rito (civile / religioso)":"Documents for the ceremony (civil / religious)","Scegliere le fedi":"Choose the wedding rings","Prova menu con il catering":"Menu tasting with the caterer","Sopralluogo tecnico in location":"Technical site visit at the venue","Prova trucco e capelli":"Hair and make-up trial","Chiudere gli RSVP":"Close RSVPs","Prova finale abito e ritocchi":"Final dress fitting and alterations","Piantina tavoli e tableau":"Seating chart and tableau","Timeline definitiva (Piano A e B) condivisa con i fornitori":"Final timeline (Plan A and B) shared with vendors","Saldare i fornitori":"Pay vendors in full","Comunicare i numeri definitivi al catering":"Send final numbers to the caterer","Briefing finale con tutti i fornitori":"Final briefing with all vendors","Consegnare stationery e materiali in location":"Deliver stationery and materials to the venue","Preparare valigia e documenti viaggio di nozze":"Pack and prepare honeymoon documents","Preparare buste e mance":"Prepare envelopes and tips","Controllare meteo e piano B":"Check the weather and Plan B","Prova generale della cerimonia":"Ceremony rehearsal","Ringraziare i fornitori":"Thank the vendors","Saldo finale e chiusura budget":"Final balance and budget close",
+"Nota privata (admin)":"Private note (admin)","★ Nota privata (admin)":"★ Private note (admin)","CSV":"CSV","Backup Excel":"Excel backup","Allergeni / Note":"Allergens / Notes","Auto-assegna non assegnati":"Auto-assign unassigned","Previsto (€)":"Planned (€)","Effettivo (€)":"Actual (€)","Scadenza pagamento":"Payment due date","Voce":"Item","Pagato":"Paid","Da pagare":"To pay","Nessuna voce aggiunta":"No items added","Nome Fornitore":"Vendor name","Importo (€)":"Amount (€)","Acconto pagato (€)":"Deposit paid (€)","Scadenza saldo":"Balance due date","Cat.":"Cat.","Nessun fornitore aggiunto":"No vendors added","I Matrimoni":"Weddings",
+"Lattosio":"Lactose","Frutta secca":"Tree nuts","Crostacei":"Shellfish","Soia":"Soy","Sesamo":"Sesame","Timeline del giorno":"Day timeline","TIMELINE DEL GIORNO":"DAY TIMELINE","Timeline Piano B — Alternativo":"Timeline Plan B — Alternative","Timeline Piano A — Principale":"Timeline Plan A — Main","Completa":"Complete","Nessun matrimonio in archivio":"No weddings in archive"
+};
+const EN_FRAG=[
+[/\btra (\d+) giorni\b/g,'in $1 days'],[/\btra 1 giorno\b/g,'in 1 day'],[/\b(\d+) giorni fa\b/g,'$1 days ago'],[/\boggi\b/g,'today'],[/\bdomani\b/g,'tomorrow'],[/\bieri\b/g,'yesterday'],
+[/\b(\d+) scadute\b/g,'$1 overdue'],[/\bscaduto\b/g,'overdue'],[/\b(\d+) in attesa\b/g,'$1 pending'],[/\b(\d+) assenti\b/g,'$1 absent'],[/\b(\d+) confermati\b/g,'$1 confirmed'],
+[/\b(\d+) ospiti assegnati\b/g,'$1 guests assigned'],[/\b(\d+) assegnati\b/g,'$1 assigned'],[/\b(\d+) ancora senza tavolo\b/g,'$1 still without a table'],[/\b(\d+) ospiti\b/g,'$1 guests'],
+[/\b(\d+) momenti nel Piano A\b/g,'$1 moments in Plan A'],[/\b(\d+) nel Piano B\b/g,'$1 in Plan B'],[/\b(\d+) arrivati\b/g,'$1 arrived'],[/\b(\d+) attesi\b/g,'$1 expected'],
+[/^su €/,'of €'],[/\bsu (€[\d.,\s]+)/g,'of $1'],[/(\d+)% del budget/g,'$1% of budget'],[/\(saldo: /g,'(balance: '],[/\be altre (\d+)…/g,'and $1 more…'],
+[/(\d+)\/(\d+) completate \((\d+)%\)/g,'$1/$2 completed ($3%)'],[/\bcompletate\b/g,'completed'],[/\bAttività\b/g,'Tasks'],
+[/Lista per Tavolo/g,'List by table'],[/Lista Alfabetica/g,'Alphabetical list'],[/Lista Ospiti/g,'Guest list'],[/\bTavolo Sposi\b/g,'Couple table'],[/\bTavolo (\d+)\b/g,'Table $1'],[/Timeline del Giorno/gi,'Day timeline'],[/Timeline Piano B — Alternativo/g,'Timeline Plan B — Alternative']
+];
+const EN_MON={gen:'Jan',feb:'Feb',mar:'Mar',apr:'Apr',mag:'May',giu:'Jun',lug:'Jul',ago:'Aug',set:'Sep',ott:'Oct',nov:'Nov',dic:'Dec'};
+function trStr(s){
+  const raw=String(s);const tr=raw.trim();if(!tr)return raw;
+  const lead=raw.match(/^\s*/)[0],trail=raw.match(/\s*$/)[0];
+  const core=trCore(tr);
+  return core===tr?raw:lead+core+trail;
+}
+function trCore(tr){
+  if(EN_MAP[tr]!==undefined)return EN_MAP[tr];
+  let m=tr.match(/^(\d{1,2}) (gen|feb|mar|apr|mag|giu|lug|ago|set|ott|nov|dic)( \d{4})?$/);
+  if(m)return EN_MON[m[2]]+' '+m[1]+(m[3]||'');
+  m=tr.match(/^Tavolo (\d+)$/);if(m)return 'Table '+m[1];
+  if(tr.includes(', ')){const ps=tr.split(', ').map(trCore);const j=ps.join(', ');if(j!==tr)return j;}
+  if(tr.startsWith('— '))return '— '+trCore(tr.slice(2));
+  if(tr.startsWith('● ')||tr.startsWith('♡ ')||tr.startsWith('→ '))return tr.slice(0,2)+trCore(tr.slice(2));
+  let out=tr;
+  // data breve + resto (es. "11 nov · tra 3 giorni")
+  out=out.replace(/(\d{1,2}) (gen|feb|mar|apr|mag|giu|lug|ago|set|ott|nov|dic)\b/g,(x,d,mo)=>EN_MON[mo]+' '+d);
+  EN_FRAG.forEach(([re,rep])=>{out=out.replace(re,rep);});
+  if(out===tr&&tr.includes(' · ')){const parts=tr.split(' · ').map(trCore);const j=parts.join(' · ');if(j!==tr)return j;}
+  return out;
+}
+const I18N_SKIP='SCRIPT,STYLE,NOSCRIPT,TEXTAREA,INPUT';
+function trSkipNode(n){
+  const p=n.nodeType===3?n.parentElement:n;
+  return !p||p.closest('[contenteditable="true"],textarea,input,script,style');
+}
+function trElement(root){
+  if(!root)return;
+  if(root.nodeType===3){
+    if(trSkipNode(root))return;
+    const src=root.__it&&root.nodeValue===root.__en?root.__it:root.nodeValue;
+    const en=trStr(src);
+    if(en!==src){root.__it=src;root.__en=en;root.nodeValue=en;}
+    return;
+  }
+  if(root.nodeType!==1)return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  let n;const list=[];while(n=w.nextNode())list.push(n);
+  list.forEach(trElement);
+  const els=[root,...root.querySelectorAll('[placeholder],[title]')];
+  els.forEach(e=>{
+    if(!e.getAttribute)return;
+    ['placeholder','title'].forEach(a=>{
+      const v=e.getAttribute(a);if(!v)return;
+      const key='__it_'+a;
+      const src=e[key]&&e.getAttribute(a)===e['__en_'+a]?e[key]:v;
+      const en=trStr(src);
+      if(en!==src){e[key]=src;e['__en_'+a]=en;e.setAttribute(a,en);}
+    });
+  });
+}
+function trRevert(root){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;
+  while(n=w.nextNode()){if(n.__it&&n.nodeValue===n.__en){n.nodeValue=n.__it;}n.__it=n.__en=undefined;}
+  root.querySelectorAll('[placeholder],[title]').forEach(e=>{
+    ['placeholder','title'].forEach(a=>{const k='__it_'+a;if(e[k]&&e.getAttribute(a)===e['__en_'+a])e.setAttribute(a,e[k]);e[k]=e['__en_'+a]=undefined;});
+  });
+}
+let _trObs=null,_trQueue=new Set(),_trTimer=null;
+function applyI18nDom(){
+  if(LANG==='en'){
+    trElement(document.body);
+    if(!_trObs){
+      _trObs=new MutationObserver(muts=>{
+        muts.forEach(m=>m.addedNodes.forEach(n=>_trQueue.add(n)));
+        if(_trTimer)return;
+        _trTimer=setTimeout(()=>{_trTimer=null;const q=[..._trQueue];_trQueue.clear();q.forEach(n=>{if(n.isConnected)trElement(n);});},60);
+      });
+      _trObs.observe(document.body,{childList:true,subtree:true});
+    }
+  }else{
+    if(_trObs){_trObs.disconnect();_trObs=null;_trQueue.clear();}
+    trRevert(document.body);
+  }
+}
+// alert / confirm / prompt e finestre PDF nella lingua corrente
+(function(){
+  const oa=window.alert.bind(window),oc=window.confirm.bind(window),op=window.prompt.bind(window);
+  window.alert=m=>oa(LANG==='en'?trStr(m):m);
+  window.confirm=m=>oc(LANG==='en'?trStr(m):m);
+  window.prompt=(m,d)=>op(LANG==='en'?trStr(m):m,d);
+  const ow=window.open.bind(window);
+  window.open=function(...a){
+    const w=ow(...a);
+    if(w&&LANG==='en'){try{const d=w.document,wr=d.write.bind(d);d.write=h=>{try{const doc=new DOMParser().parseFromString(h,'text/html');trElement(doc.body);trElement(doc.head);wr('<!DOCTYPE html>'+doc.documentElement.outerHTML);}catch(e){wr(h);}};}catch(e){}}
+    return w;
+  };
+})();
+
+
 window.toggleMobileMenu=function(){
   const sidebar=document.querySelector('.sidebar');
   const overlay=document.getElementById('mobile-overlay');
@@ -1618,6 +1796,7 @@ window.setLang=function(l){
   }
   document.getElementById('lang-sel').value=l;
   if(CW_ID)renderAll();
+  applyI18nDom();
 }
 
 // ── URL PARAMS ──
@@ -2413,7 +2592,7 @@ window.renderGuests=function(){
     .sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true}));
   const tLab=v=>(v==='sposi'||isCustomTable(v))?tableLabel(v,LANG):(LANG==='en'?'Table ':'Tavolo ')+v;
   const curT=tSel.value;
-  const sig=usedT.join('|');
+  const sig=usedT.join('|')+'|'+LANG;
   if(tSel.dataset.sig!==sig){
     tSel.innerHTML=`<option value="">${LANG==='en'?'All tables':'Tutti i tavoli'}</option>`+usedT.map(v=>`<option value="${String(v).replace(/"/g,'&quot;')}">${tLab(v)}</option>`).join('');
     tSel.dataset.sig=sig;
