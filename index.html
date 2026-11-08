@@ -128,6 +128,37 @@ input,select,textarea,button{font-variant-numeric:lining-nums;font-feature-setti
 .cd-num{font-family:'Playfair Display',serif;font-size:36px;color:var(--gold);line-height:1}
 .cd-label{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-top:2px}
 .cd-wedding{font-family:'Playfair Display',serif;font-size:21px;color:var(--cream);font-style:italic}
+.kpi .kpi-s{font-size:14px;color:var(--gray);margin-top:6px;letter-spacing:.5px;font-variant-numeric:lining-nums}
+.cd-sub{font-size:17px;color:var(--cream);opacity:.75;margin-top:8px;letter-spacing:1px;font-variant-numeric:lining-nums}
+.countdown-units{flex-direction:column;gap:0}
+.dash-todo{margin-bottom:24px}
+.dash-h4-link{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.dash-h4-link a{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);cursor:pointer}
+.todo-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--gray-l);cursor:pointer;font-size:18px}
+.todo-row:last-child{border-bottom:none}
+.todo-row:hover{background:var(--gold-pale)}
+.todo-row .tt{flex:1;min-width:0}
+.todo-row .td{font-size:15px;white-space:nowrap;text-align:right;color:var(--gray);font-variant-numeric:lining-nums}
+.todo-row .td.late{color:var(--red)}
+.todo-row .td.soon{color:var(--gold)}
+.dash-three-col{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-bottom:24px}
+.dash-sum{background:white;border:1px solid var(--gray-l);padding:22px 24px;cursor:pointer;transition:border-color .2s}
+.dash-sum:hover{border-color:var(--gold)}
+.dash-sum .ds-h{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:10px}
+.dash-sum .ds-t{font-family:'Playfair Display',serif;font-size:21px;line-height:1.3;margin-bottom:10px}
+.dash-sum .ds-s{font-size:16px;color:var(--gray)}
+.dash-sum .sw{display:flex;gap:6px;margin-top:6px}
+.dash-sum .sw i{width:28px;height:28px;border-radius:50%;border:1px solid var(--gray-l);display:block}
+.rsvp-split{display:flex;height:10px;background:var(--gray-l);margin-bottom:8px;overflow:hidden}
+.rsvp-split i{display:block;height:100%}
+.rsvp-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:15px;color:var(--gray);margin-bottom:14px;font-variant-numeric:lining-nums}
+.alert-payment.late{background:#fdecea;border-left-color:var(--red)}
+.alert-payment.late .pd{color:var(--red)}
+.dash-card.collapsed>*:not(h4){display:none!important}
+.dash-card.collapsed h4{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.dash-card.collapsed .toggle-card .plus{transform:rotate(0)}
+.dash-card:not(.collapsed) .toggle-card .plus{transform:rotate(45deg)}
+@media(max-width:700px){.dash-two-col{grid-template-columns:1fr}}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--gray-l);border:1px solid var(--gray-l);margin-bottom:28px}
 .kpi{background:white;padding:20px 24px;text-align:center}
 .kpi .kpi-n{font-family:'Playfair Display',serif;font-size:30px;color:var(--black);line-height:1;margin-bottom:4px}
@@ -773,6 +804,10 @@ tr.b-vendor{cursor:pointer}
           </div>
         </div>
         <div class="kpi-grid" id="dash-kpi"></div>
+        <div class="dash-card dash-todo">
+          <h4 class="dash-h4-link"><span>Da fare ora</span><a onclick="showView('checklist')">Apri il Percorso →</a></h4>
+          <div id="dash-todo"></div>
+        </div>
         <div class="dash-two-col">
           <div class="dash-card">
             <h4 data-t="rsvp_status">Stato RSVP</h4>
@@ -783,11 +818,12 @@ tr.b-vendor{cursor:pointer}
             <div id="dash-payments"></div>
           </div>
         </div>
-        <div class="dash-card admin-only" style="margin-bottom:20px">
-          <h4 data-t="rsvp_link_title">Link RSVP ospiti</h4>
+        <div class="dash-three-col" id="dash-summary"></div>
+        <div class="dash-card admin-only collapsed" style="margin-bottom:20px" id="dash-share-card">
+          <h4 class="toggle-card" onclick="document.getElementById('dash-share-card').classList.toggle('collapsed')"><span>Condivisione e link</span><span class="plus">+</span></h4>
           <div class="rsvp-link-box" id="rsvp-link-display"></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn-copy" onclick="copyRsvpLink()" data-t="copy_link">Copia link</button>
+            <button class="btn-copy" onclick="copyRsvpLink()" data-t="copy_link">Copia link RSVP</button>
             <button class="btn-copy" onclick="copyKitchenLink()" style="background:var(--teal)" data-t="copy_kitchen">Link cucina</button>
             <button class="btn-copy" onclick="copyCheckinLink()" style="background:var(--gold)" data-t="copy_checkin">Link check-in staff</button>
           </div>
@@ -2243,55 +2279,88 @@ function startCountdown(dateStr){
     const d=Math.floor(diff/86400000);
     const h=Math.floor((diff%86400000)/3600000);
     const m=Math.floor((diff%3600000)/60000);
-    const s=Math.floor((diff%60000)/1000);
     document.getElementById('countdown-units').innerHTML=
-      `<div class="cd-unit"><div class="cd-num">${d}</div><div class="cd-label">${t('days')}</div></div>`+
-      `<div class="cd-unit"><div class="cd-num">${h}</div><div class="cd-label">${t('hours')}</div></div>`+
-      `<div class="cd-unit"><div class="cd-num">${m}</div><div class="cd-label">${t('mins')}</div></div>`+
-      `<div class="cd-unit"><div class="cd-num">${s}</div><div class="cd-label">${t('secs')}</div></div>`;
+      `<div class="cd-unit" style="text-align:left"><div class="cd-num" style="font-size:44px">${d}</div><div class="cd-label">${d===1?(LANG==='en'?'day':'giorno'):t('days')}</div></div>`+
+      `<div class="cd-sub">${h} ${t('hours')} · ${m} ${t('mins')}</div>`;
   }
   update();
-  window._cdInterval=setInterval(update,1000);
+  window._cdUpdate=update;
+  window._cdInterval=setInterval(update,30000);
 }
 
 // ── DASHBOARD ──
 function renderDashboard(){
   if(!CW_ID)return;
+  if(window._cdUpdate)window._cdUpdate();
   const all=Object.values(guests);
   const conf=all.filter(g=>g.rsvp==='Confermato').length;
   const wait=all.filter(g=>!g.rsvp||g.rsvp==='In attesa').length;
   const abs=all.filter(g=>g.rsvp==='Assente').length;
   const tot=all.length;
-  const vPct=tot>0?Math.round(conf/tot*100):0;
+  const present=all.filter(g=>g.rsvp!=='Assente');
+  const noTable=present.filter(g=>!g.tavolo||String(g.tavolo).trim()==='').length;
   const allV=Object.values(vendors);
   const vConf=allV.filter(v=>v.stato==='Confermato'||v.stato==='Acconto pagato'||v.stato==='Saldato').length;
-  const bT=budgetTotals();
-  const bSpeso=bT.paid;
-  const bMax=bT.max;
-  const bPct=bMax>0?Math.round(bSpeso/bMax*100):0;
-  document.getElementById('dash-kpi').innerHTML=`
-    <div class="kpi"><div class="kpi-n">${tot}</div><div class="kpi-l">${t('nav_guests')}</div><div class="progress-bar"><div class="progress-fill" style="width:${vPct}%"></div></div></div>
-    <div class="kpi green"><div class="kpi-n">${conf}</div><div class="kpi-l">${t('confirmed')}</div></div>
-    <div class="kpi"><div class="kpi-n">${wait}</div><div class="kpi-l">${t('waiting')}</div></div>
-    <div class="kpi red"><div class="kpi-n">${abs}</div><div class="kpi-l">${t('absent')}</div></div>
-    <div class="kpi gold"><div class="kpi-n">${vConf}/${allV.length}</div><div class="kpi-l">${t('nav_vendors')}</div></div>
-    <div class="kpi ${bPct>80?'red':'gold'}"><div class="kpi-n">${eur(bSpeso)}</div><div class="kpi-l">${t('nav_budget')}</div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(bPct,100)}%;background:${bPct>80?'var(--red)':'var(--gold)'}"></div></div></div>`;
-  // RSVP list
+  const clAll=Object.values(checklist).filter(c=>IS_ADMIN||c.who==='sposi');
+  const clOpen=clAll.filter(c=>!c.done);
+  const clLate=clOpen.filter(c=>{const n=clDiff(c.date);return n!==null&&n<0;}).length;
+  let kpi=`
+    <div class="kpi green"><div class="kpi-n">${conf}<span style="font-size:20px;color:var(--gray)">/${tot}</span></div><div class="kpi-l">Ospiti confermati</div><div class="kpi-s">${wait} in attesa · ${abs} assenti</div></div>
+    <div class="kpi ${noTable?'gold':''}"><div class="kpi-n">${noTable}</div><div class="kpi-l">Senza tavolo</div><div class="kpi-s">${present.length-noTable} assegnati</div></div>
+    <div class="kpi ${clLate?'red':''}"><div class="kpi-n">${clOpen.length}</div><div class="kpi-l">Attività da fare</div><div class="kpi-s">${clLate?clLate+' scadute':(clAll.length?'nessuna scaduta':'—')}</div></div>`;
+  if(IS_ADMIN){
+    const bT=budgetTotals();
+    const bPct=bT.max>0?Math.round(bT.paid/bT.max*100):0;
+    kpi+=`
+    <div class="kpi gold"><div class="kpi-n">${vConf}/${allV.length}</div><div class="kpi-l">${t('nav_vendors')}</div><div class="kpi-s">confermati</div></div>
+    <div class="kpi ${bPct>80?'red':'gold'}"><div class="kpi-n">${eur(bT.paid)}</div><div class="kpi-l">Budget speso</div><div class="kpi-s">su ${eur(bT.max)}</div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(bPct,100)}%;background:${bPct>80?'var(--red)':'var(--gold)'}"></div></div></div>`;
+  }
+  document.getElementById('dash-kpi').innerHTML=kpi;
+
+  // Da fare ora
+  const urgent=clOpen.filter(c=>{const n=clDiff(c.date);return n!==null&&n<=7;}).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const CC=typeof CL_COLORS!=='undefined'?CL_COLORS:{};
+  document.getElementById('dash-todo').innerHTML=urgent.length
+    ?urgent.slice(0,5).map(c=>{const n=clDiff(c.date);const cls=n<0?'late':'soon';
+      return `<div class="todo-row" onclick="showView('checklist')"><span class="tt">${clEsc(c.text)}</span><span class="badge ${CC[c.cat]||'b-gray'}">${clEsc(c.cat||'Altro')}</span><span class="td ${cls}">${clFmt(c.date)} · ${clRel(n)}</span></div>`;}).join('')+(urgent.length>5?`<div style="padding-top:10px;font-size:15px;color:var(--gray)">e altre ${urgent.length-5}…</div>`:'')
+    :`<div style="color:var(--gray);font-size:17px;padding:8px 0">${clAll.length?'Nulla di urgente: tutto in ordine ✧':'Nessuna attività nel Percorso'+(IS_ADMIN?' — apri il Percorso per caricare quello standard':'')}</div>`;
+
+  // RSVP
+  const pc=n=>tot?Math.round(n/tot*100):0;
   const recent=Object.values(guests).filter(g=>g.source==='rsvp').slice(-5);
-  document.getElementById('dash-rsvp-list').innerHTML=recent.length?
-    recent.map(g=>`<div class="rsvp-item"><span>${g.nome} ${g.cognome}</span><span class="badge ${g.rsvp==='Confermato'?'b-green':'b-red'}">${g.rsvp}</span></div>`).join('')
-    :`<div style="color:var(--gray);font-size:16px;padding:8px 0">Nessuna risposta RSVP ancora</div>`;
-  // Payment alerts
-  const today=new Date();
+  document.getElementById('dash-rsvp-list').innerHTML=tot
+    ?`<div class="rsvp-split"><i style="width:${pc(conf)}%;background:var(--green)"></i><i style="width:${pc(wait)}%;background:var(--gold)"></i><i style="width:${pc(abs)}%;background:var(--red)"></i></div>
+      <div class="rsvp-legend"><span style="color:var(--green)">● ${conf} confermati</span><span style="color:var(--gold)">● ${wait} in attesa</span><span style="color:var(--red)">● ${abs} assenti</span></div>`
+      +(recent.length?recent.map(g=>`<div class="rsvp-item"><span>${clEsc(g.nome)} ${clEsc(g.cognome)}</span><span class="badge ${g.rsvp==='Confermato'?'b-green':'b-red'}">${clEsc(g.rsvp)}</span></div>`).join(''):`<div style="color:var(--gray);font-size:16px">Nessuna risposta dal link RSVP ancora</div>`)
+    :`<div style="color:var(--gray);font-size:16px;padding:8px 0">Nessun ospite ancora</div>`;
+
+  // Pagamenti
   const upcoming=Object.values(vendors).filter(v=>{
-    if(v.stato==='Saldato')return false;
-    if(!v.scadenza)return false;
-    const d=new Date(v.scadenza);
-    return (d-today)<=30*86400000;
-  });
+    if(v.stato==='Saldato'||!v.scadenza)return false;
+    const n=clDiff(v.scadenza);return n!==null&&n<=30;
+  }).sort((a,b)=>a.scadenza.localeCompare(b.scadenza));
   document.getElementById('dash-payments').innerHTML=upcoming.length?
-    upcoming.map(v=>`<div class="alert-payment"><span><strong>${v.nome}</strong> — ${v.cat}</span><span style="color:var(--orange);font-size:15px">${v.scadenza||''}</span></div>`).join('')
+    upcoming.map(v=>{const n=clDiff(v.scadenza);const late=n<0;
+      return `<div class="alert-payment ${late?'late':''}"><span><strong>${clEsc(v.nome)}</strong> — ${clEsc(v.cat)}</span><span class="pd" style="color:var(--orange);font-size:15px;text-align:right;white-space:nowrap">${clFmt(v.scadenza)}<br><small>${late?'scaduto · ':''}${clRel(n)}</small></span></div>`;}).join('')
     :`<div style="color:var(--gray);font-size:16px;padding:8px 0">Nessun pagamento in scadenza</div>`;
+
+  // Schede di sintesi
+  const mbc=(typeof moodboard!=='undefined'&&moodboard.concept)||{};
+  const pal=Object.values((typeof moodboard!=='undefined'&&moodboard.palette)||{}).slice(0,8);
+  const tl=Object.values(timeline||{}).filter(i=>i.ora).sort((a,b)=>a.ora.localeCompare(b.ora));
+  const tlB=Object.keys(timelineB||{}).length;
+  let sum=`
+    <div class="dash-sum" onclick="showView('moodboard')"><div class="ds-h">Concept</div>
+      <div class="ds-t">${mbc.titolo?clEsc(mbc.titolo):'<span style="color:var(--gray)">Non ancora definito</span>'}</div>
+      ${pal.length?`<div class="sw">${pal.map(k=>`<i style="background:${clEsc(k.hex)}" title="${clEsc(k.nome)}"></i>`).join('')}</div>`:'<div class="ds-s">Nessuna palette</div>'}</div>
+    <div class="dash-sum" onclick="showView('seating')"><div class="ds-h">Tavoli</div>
+      <div class="ds-t">${present.length-noTable} ospiti assegnati</div>
+      <div class="ds-s">${noTable?noTable+' ancora senza tavolo':'Tutti sistemati ✧'}</div></div>`;
+  if(IS_ADMIN)sum+=`
+    <div class="dash-sum" onclick="showView('timeline')"><div class="ds-h">Timeline</div>
+      <div class="ds-t">${tl.length?`${clEsc(tl[0].ora)} ${clEsc(tl[0].txt||'')}`:'<span style="color:var(--gray)">Nessun momento inserito</span>'}</div>
+      <div class="ds-s">${tl.length} momenti nel Piano A${tlB?` · ${tlB} nel Piano B`:''}</div></div>`;
+  document.getElementById('dash-summary').innerHTML=sum;
 }
 
 // ── GUESTS ──
