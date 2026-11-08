@@ -387,14 +387,6 @@ tr.b-vendor{cursor:pointer}
 .tl-item>.tl-edit-row{grid-column:1/-1}
 .tl-item input[type=checkbox]{width:20px!important;height:20px!important;flex:0 0 auto}
 .tl-item .tl-text{font-size:20px}
-.time-wrap{position:relative;display:block;width:130px}
-.time-wrap .time-ph{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--gray);font-size:18px;display:none}
-html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit,
-html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit-fields-wrapper,
-html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit-hour-field,
-html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit-minute-field,
-html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit-text{color:transparent}
-html.safari .time-wrap input.empty:not(:focus)+.time-ph{display:block}
 .tl-end{display:block;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gray);margin-top:1px;letter-spacing:.5px}
 .tl-item .btn-icon{opacity:.35;transition:opacity .2s}
 .tl-item:hover .btn-icon{opacity:1}
@@ -1075,8 +1067,8 @@ html.safari .time-wrap input.empty:not(:focus)+.time-ph{display:block}
             </div>
             <div class="form-card" style="margin-bottom:16px">
               <div class="tl-add-compact">
-                <div class="ig"><label>Orario</label><input type="time" id="tl-ora" style="width:130px"></div>
-                <div class="ig"><label>Fine (facoltativa)</label><input type="time" id="tl-fine" style="width:130px"></div>
+                <div class="ig"><label>Orario</label><input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tl-ora" style="width:120px"></div>
+                <div class="ig"><label>Fine (facoltativa)</label><input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tl-fine" style="width:120px"></div>
                 <div class="ig ev"><label>Evento</label><input id="tl-txt" placeholder="es. Cerimonia in chiesa" onkeydown="if(event.key==='Enter')document.getElementById('tl-add').click()"></div>
                 <button class="tl-more" type="button" onclick="document.getElementById('tl-details').classList.toggle('open')">Categorie e note ▾</button>
                 <button class="btn-add" id="tl-add" onclick="addTimelineItem()" style="min-height:46px">+ Aggiungi</button>
@@ -1106,8 +1098,8 @@ html.safari .time-wrap input.empty:not(:focus)+.time-ph{display:block}
             </div>
             <div class="form-card" style="margin-bottom:16px">
               <div class="tl-add-compact">
-                <div class="ig"><label>Orario</label><input type="time" id="tlb-ora" style="width:130px"></div>
-                <div class="ig"><label>Fine (facoltativa)</label><input type="time" id="tlb-fine" style="width:130px"></div>
+                <div class="ig"><label>Orario</label><input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tlb-ora" style="width:120px"></div>
+                <div class="ig"><label>Fine (facoltativa)</label><input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tlb-fine" style="width:120px"></div>
                 <div class="ig ev"><label>Evento</label><input id="tlb-txt" placeholder="es. Cerimonia in chiesa" onkeydown="if(event.key==='Enter')document.getElementById('tlb-add').click()"></div>
                 <button class="tl-more" type="button" onclick="document.getElementById('tlb-details').classList.toggle('open')">Categorie e note ▾</button>
                 <button class="btn-add" id="tlb-add" onclick="addTimelineItemB()" style="min-height:46px">+ Aggiungi</button>
@@ -3379,8 +3371,8 @@ window.renderTimeline=function(){
       ${item.note?`<div style="font-size:15px;color:var(--gray);margin:4px 0 0 22px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}
       ${tlEditingId===id?`<div class="tl-edit-row" style="flex-direction:column;align-items:flex-start;gap:8px">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <input type="time" id="tl-edit-ora-${id}" value="${item.ora||''}">
-          <input type="time" id="tl-edit-fine-${id}" value="${item.fine||''}" title="Fine (facoltativa)">
+          <input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tl-edit-ora-${id}" value="${item.ora||''}" style="width:90px">
+          <input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tl-edit-fine-${id}" value="${item.fine||''}" title="Fine (facoltativa)" style="width:90px">
           <input type="text" id="tl-edit-txt-${id}" value="${safeTxt}" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')saveTimelineItem('${id}');if(event.key==='Escape')cancelTimelineEdit()">
           <button class="tl-save" onclick="saveTimelineItem('${id}')">✓</button>
           <button class="tl-cancel" onclick="cancelTimelineEdit()">✕</button>
@@ -3393,27 +3385,27 @@ window.renderTimeline=function(){
   if(tlEditingId){const inp=document.getElementById('tl-edit-txt-'+tlEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
 }
 
-// Safari mostra un orario d'esempio in grigio nei campi vuoti: lo sostituiamo con --:--
-function tlTimeRefresh(){
-  ['tl-ora','tl-fine','tlb-ora','tlb-fine'].forEach(id=>{
-    const i=document.getElementById(id);
-    if(i)i.classList.toggle('empty',!i.value);
-  });
-}
+// Campi orario: testo con "--:--" e formattazione automatica (uguale in tutti i browser)
+function tlTimeRefresh(){}
 window.tlTimeRefresh=tlTimeRefresh;
-(function(){
-  if(!/^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent))return;
-  document.documentElement.classList.add('safari');
-  ['tl-ora','tl-fine','tlb-ora','tlb-fine'].forEach(id=>{
-    const i=document.getElementById(id);
-    if(!i||i.parentNode.classList.contains('time-wrap'))return;
-    const w=document.createElement('span');w.className='time-wrap';
-    i.parentNode.insertBefore(w,i);w.appendChild(i);
-    const ph=document.createElement('span');ph.className='time-ph';ph.textContent='--:--';w.appendChild(ph);
-    ['input','change','blur'].forEach(ev=>i.addEventListener(ev,tlTimeRefresh));
-  });
-  tlTimeRefresh();
-})();
+document.addEventListener('input',e=>{
+  const el=e.target;
+  if(!el.classList||!el.classList.contains('time-in'))return;
+  let d=el.value.replace(/\D/g,'').slice(0,4);
+  if(d.length===1&&d>'2')d='0'+d;            // 9 -> 09:
+  el.value=d.length>=3?d.slice(0,2)+':'+d.slice(2):(d.length===2&&e.inputType!=='deleteContentBackward'?d+':':d);
+});
+document.addEventListener('focusout',e=>{
+  const el=e.target;
+  if(!el.classList||!el.classList.contains('time-in'))return;
+  const d=el.value.replace(/\D/g,'');
+  if(!d){el.value='';return;}
+  let h,m;
+  if(d.length<=2){h=+d;m=0;}
+  else if(d.length===3){h=+d[0];m=+d.slice(1);}
+  else{h=+d.slice(0,2);m=+d.slice(2);}
+  el.value=(h<=23&&m<=59)?String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'):'';
+});
 window.tlPlan=function(mode){
   const cols=document.querySelector('#view-timeline .tl-columns');
   cols.classList.remove('show-b','both');
@@ -3514,8 +3506,8 @@ window.renderTimelineB=function(){
       ${item.note?`<div style="font-size:15px;color:var(--gray);margin:4px 0 0 22px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}
       ${tlEditingIdB===id?`<div class="tl-edit-row" style="flex-direction:column;align-items:flex-start;gap:8px">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <input type="time" id="tlb-edit-ora-${id}" value="${item.ora||''}">
-          <input type="time" id="tlb-edit-fine-${id}" value="${item.fine||''}" title="Fine (facoltativa)">
+          <input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tlb-edit-ora-${id}" value="${item.ora||''}" style="width:90px">
+          <input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tlb-edit-fine-${id}" value="${item.fine||''}" title="Fine (facoltativa)" style="width:90px">
           <input type="text" id="tlb-edit-txt-${id}" value="${safeTxt}" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')saveTimelineItemB('${id}');if(event.key==='Escape')cancelTimelineEditB()">
           <button class="tl-save" onclick="saveTimelineItemB('${id}')">✓</button>
           <button class="tl-cancel" onclick="cancelTimelineEditB()">✕</button>
