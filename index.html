@@ -282,6 +282,30 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .pool-guests{display:flex;flex-wrap:wrap;gap:6px;min-height:40px;padding:8px;background:var(--cream-d)}
 .pool-guests.drag-over{background:var(--gold-pale)}
 
+/* ── MOODBOARD ── */
+.mb-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.mb-tab{padding:9px 20px;border-radius:22px;border:1px solid var(--gray-l);background:#fff;font-family:'Cormorant Garamond',serif;font-size:17px;letter-spacing:.5px;color:var(--gray);cursor:pointer;transition:all .2s}
+.mb-tab:hover{border-color:var(--gold);color:var(--black)}
+.mb-tab.active{background:var(--black);border-color:var(--black);color:var(--cream)}
+.mb-pane{display:none}.mb-pane.active{display:block}
+.mb-swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:18px}
+.mb-sw{background:#fff;border:1px solid var(--gray-l);position:relative}
+.mb-sw .chip{height:110px}
+.mb-sw .meta{padding:12px 14px}
+.mb-sw .nm{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:2px}
+.mb-sw .hx{font-size:15px;letter-spacing:1.5px;color:var(--gray);text-transform:uppercase}
+.mb-del{position:absolute;top:6px;right:6px;background:rgba(255,255,255,.9);border:1px solid var(--gray-l);width:28px;height:28px;cursor:pointer;color:var(--gray);font-size:14px}
+.mb-del:hover{color:var(--red);border-color:var(--red)}
+.mb-imgs{columns:3 240px;column-gap:18px}
+.mb-img{break-inside:avoid;margin-bottom:18px;background:#fff;border:1px solid var(--gray-l);position:relative}
+.mb-img img{display:block;width:100%;height:auto}
+.mb-img .cap{padding:10px 14px;font-size:16px;color:var(--gray)}
+.mb-empty{padding:40px 20px;text-align:center;color:var(--gray);font-size:17px;border:1px dashed var(--gray-l)}
+.mb-concept-t{width:100%;background:transparent;border:none;border-bottom:1px solid var(--gold);padding:8px 0;font-family:'Playfair Display',serif;font-style:italic;font-size:26px;color:var(--black);outline:none;margin-bottom:18px}
+.mb-concept-x{width:100%;min-height:240px;background:var(--cream);border:1px solid var(--gray-l);padding:16px;font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.6;color:var(--black);outline:none;resize:vertical}
+.mb-concept-x:focus,.mb-concept-t:focus{border-color:var(--gold)}
+.mb-concept-read h3{font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:28px;margin-bottom:16px}
+.mb-concept-read p{font-size:19px;line-height:1.7;white-space:pre-wrap}
 /* ── BUDGET ── */
 .stats-bar.wide{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
 .stats-bar.wide .stat-i{padding:20px 16px}
@@ -608,6 +632,7 @@ tr.b-vendor{cursor:pointer}
         <a onclick="showView('seating')" data-view="seating"><span class="icon">⊞</span><span data-t="nav_seating">Tavoli</span></a>
         <a onclick="showView('budget')" data-view="budget" class="admin-only-nav"><span class="icon">◎</span><span data-t="nav_budget">Budget</span></a>
         <a onclick="showView('fornitori')" data-view="fornitori"><span class="icon">✦</span><span data-t="nav_vendors">Fornitori</span></a>
+        <a onclick="showView('moodboard')" data-view="moodboard"><span class="icon">❖</span><span data-t="nav_mood">Concept &amp; Moodboard</span></a>
         <a onclick="showView('timeline')" data-view="timeline" class="admin-only-nav"><span class="icon">◷</span><span data-t="nav_timeline">Timeline</span></a>
         <a onclick="showView('checklist')" data-view="checklist" class="admin-only-nav"><span class="icon">☑</span><span data-t="nav_checklist">Checklist</span></a>
       </nav>
@@ -923,6 +948,55 @@ tr.b-vendor{cursor:pointer}
         <div id="empty-fornitori" class="empty-state" style="display:none"><div class="ei">✦</div><p data-t="no_vendors">Nessun fornitore aggiunto</p></div>
       </div>
 
+      <!-- CONCEPT & MOODBOARD -->
+      <div id="view-moodboard" class="view-panel fade-in" style="display:none">
+        <div class="mb-tabs" id="mb-tabs">
+          <button class="mb-tab active" data-mb="concept" onclick="mbTab('concept')">Concept</button>
+          <button class="mb-tab" data-mb="palette" onclick="mbTab('palette')">Palette colori</button>
+          <button class="mb-tab" data-mb="mood" onclick="mbTab('mood')">Moodboard</button>
+          <button class="mb-tab" data-mb="stationery" onclick="mbTab('stationery')">Stationery</button>
+          <button class="mb-tab" data-mb="pianta" onclick="mbTab('pianta')">Planimetria &amp; tavoli</button>
+        </div>
+        <div class="mb-pane active" id="mb-pane-concept"></div>
+        <div class="mb-pane" id="mb-pane-palette">
+          <div class="form-card admin-only">
+            <div class="form-grid">
+              <div class="ig" style="max-width:90px"><label>Colore</label><input type="color" id="mb-color" value="#8b3a4a" style="padding:3px;height:46px"></div>
+              <div class="ig span2"><label>Nome del colore</label><input type="text" id="mb-color-name" placeholder="es. Verde Uliveto"></div>
+              <div class="ig" style="align-self:end"><button class="btn-add" onclick="mbAddColor()">+ Aggiungi colore</button></div>
+            </div>
+          </div>
+          <div id="mb-palette-list"></div>
+        </div>
+        <div class="mb-pane" id="mb-pane-mood">
+          <div class="form-card admin-only">
+            <div class="form-grid">
+              <div class="ig span2"><label>Link dell'immagine</label><input type="text" id="mb-mood-url" placeholder="Incolla il link (Google Drive, Dropbox, GitHub, .jpg/.png)"></div>
+              <div class="ig"><label>Didascalia</label><input type="text" id="mb-mood-cap" placeholder="facoltativa"></div>
+              <div class="ig" style="align-self:end"><button class="btn-add" onclick="mbAddImage('mood')">+ Aggiungi</button></div>
+            </div>
+          </div>
+          <div id="mb-mood-list"></div>
+        </div>
+        <div class="mb-pane" id="mb-pane-stationery">
+          <div class="form-card admin-only">
+            <div class="form-grid">
+              <div class="ig span2"><label>Link dell'immagine</label><input type="text" id="mb-stat-url" placeholder="Incolla il link (Google Drive, Dropbox, GitHub, .jpg/.png)"></div>
+              <div class="ig"><label>Didascalia</label><input type="text" id="mb-stat-cap" placeholder="es. Partecipazione, Menù"></div>
+              <div class="ig" style="align-self:end"><button class="btn-add" onclick="mbAddImage('stationery')">+ Aggiungi</button></div>
+            </div>
+          </div>
+          <div id="mb-stationery-list"></div>
+        </div>
+        <div class="mb-pane" id="mb-pane-pianta">
+          <div class="form-card">
+            <h4>Planimetria &amp; tavoli</h4>
+            <p style="font-size:18px;color:var(--gray);margin-bottom:18px">La pianta della location e la disposizione dei tavoli si gestiscono nella pagina Tavoli.</p>
+            <button class="btn-add" onclick="showView('seating')">Apri Tavoli e Piantina</button>
+          </div>
+        </div>
+      </div>
+
       <!-- TIMELINE (admin only) -->
       <div id="view-timeline" class="view-panel admin-only fade-in" style="display:none">
         <!-- Export condiviso in cima -->
@@ -1191,6 +1265,7 @@ const ADMIN_UID="VcwNeVwESsOdR2Y2e0EGYOaiQO53";
 let CU=null,CW_ID=null,CW_DATA=null,IS_ADMIN=false;
 let guests={},budget={},vendors={},checklist={},timeline={},timelineB={},seatingCfg={tables:10,capacity:10};
 let LS=[],BL=[],VL=[],CL=[],TL=[];
+let moodboard={};
 let dragGuest=null;
 let LANG='it';
 
@@ -1198,7 +1273,7 @@ let LANG='it';
 const T={
   it:{
     nav_dash:'Dashboard',nav_guests:'Ospiti',nav_seating:'Tavoli',nav_budget:'Budget',
-    nav_vendors:'Fornitori',nav_timeline:'Timeline',nav_checklist:'Checklist',
+    nav_vendors:'Fornitori',nav_mood:'Concept & Moodboard',nav_timeline:'Timeline',nav_checklist:'Checklist',
     nav_weddings:'Matrimoni',nav_archive:'Archivio',
     dash_title:'Dashboard',countdown_label:'Al matrimonio',
     rsvp_status:'Stato RSVP',payment_alerts:'Pagamenti in scadenza',
@@ -1238,7 +1313,7 @@ const T={
   },
   en:{
     nav_dash:'Dashboard',nav_guests:'Guests',nav_seating:'Seating',nav_budget:'Budget',
-    nav_vendors:'Vendors',nav_timeline:'Timeline',nav_checklist:'Checklist',
+    nav_vendors:'Vendors',nav_mood:'Concept & Moodboard',nav_timeline:'Timeline',nav_checklist:'Checklist',
     nav_weddings:'Weddings',nav_archive:'Archive',
     dash_title:'Dashboard',countdown_label:'To the wedding',
     rsvp_status:'RSVP Status',payment_alerts:'Upcoming payments',
@@ -1951,7 +2026,7 @@ function loadWedding(wid,w){
   CW_ID=wid;CW_DATA=w;
   if(LS)LS.forEach(u=>u&&u());
   [LS,BL,VL,CL,TL]=[],[],[],[],[];
-  guests={};budget={};vendors={};checklist={};timeline={};timelineB={};
+  guests={};budget={};vendors={};checklist={};timeline={};timelineB={};moodboard={};
   document.getElementById('dash-couple-name').textContent=`${w.nome1} & ${w.nome2}`;
   document.getElementById('dash-wedding-date').textContent=formatDate(w.data);
   const rsvpUrl=`${location.origin}${location.pathname}?mode=rsvp&w=${wid}`;
@@ -1989,7 +2064,8 @@ function loadWedding(wid,w){
     // La lista ospiti mostra i nomi dei tavoli: ridisegnala ora che la mappa nomi e pronta
     if(typeof renderGuests==='function')renderGuests();
   });
-  LS=[L1,L2,L3,L4,L5,L6];
+  const L7=onValue(ref(db,`matrimoni/${wid}/moodboard`),(s)=>{moodboard=s.exists()?s.val():{};renderMoodboard();});
+  LS=[L1,L2,L3,L4,L5,L6,L7];
   showView('dashboard');
 }
 
@@ -2929,6 +3005,62 @@ function renderVendors(){
   if(!IS_ADMIN)document.querySelectorAll('.admin-only').forEach(el=>el.style.display='none');
 }
 
+// ── CONCEPT & MOODBOARD ──
+const mbEsc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let mbCurrentTab='concept';
+window.mbTab=function(name){
+  mbCurrentTab=name;
+  document.querySelectorAll('#mb-tabs .mb-tab').forEach(b=>b.classList.toggle('active',b.dataset.mb===name));
+  document.querySelectorAll('.mb-pane').forEach(p=>p.classList.toggle('active',p.id==='mb-pane-'+name));
+};
+window.mbSaveConcept=async function(){
+  if(!IS_ADMIN||!CW_ID)return;
+  const titolo=document.getElementById('mb-concept-t').value.trim();
+  const testo=document.getElementById('mb-concept-x').value.trim();
+  await set(ref(db,`matrimoni/${CW_ID}/moodboard/concept`),{titolo,testo});
+};
+window.mbAddColor=async function(){
+  const hex=document.getElementById('mb-color').value;
+  const nome=document.getElementById('mb-color-name').value.trim();
+  if(!nome){alert('Dai un nome al colore');return;}
+  await push(ref(db,`matrimoni/${CW_ID}/moodboard/palette`),{hex,nome});
+  document.getElementById('mb-color-name').value='';
+};
+window.mbAddImage=async function(tipo){
+  const pre=tipo==='mood'?'mb-mood':'mb-stat';
+  const raw=document.getElementById(pre+'-url').value.trim();
+  if(!raw){alert('Incolla il link di un\'immagine');return;}
+  await push(ref(db,`matrimoni/${CW_ID}/moodboard/immagini`),{tipo,url:normalizePiantinaUrl(raw),didascalia:document.getElementById(pre+'-cap').value.trim()});
+  document.getElementById(pre+'-url').value='';document.getElementById(pre+'-cap').value='';
+};
+window.mbDelete=async function(kind,id){
+  if(!confirm('Eliminare?'))return;
+  await remove(ref(db,`matrimoni/${CW_ID}/moodboard/${kind}/${id}`));
+};
+function renderMoodboard(){
+  if(!document.getElementById('mb-pane-concept'))return;
+  const c=moodboard.concept||{};
+  const cp=document.getElementById('mb-pane-concept');
+  // non ridisegnare il concept mentre l'admin sta scrivendo
+  const typing=cp.contains(document.activeElement)&&document.activeElement.tagName!=='BODY';
+  if(!typing){
+    cp.innerHTML=IS_ADMIN
+      ?`<div class="form-card"><input class="mb-concept-t" id="mb-concept-t" placeholder="Il concept in una frase" value="${mbEsc(c.titolo)}" onblur="mbSaveConcept()"><textarea class="mb-concept-x" id="mb-concept-x" placeholder="Racconta l'idea del matrimonio: atmosfera, riferimenti, scelte di stile..." onblur="mbSaveConcept()">${mbEsc(c.testo)}</textarea></div>`
+      :(c.titolo||c.testo?`<div class="form-card mb-concept-read">${c.titolo?`<h3>${mbEsc(c.titolo)}</h3>`:''}${c.testo?`<p>${mbEsc(c.testo)}</p>`:''}</div>`:`<div class="mb-empty">Il concept del vostro matrimonio apparirà qui.</div>`);
+  }
+  const pal=Object.entries(moodboard.palette||{});
+  document.getElementById('mb-palette-list').innerHTML=pal.length
+    ?`<div class="mb-swatches">${pal.map(([id,k])=>`<div class="mb-sw"><div class="chip" style="background:${mbEsc(k.hex)}"></div><div class="meta"><div class="nm">${mbEsc(k.nome)}</div><div class="hx">${mbEsc(k.hex)}</div></div>${IS_ADMIN?`<button class="mb-del" onclick="mbDelete('palette','${id}')">✕</button>`:''}</div>`).join('')}</div>`
+    :`<div class="mb-empty">Nessun colore in palette${IS_ADMIN?' ancora — aggiungine uno qui sopra':''}.</div>`;
+  const imgs=Object.entries(moodboard.immagini||{});
+  ['mood','stationery'].forEach(tipo=>{
+    const list=imgs.filter(([,i])=>i.tipo===tipo);
+    document.getElementById('mb-'+tipo+'-list').innerHTML=list.length
+      ?`<div class="mb-imgs">${list.map(([id,i])=>`<div class="mb-img"><img src="${mbEsc(i.url)}" alt="${mbEsc(i.didascalia)}" loading="lazy">${i.didascalia?`<div class="cap">${mbEsc(i.didascalia)}</div>`:''}${IS_ADMIN?`<button class="mb-del" onclick="mbDelete('immagini','${id}')">✕</button>`:''}</div>`).join('')}</div>`
+      :`<div class="mb-empty">Nessuna immagine${IS_ADMIN?' ancora — incolla un link qui sopra':''}.</div>`;
+  });
+}
+
 // ── CHECKLIST ──
 window.addChecklistItem=async function(){
   const text=document.getElementById('cl-text').value.trim();
@@ -3481,6 +3613,7 @@ window.showView=function(name){
   if(link)link.classList.add('active');
   if(name==='dashboard')renderDashboard();
   if(name==='budget')renderBudget();
+  if(name==='moodboard')renderMoodboard();
 };
 
 window.closeModal=function(id){document.getElementById(id).classList.remove('active');};
@@ -3651,7 +3784,7 @@ function formatDate(d){
   return `${p[2]}/${p[1]}/${p[0]}`;
 }
 
-window.renderAll=function(){renderGuests();renderBudget();renderVendors();renderChecklist();renderTimeline();renderTimelineB();renderSeating();renderDashboard();};
+window.renderAll=function(){renderMoodboard();renderGuests();renderBudget();renderVendors();renderChecklist();renderTimeline();renderTimelineB();renderSeating();renderDashboard();};
 </script>
 </body>
 </html>
