@@ -378,6 +378,24 @@ tr.b-vendor{cursor:pointer}
 .cl-edit-row select{padding:6px 8px;border:1px solid var(--gray-l);border-radius:4px;font-size:16px;font-family:inherit}
 .cl-edit-row .cl-save{background:var(--gold);color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:16px}
 .cl-edit-row .cl-cancel{background:none;border:1px solid var(--gray-l);padding:6px 10px;border-radius:4px;cursor:pointer;font-size:16px;color:var(--gray)}
+.cl-toolbar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-bottom:18px}
+.cl-pills{display:flex;flex-wrap:wrap;gap:8px}
+.cl-pills .tl-pill{font-size:15px;padding:6px 14px}
+.cl-pills .tl-pill.active{box-shadow:0 2px 6px rgba(176,141,87,.35)}
+.cl-pills .tl-pill-all.active{background:var(--black);border-color:var(--black)}
+.cl-group{margin-bottom:26px}
+.cl-group-h{display:flex;align-items:baseline;gap:10px;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);padding-bottom:8px;border-bottom:1px solid var(--black);margin-bottom:2px}
+.cl-group-h b{font-weight:600;font-variant-numeric:lining-nums}
+.cl-group-h.late{color:var(--red)}
+.cl-group-h.toggle{cursor:pointer;user-select:none}
+.cl-due{font-size:15px;color:var(--gray);white-space:nowrap;text-align:right;min-width:120px;font-variant-numeric:lining-nums}
+.cl-due small{display:block;font-size:13px;opacity:.8}
+.cl-due.late,.cl-due.late small{color:var(--red)}
+.cl-due.soon{color:var(--gold)}
+.checklist-item .cl-who{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border:1px solid var(--gold);color:var(--gold);flex:none}
+.checklist-item .btn-icon{opacity:.3;transition:opacity .2s}
+.checklist-item:hover .btn-icon{opacity:1}
+@media(max-width:700px){#cl-stats{grid-template-columns:1fr 1fr}.cl-due{min-width:0}}
 .cl-add-form{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:end}
 .cl-progress{height:6px;background:var(--gray-l);margin-bottom:20px}
 .cl-progress-fill{height:100%;background:var(--gold);transition:width .5s ease}
@@ -702,7 +720,7 @@ tr.b-vendor{cursor:pointer}
         <a onclick="showView('fornitori')" data-view="fornitori"><span class="icon">✦</span><span data-t="nav_vendors">Fornitori</span></a>
         <a onclick="showView('moodboard')" data-view="moodboard"><span class="icon">❖</span><span data-t="nav_mood">Concept &amp; Moodboard</span></a>
         <a onclick="showView('timeline')" data-view="timeline" class="admin-only-nav"><span class="icon">◷</span><span data-t="nav_timeline">Timeline</span></a>
-        <a onclick="showView('checklist')" data-view="checklist" class="admin-only-nav"><span class="icon">☑</span><span data-t="nav_checklist">Checklist</span></a>
+        <a onclick="showView('checklist')" data-view="checklist"><span class="icon">☑</span><span data-t="nav_checklist">Checklist</span></a>
       </nav>
       <div class="sidebar-section admin-only-nav" id="sb-mgmt">GESTIONE</div>
       <nav class="sidebar-nav">
@@ -1169,25 +1187,28 @@ tr.b-vendor{cursor:pointer}
       </div>
 
       <!-- CHECKLIST (admin only) -->
-      <div id="view-checklist" class="view-panel admin-only fade-in" style="display:none">
+      <div id="view-checklist" class="view-panel fade-in" style="display:none">
+        <div class="stats-bar wide" id="cl-stats"></div>
         <div class="cl-progress" id="cl-progress-bar"><div class="cl-progress-fill" id="cl-progress-fill" style="width:0%"></div></div>
-        <div style="text-align:right;margin-top:-4px;margin-bottom:16px;font-size:15px;color:var(--gray)" id="cl-progress-label"></div>
-        <div class="form-card">
-          <h4 data-t="add_task">Aggiungi attività</h4>
-          <div class="cl-add-form">
-            <div class="ig" style="flex:2"><label data-t="task">Attività</label><input id="cl-text" placeholder="es. Confermare fiorista"></div>
+        <div style="text-align:right;margin-top:-4px;margin-bottom:20px;font-size:15px;color:var(--gray)" id="cl-progress-label"></div>
+        <div class="form-card admin-only collapsed" id="cl-form-card">
+          <h4 class="toggle-card" onclick="document.getElementById('cl-form-card').classList.toggle('collapsed')"><span data-t="add_task">Aggiungi attività</span><span class="plus">+</span></h4>
+          <div class="form-grid">
+            <div class="ig span2"><label data-t="task">Attività</label><input id="cl-text" placeholder="es. Confermare fiorista" onkeydown="if(event.key==='Enter')addChecklistItem()"></div>
             <div class="ig"><label data-t="due_date">Scadenza</label><input type="date" id="cl-date"></div>
-            <div class="ig"><label data-t="category">Categoria</label>
-              <select id="cl-cat">
-                <option value="Fornitori">Fornitori</option><option value="Ospiti">Ospiti</option>
-                <option value="Logistica">Logistica</option><option value="Documenti">Documenti</option>
-                <option value="Altro">Altro</option>
-              </select></div>
+            <div class="ig"><label data-t="category">Categoria</label><select id="cl-cat"></select></div>
+            <div class="ig"><label>Per</label>
+              <select id="cl-who"><option value="planner">Wedding Planner</option><option value="sposi">Sposi</option></select></div>
             <div class="ig" style="align-self:end"><button class="btn-add" onclick="addChecklistItem()" data-t="add_btn">+ Aggiungi</button></div>
           </div>
         </div>
+        <div class="cl-toolbar">
+          <div class="cl-pills" id="cl-cat-pills"></div>
+          <div class="cl-pills admin-only" id="cl-who-pills"></div>
+          <button class="btn-sm admin-only" onclick="loadChecklistTemplate()" style="margin-left:auto">✦ Carica percorso standard</button>
+        </div>
         <div id="checklist-list"></div>
-        <div id="empty-checklist" class="empty-state" style="display:none"><div class="ei">☑</div><p data-t="no_tasks">Nessuna attività</p></div>
+        <div id="empty-checklist" class="empty-state" style="display:none"><div class="ei">☑</div><p data-t="no_tasks">Nessuna attività</p><p class="admin-only" style="margin-top:12px"><button class="btn-add" onclick="loadChecklistTemplate()">✦ Carica il percorso standard del matrimonio</button></p></div>
       </div>
 
       <!-- ADMIN: MATRIMONI -->
@@ -3234,56 +3255,170 @@ function renderMoodboard(){
 }
 
 // ── CHECKLIST ──
+const CL_CATS=['Fornitori','Ospiti','Budget','Cerimonia','Estetica','Concept','Logistica','Documenti','Altro'];
+const CL_COLORS={'Fornitori':'b-gold','Ospiti':'b-green','Budget':'b-teal','Cerimonia':'b-purple','Estetica':'b-orange','Concept':'b-gold','Logistica':'b-blue','Documenti':'b-purple','Altro':'b-gray'};
+// [giorni prima delle nozze, attività, categoria, per chi]
+const CL_TEMPLATE=[
+ [365,'Definire concept e budget con gli sposi','Concept','planner'],
+ [350,'Scegliere e bloccare la location','Fornitori','planner'],
+ [340,'Definire data, rito e ufficiante','Cerimonia','sposi'],
+ [330,'Prima lista ospiti','Ospiti','sposi'],
+ [300,'Save the date','Ospiti','planner'],
+ [300,'Confermare fotografo e videomaker','Fornitori','planner'],
+ [270,'Scegliere catering e menu','Fornitori','planner'],
+ [270,'Scegliere l\'abito della sposa','Estetica','sposi'],
+ [240,'Confermare fiorista e allestimenti','Fornitori','planner'],
+ [240,'Confermare musica (band / DJ)','Fornitori','planner'],
+ [200,'Definire stationery e grafica coordinata','Concept','planner'],
+ [180,'Scegliere l\'abito dello sposo','Estetica','sposi'],
+ [180,'Confermare hair & make-up','Estetica','planner'],
+ [180,'Organizzare transfer e alloggi ospiti','Logistica','planner'],
+ [120,'Inviare le partecipazioni','Ospiti','planner'],
+ [120,'Documenti per il rito (civile / religioso)','Documenti','sposi'],
+ [120,'Scegliere le fedi','Estetica','sposi'],
+ [90,'Prova menu con il catering','Fornitori','sposi'],
+ [60,'Sopralluogo tecnico in location','Logistica','planner'],
+ [60,'Prova trucco e capelli','Estetica','sposi'],
+ [45,'Chiudere gli RSVP','Ospiti','planner'],
+ [45,'Prova finale abito e ritocchi','Estetica','sposi'],
+ [30,'Piantina tavoli e tableau','Ospiti','planner'],
+ [21,'Timeline definitiva (Piano A e B) condivisa con i fornitori','Logistica','planner'],
+ [14,'Saldare i fornitori','Budget','planner'],
+ [10,'Comunicare i numeri definitivi al catering','Ospiti','planner'],
+ [7,'Briefing finale con tutti i fornitori','Logistica','planner'],
+ [7,'Consegnare stationery e materiali in location','Concept','planner'],
+ [7,'Preparare valigia e documenti viaggio di nozze','Documenti','sposi'],
+ [5,'Preparare buste e mance','Budget','planner'],
+ [3,'Controllare meteo e piano B','Logistica','planner'],
+ [1,'Prova generale della cerimonia','Cerimonia','planner'],
+ [-7,'Ringraziare i fornitori','Logistica','planner'],
+ [-14,'Saldo finale e chiusura budget','Budget','planner']
+];
+let clCat='',clWho='',clDoneOpen=false,clEditingId=null;
+const clEsc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const clISO=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const clParse=iso=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||'');return m?new Date(+m[1],+m[2]-1,+m[3]):null;};
+const clToday=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate());};
+const clDiff=iso=>{const d=clParse(iso);return d?Math.round((d-clToday())/86400000):null;};
+function clFmt(iso){
+  const d=clParse(iso);if(!d)return '';
+  const mm=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  return d.getDate()+' '+mm[d.getMonth()]+(d.getFullYear()!==new Date().getFullYear()?' '+d.getFullYear():'');
+}
+function clRel(n){
+  if(n===null)return '';
+  if(n===0)return 'oggi';if(n===1)return 'domani';if(n===-1)return 'ieri';
+  return n>0?`tra ${n} giorni`:`${-n} giorni fa`;
+}
 window.addChecklistItem=async function(){
   const text=document.getElementById('cl-text').value.trim();
-  if(!text){alert('Inserisci un attività');return;}
-  await push(ref(db,`matrimoni/${CW_ID}/checklist`),{text,date:document.getElementById('cl-date').value,cat:document.getElementById('cl-cat').value,done:false});
+  if(!text){alert('Inserisci un\'attività');return;}
+  await push(ref(db,`matrimoni/${CW_ID}/checklist`),{text,date:document.getElementById('cl-date').value,cat:document.getElementById('cl-cat').value,who:document.getElementById('cl-who').value,done:false});
   document.getElementById('cl-text').value='';document.getElementById('cl-date').value='';
 };
 window.toggleChecklist=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/checklist/${id}`),{done:!done});};
 window.deleteChecklistItem=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/checklist/${id}`));};
-
-let clEditingId=null;
-window.editChecklistItem=function(id){clEditingId=id;renderChecklist();};
+window.editChecklistItem=function(id){if(!IS_ADMIN)return;clEditingId=id;renderChecklist();};
 window.cancelChecklistEdit=function(){clEditingId=null;renderChecklist();};
 window.saveChecklistItem=async function(id){
   const text=document.getElementById('cl-edit-text-'+id).value.trim();
   if(!text){alert('Inserisci un\'attività');return;}
   const date=document.getElementById('cl-edit-date-'+id).value;
   const cat=document.getElementById('cl-edit-cat-'+id).value;
+  const who=document.getElementById('cl-edit-who-'+id).value;
   clEditingId=null;
-  await update(ref(db,`matrimoni/${CW_ID}/checklist/${id}`),{text,date,cat});
+  await update(ref(db,`matrimoni/${CW_ID}/checklist/${id}`),{text,date,cat,who});
+};
+window.clSetCat=function(v){clCat=v;renderChecklist();};
+window.clSetWho=function(v){clWho=v;renderChecklist();};
+window.clToggleDone=function(){clDoneOpen=!clDoneOpen;renderChecklist();};
+window.loadChecklistTemplate=async function(){
+  if(!IS_ADMIN||!CW_ID)return;
+  const w=CW_DATA&&CW_DATA.data;
+  const wd=clParse(w);
+  if(!wd){alert('Imposta prima la data del matrimonio (Dashboard).');return;}
+  const have=new Set(Object.values(checklist).map(c=>(c.text||'').trim().toLowerCase()));
+  let items=CL_TEMPLATE.filter(t=>!have.has(t[1].toLowerCase()));
+  if(!items.length){alert('Il percorso standard è già presente.');return;}
+  const today=clToday();
+  const calc=t=>{const d=new Date(wd);d.setDate(d.getDate()-t[0]);return d;};
+  const past=items.filter(t=>calc(t)<today).length;
+  let msg=`Aggiungo ${items.length} attività con le date calcolate dal ${clFmt(w)}.`;
+  if(past)msg+=`\n\n${past} avrebbero una scadenza già passata. OK = aggiungi anche quelle (appariranno come scadute). Annulla = interrompi.`;
+  if(!confirm(msg))return;
+  for(const t of items){
+    await push(ref(db,`matrimoni/${CW_ID}/checklist`),{text:t[1],date:clISO(calc(t)),cat:t[2],who:t[3],done:false,tpl:true});
+  }
 };
 
 function renderChecklist(){
-  const entries=Object.entries(checklist).sort((a,b)=>(a[1].date||'z').localeCompare(b[1].date||'z'));
-  const done=entries.filter(([,c])=>c.done).length;
-  const pct=entries.length>0?Math.round(done/entries.length*100):0;
+  const cs=document.getElementById('cl-cat');
+  if(cs&&!cs.options.length){cs.innerHTML=CL_CATS.map(k=>`<option value="${k}">${k}</option>`).join('');}
+  // gli sposi vedono solo le attività assegnate a loro
+  const visible=Object.entries(checklist).filter(([,c])=>IS_ADMIN||c.who==='sposi');
+  const all=visible.map(([id,c])=>[id,c]);
+  const done=all.filter(([,c])=>c.done).length;
+  const open=all.filter(([,c])=>!c.done);
+  const late=open.filter(([,c])=>{const n=clDiff(c.date);return n!==null&&n<0;}).length;
+  const week=open.filter(([,c])=>{const n=clDiff(c.date);return n!==null&&n>=0&&n<=7;}).length;
+  const pct=all.length?Math.round(done/all.length*100):0;
+  document.getElementById('cl-stats').innerHTML=`
+    <div class="stat-i"><div class="sn">${open.length}</div><div class="sl">Da fare</div></div>
+    <div class="stat-i red"><div class="sn">${late}</div><div class="sl">Scadute</div></div>
+    <div class="stat-i gold"><div class="sn">${week}</div><div class="sl">Entro 7 giorni</div></div>
+    <div class="stat-i green"><div class="sn">${done}</div><div class="sl">Completate</div></div>`;
   document.getElementById('cl-progress-fill').style.width=pct+'%';
-  document.getElementById('cl-progress-label').textContent=`${done}/${entries.length} completate (${pct}%)`;
+  document.getElementById('cl-progress-label').textContent=`${done}/${all.length} completate (${pct}%)`;
+  // filtri
+  const usedCats=CL_CATS.filter(k=>all.some(([,c])=>c.cat===k)).concat([...new Set(all.map(([,c])=>c.cat).filter(k=>k&&!CL_CATS.includes(k)))]);
+  if(clCat&&!usedCats.includes(clCat))clCat='';
+  const pill=(label,val,cur,fn,cls)=>`<span class="tl-pill ${cls||''} ${val===cur?'active':''}" onclick="${fn}('${val}')">${label}</span>`;
+  document.getElementById('cl-cat-pills').innerHTML=usedCats.length>1?(pill('Tutte','',clCat,'clSetCat','tl-pill-all')+usedCats.map(k=>pill(k,k,clCat,'clSetCat')).join('')):'';
+  document.getElementById('cl-who-pills').innerHTML=pill('Tutti','',clWho,'clSetWho','tl-pill-all')+pill('Wedding Planner','planner',clWho,'clSetWho')+pill('Sposi','sposi',clWho,'clSetWho');
   const list=document.getElementById('checklist-list');
   list.innerHTML='';
-  document.getElementById('empty-checklist').style.display=entries.length===0?'block':'none';
-  const catColors={'Fornitori':'b-gold','Ospiti':'b-green','Logistica':'b-blue','Documenti':'b-purple','Altro':'b-gray'};
-  const cats=['Fornitori','Ospiti','Logistica','Documenti','Altro'];
-  entries.forEach(([id,c])=>{
-    const div=document.createElement('div');
-    div.className='checklist-item'+(c.done?' done':'')+(clEditingId===id?' editing':'');
-    const safeText=(c.text||'').replace(/"/g,'&quot;');
-    div.innerHTML=`
-      <input type="checkbox" ${c.done?'checked':''} onchange="toggleChecklist('${id}',${c.done})">
-      <span class="cl-text" onclick="editChecklistItem('${id}')" title="Clicca per modificare">${c.text}</span>
-      <span class="badge ${catColors[c.cat]||'b-gray'} cl-cat" onclick="editChecklistItem('${id}')">${c.cat}</span>
-      ${c.date?`<span class="cl-date" onclick="editChecklistItem('${id}')">${c.date}</span>`:''}
-      ${clEditingId===id?`<div class="cl-edit-row">
-        <input type="text" id="cl-edit-text-${id}" value="${safeText}" onkeydown="if(event.key==='Enter')saveChecklistItem('${id}');if(event.key==='Escape')cancelChecklistEdit()">
-        <input type="date" id="cl-edit-date-${id}" value="${c.date||''}">
-        <select id="cl-edit-cat-${id}">${cats.map(k=>`<option value="${k}" ${c.cat===k?'selected':''}>${k}</option>`).join('')}</select>
-        <button class="cl-save" onclick="saveChecklistItem('${id}')">✓</button>
-        <button class="cl-cancel" onclick="cancelChecklistEdit()">✕</button>
-      </div>`:''}
-      <button class="btn-icon" onclick="deleteChecklistItem('${id}')">✕</button>`;
-    list.appendChild(div);
+  document.getElementById('empty-checklist').style.display=all.length===0?'block':'none';
+  let rows=all.filter(([,c])=>(!clCat||c.cat===clCat)&&(!clWho||(c.who||'planner')===clWho));
+  const byDate=(a,b)=>(a[1].date||'9999').localeCompare(b[1].date||'9999');
+  const groups=[
+    {k:'late',t:'Scadute',cls:'late',f:([,c])=>!c.done&&clDiff(c.date)!==null&&clDiff(c.date)<0},
+    {k:'week',t:'Questa settimana',f:([,c])=>!c.done&&clDiff(c.date)!==null&&clDiff(c.date)>=0&&clDiff(c.date)<=7},
+    {k:'next',t:'Prossime',f:([,c])=>!c.done&&clDiff(c.date)!==null&&clDiff(c.date)>7},
+    {k:'nodate',t:'Senza data',f:([,c])=>!c.done&&clDiff(c.date)===null},
+    {k:'done',t:'Completate',f:([,c])=>c.done}
+  ];
+  groups.forEach(g=>{
+    const items=rows.filter(g.f).sort(byDate);
+    if(!items.length)return;
+    const isDone=g.k==='done';
+    const wrap=document.createElement('div');wrap.className='cl-group';
+    wrap.innerHTML=`<div class="cl-group-h ${g.cls||''} ${isDone?'toggle':''}" ${isDone?'onclick="clToggleDone()"':''}><span>${g.t}</span><b>${items.length}</b>${isDone?`<span style="margin-left:auto">${clDoneOpen?'▲':'▼'}</span>`:''}</div>`;
+    if(!isDone||clDoneOpen){
+      items.forEach(([id,c])=>{
+        const n=clDiff(c.date);
+        const dueCls=c.done?'':(n!==null&&n<0?'late':(n!==null&&n<=7?'soon':''));
+        const div=document.createElement('div');
+        div.className='checklist-item'+(c.done?' done':'')+(clEditingId===id?' editing':'');
+        const cat=c.cat||'Altro';
+        div.innerHTML=`
+          <input type="checkbox" ${c.done?'checked':''} onchange="toggleChecklist('${id}',${!!c.done})">
+          <span class="cl-text" ${IS_ADMIN?`onclick="editChecklistItem('${id}')" title="Clicca per modificare"`:'style="cursor:default"'}>${clEsc(c.text)}</span>
+          ${IS_ADMIN&&c.who==='sposi'?'<span class="cl-who">Sposi</span>':''}
+          <span class="badge ${CL_COLORS[cat]||'b-gray'} cl-cat" ${IS_ADMIN?`onclick="editChecklistItem('${id}')"`:''}>${clEsc(cat)}</span>
+          <span class="cl-due ${dueCls}" ${IS_ADMIN?`onclick="editChecklistItem('${id}')" style="cursor:pointer"`:''}>${c.date?`${clFmt(c.date)}${c.done?'':`<small>${clRel(n)}</small>`}`:'<span style="opacity:.5">—</span>'}</span>
+          ${clEditingId===id?`<div class="cl-edit-row">
+            <input type="text" id="cl-edit-text-${id}" value="${clEsc(c.text)}" onkeydown="if(event.key==='Enter')saveChecklistItem('${id}');if(event.key==='Escape')cancelChecklistEdit()">
+            <input type="date" id="cl-edit-date-${id}" value="${c.date||''}">
+            <select id="cl-edit-cat-${id}">${CL_CATS.map(k=>`<option value="${k}" ${cat===k?'selected':''}>${k}</option>`).join('')}</select>
+            <select id="cl-edit-who-${id}"><option value="planner" ${c.who!=='sposi'?'selected':''}>Planner</option><option value="sposi" ${c.who==='sposi'?'selected':''}>Sposi</option></select>
+            <button class="cl-save" onclick="saveChecklistItem('${id}')">✓</button>
+            <button class="cl-cancel" onclick="cancelChecklistEdit()">✕</button>
+          </div>`:''}
+          ${IS_ADMIN?`<button class="btn-icon" onclick="deleteChecklistItem('${id}')">✕</button>`:''}`;
+        wrap.appendChild(div);
+      });
+    }
+    list.appendChild(wrap);
   });
   if(clEditingId){const inp=document.getElementById('cl-edit-text-'+clEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
 }
@@ -3848,6 +3983,7 @@ window.showView=function(name){
   if(name==='dashboard')renderDashboard();
   if(name==='budget')renderBudget();
   if(name==='moodboard')renderMoodboard();
+  if(name==='checklist')renderChecklist();
 };
 
 window.closeModal=function(id){document.getElementById(id).classList.remove('active');};
