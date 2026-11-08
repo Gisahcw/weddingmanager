@@ -387,6 +387,14 @@ tr.b-vendor{cursor:pointer}
 .tl-item>.tl-edit-row{grid-column:1/-1}
 .tl-item input[type=checkbox]{width:20px!important;height:20px!important;flex:0 0 auto}
 .tl-item .tl-text{font-size:20px}
+.time-wrap{position:relative;display:block;width:130px}
+.time-wrap .time-ph{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--gray);font-size:18px;display:none}
+html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit,
+html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit-fields-wrapper,
+html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit-hour-field,
+html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit-minute-field,
+html.safari .time-wrap input.empty:not(:focus)::-webkit-datetime-edit-text{color:transparent}
+html.safari .time-wrap input.empty:not(:focus)+.time-ph{display:block}
 .tl-end{display:block;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gray);margin-top:1px;letter-spacing:.5px}
 .tl-item .btn-icon{opacity:.35;transition:opacity .2s}
 .tl-item:hover .btn-icon{opacity:1}
@@ -3220,6 +3228,7 @@ window.addTimelineItem=async function(){
   document.getElementById('tl-txt').value='';
   document.getElementById('tl-ora').value='';
   document.getElementById('tl-fine').value='';
+  tlTimeRefresh();
   document.getElementById('tl-note').value='';
   resetTlCatPills();
   document.getElementById('tl-details').classList.remove('open');
@@ -3275,6 +3284,17 @@ function initTlFilterPills(){
   all.classList.toggle('active',![...wrap.querySelectorAll('.tl-pill:not(.tl-pill-all)')].some(q=>q.classList.contains('active')));
 }
 
+// "Generale" e le categorie specifiche si escludono a vicenda
+window.tlPillToggle=function(p){
+  p.classList.toggle('active');
+  const wrap=p.parentElement;
+  if(p.dataset.cat==='Generale'){
+    if(p.classList.contains('active'))wrap.querySelectorAll('.tl-pill').forEach(q=>{if(q!==p)q.classList.remove('active');});
+  }else if(p.classList.contains('active')){
+    const g=wrap.querySelector('.tl-pill[data-cat="Generale"]');
+    if(g)g.classList.remove('active');
+  }
+};
 // Inizializza le pill di selezione nel form di aggiunta
 function initTlCatPills(){
   const wrap=document.getElementById('tl-cat-pills');
@@ -3284,7 +3304,7 @@ function initTlCatPills(){
     p.className='tl-pill'+(cat==='Generale'?' active':'');
     p.textContent=cat;
     p.dataset.cat=cat;
-    p.onclick=()=>{p.classList.toggle('active');};
+    p.onclick=()=>tlPillToggle(p);
     wrap.appendChild(p);
   });
 }
@@ -3346,7 +3366,7 @@ window.renderTimeline=function(){
     // Badge categorie (visibile su "Tutte", mostra solo quelle diverse dal filtro)
     const catBadge=(filter==='__all__')?itemCats.map(c=>`<span class="tl-cat-badge">${c}</span>`).join(''):'';
     // Pill di editing per questo evento
-    const editPillsHtml=TL_CATS.map(c=>`<span class="tl-pill${itemCats.includes(c)?' active':''}" data-cat="${c}" onclick="this.classList.toggle('active')">${c}</span>`).join('');
+    const editPillsHtml=TL_CATS.map(c=>`<span class="tl-pill${itemCats.includes(c)?' active':''}" data-cat="${c}" onclick="tlPillToggle(this)">${c}</span>`).join('');
     div.innerHTML=`
       <div class="tl-dot"></div>
       <div class="tl-time" onclick="editTimelineItem('${id}')">${item.ora}${item.fine?`<span class="tl-end">→ ${item.fine}</span>`:''}</div>
@@ -3373,6 +3393,27 @@ window.renderTimeline=function(){
   if(tlEditingId){const inp=document.getElementById('tl-edit-txt-'+tlEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
 }
 
+// Safari mostra un orario d'esempio in grigio nei campi vuoti: lo sostituiamo con --:--
+function tlTimeRefresh(){
+  ['tl-ora','tl-fine','tlb-ora','tlb-fine'].forEach(id=>{
+    const i=document.getElementById(id);
+    if(i)i.classList.toggle('empty',!i.value);
+  });
+}
+window.tlTimeRefresh=tlTimeRefresh;
+(function(){
+  if(!/^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent))return;
+  document.documentElement.classList.add('safari');
+  ['tl-ora','tl-fine','tlb-ora','tlb-fine'].forEach(id=>{
+    const i=document.getElementById(id);
+    if(!i||i.parentNode.classList.contains('time-wrap'))return;
+    const w=document.createElement('span');w.className='time-wrap';
+    i.parentNode.insertBefore(w,i);w.appendChild(i);
+    const ph=document.createElement('span');ph.className='time-ph';ph.textContent='--:--';w.appendChild(ph);
+    ['input','change','blur'].forEach(ev=>i.addEventListener(ev,tlTimeRefresh));
+  });
+  tlTimeRefresh();
+})();
 window.tlPlan=function(mode){
   const cols=document.querySelector('#view-timeline .tl-columns');
   cols.classList.remove('show-b','both');
@@ -3390,7 +3431,7 @@ function initTlCatPillsB(){
     p.className='tl-pill'+(cat==='Generale'?' active':'');
     p.textContent=cat;
     p.dataset.cat=cat;
-    p.onclick=()=>{p.classList.toggle('active');};
+    p.onclick=()=>tlPillToggle(p);
     wrap.appendChild(p);
   });
 }
@@ -3415,6 +3456,7 @@ window.addTimelineItemB=async function(){
   document.getElementById('tlb-txt').value='';
   document.getElementById('tlb-ora').value='';
   document.getElementById('tlb-fine').value='';
+  tlTimeRefresh();
   document.getElementById('tlb-note').value='';
   resetTlCatPillsB();
   document.getElementById('tlb-details').classList.remove('open');
@@ -3459,7 +3501,7 @@ window.renderTimelineB=function(){
     const safeNote=(item.note||'').replace(/"/g,'&quot;');
     const itemCats=tlCats(item);
     const catBadge=(filter==='__all__')?itemCats.map(c=>`<span class="tl-cat-badge">${c}</span>`).join(''):'';
-    const editPillsHtml=TL_CATS.map(c=>`<span class="tl-pill${itemCats.includes(c)?' active':''}" data-cat="${c}" onclick="this.classList.toggle('active')">${c}</span>`).join('');
+    const editPillsHtml=TL_CATS.map(c=>`<span class="tl-pill${itemCats.includes(c)?' active':''}" data-cat="${c}" onclick="tlPillToggle(this)">${c}</span>`).join('');
     div.innerHTML=`
       <div class="tl-dot"></div>
       <div class="tl-time" onclick="editTimelineItemB('${id}')">${item.ora}${item.fine?`<span class="tl-end">→ ${item.fine}</span>`:''}</div>
