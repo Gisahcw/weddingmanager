@@ -354,8 +354,46 @@ tr.b-vendor{cursor:pointer}
 
 /* ── TIMELINE (admin only) ── */
 #view-timeline{contain:layout style}
-.tl-columns{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
-@media(max-width:900px){.tl-columns{grid-template-columns:1fr}}
+.tl-columns{display:grid;grid-template-columns:1fr;gap:24px;align-items:start}
+.tl-columns .tl-col-b{display:none}
+.tl-columns.show-b .tl-col-a{display:none}
+.tl-columns.show-b .tl-col-b{display:block}
+.tl-columns.both{grid-template-columns:1fr 1fr}
+.tl-columns.both .tl-col-a,.tl-columns.both .tl-col-b{display:block}
+.tl-plan-tabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.tl-plan-tab{padding:9px 22px;border-radius:22px;border:1px solid var(--gray-l);background:#fff;font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gray);cursor:pointer;transition:all .2s}
+.tl-plan-tab:hover{border-color:var(--gold);color:var(--black)}
+.tl-plan-tab.active{background:var(--black);border-color:var(--black);color:var(--cream)}
+.tl-plan-tabs .tl-spacer{flex:1}
+.tl-columns:not(.both) .tl-col-label{display:none}
+.tl-columns:not(.both) .tl-col-a .tl-col-header{display:none}
+.tl-columns:not(.both) .tl-col-b .tl-col-header{justify-content:flex-end}
+.tl-add-compact{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.tl-add-compact .ig.ev{flex:1;min-width:220px}
+.tl-details{display:none;flex-basis:100%;margin-top:14px;padding-top:14px;border-top:1px solid var(--gray-l)}
+.tl-details.open{display:block}
+.tl-details .ig{margin-bottom:12px}
+.tl-more{background:none;border:1px solid var(--gray-l);padding:10px 16px;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gray);cursor:pointer;min-height:46px}
+.tl-more:hover{border-color:var(--gold);color:var(--black)}
+.tl-filter-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+/* righe a scaletta: orario a sinistra, evento a destra */
+.timeline-list{padding-left:0}
+.timeline-list::before{display:none}
+.tl-item{display:grid;grid-template-columns:78px 1fr;column-gap:16px;padding:14px 0;margin-bottom:0;border-bottom:1px solid var(--gray-l)}
+.tl-item .tl-dot{display:none}
+.tl-item>.tl-time{grid-column:1;grid-row:1;align-self:start;font-family:'Playfair Display',serif;font-size:21px;letter-spacing:.5px;text-transform:none;color:var(--gold);padding:0 4px}
+.tl-item>div:nth-child(3){grid-column:2;grid-row:1}
+.tl-item>div:nth-child(4):not(.tl-edit-row){grid-column:2;grid-row:2;margin:6px 0 0 4px!important;font-size:16px!important}
+.tl-item>.tl-edit-row{grid-column:1/-1}
+.tl-item input[type=checkbox]{width:20px!important;height:20px!important;flex:0 0 auto}
+.tl-item .tl-text{font-size:20px}
+.tl-end{display:block;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gray);margin-top:1px;letter-spacing:.5px}
+.tl-item .btn-icon{opacity:.35;transition:opacity .2s}
+.tl-item:hover .btn-icon{opacity:1}
+.tl-cat-badge{background:transparent!important;border:1px solid var(--gold-pale);color:var(--gold);font-size:12px}
+.tl-col-b .tl-cat-badge{border-color:var(--gray-l);color:var(--gray)}
+.tl-col-b .tl-time{color:var(--gray)}
+@media(max-width:900px){.tl-columns.both{grid-template-columns:1fr}}
 .tl-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--gold-pale)}
 .tl-col-label{font-family:'Playfair Display',serif;font-size:19px;font-weight:400;color:var(--black)}
 .tl-col-b .tl-col-label{color:var(--gray)}
@@ -964,7 +1002,7 @@ tr.b-vendor{cursor:pointer}
               <div class="ig" style="max-width:90px"><label>Colore</label><input type="color" id="mb-color" value="#8b3a4a" oninput="mbSyncHex()" style="padding:3px;height:46px"></div>
               <div class="ig" style="max-width:150px"><label>Codice</label><input type="text" id="mb-hex" value="#8B3A4A" maxlength="7" spellcheck="false" oninput="mbSyncPicker()" style="text-transform:uppercase;letter-spacing:1.5px"></div>
               <div class="ig" style="max-width:56px" id="mb-eye-wrap"><label>&nbsp;</label><button type="button" class="btn-sm" onclick="mbEyedrop()" title="Preleva un colore da qualsiasi punto dello schermo" style="min-height:46px;font-size:20px">⌖</button></div>
-              <div class="ig span2"><label>Nome del colore (facoltativo)</label><input type="text" id="mb-color-name" placeholder="es. Verde Uliveto"></div>
+              <div class="ig span2"><label>Nome del colore (facoltativo)</label><input type="text" id="mb-color-name" placeholder="es. Verde Uliveto" oninput="mbNameHex()"></div>
               <div class="ig" style="align-self:end"><button class="btn-add" onclick="mbAddColor()" style="width:100%;min-height:46px">+ Aggiungi</button></div>
             </div>
           </div>
@@ -1007,9 +1045,16 @@ tr.b-vendor{cursor:pointer}
           <button class="btn-sm" onclick="exportTimelineXLS()" data-t="tl_xls">Excel</button>
           <button class="btn-sm" onclick="exportTimelineCSV()" data-t="tl_csv">CSV</button>
         </div>
+        <!-- Schede Piano A / Piano B -->
+        <div class="tl-plan-tabs" id="tl-plan-tabs">
+          <button class="tl-plan-tab active" data-plan="a" onclick="tlPlan('a')">Piano A — Principale</button>
+          <button class="tl-plan-tab" data-plan="b" onclick="tlPlan('b')">Piano B — Alternativo</button>
+          <span class="tl-spacer"></span>
+          <button class="tl-plan-tab" data-plan="both" onclick="tlPlan('both')" title="Mostra i due piani affiancati">Affianca</button>
+        </div>
         <!-- Filtro categorie condiviso -->
         <div class="form-card" style="margin-bottom:16px">
-          <label style="font-size:14px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:8px">Filtra timeline</label>
+          <label style="font-size:14px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:8px">Filtra per categoria</label>
           <div id="tl-filter-pills" class="tl-cat-pills" style="gap:6px"></div>
           <select id="tl-cat-filter" style="display:none"><option value="__all__" selected></option></select>
         </div>
@@ -1021,18 +1066,22 @@ tr.b-vendor{cursor:pointer}
               <span class="tl-col-label">Piano A — Principale</span>
             </div>
             <div class="form-card" style="margin-bottom:16px">
-              <div class="tl-add-form">
-                <div class="ig"><label data-t="time">Orario</label><input type="time" id="tl-ora" style="width:110px"></div>
-                <div class="ig" style="flex:1"><label data-t="event">Evento</label><input id="tl-txt" placeholder="es. Cerimonia in chiesa"></div>
-                <div class="ig" style="flex:2">
-                  <label style="font-size:14px">Categorie evento</label>
-                  <div id="tl-cat-pills" class="tl-cat-pills" style="gap:4px"></div>
+              <div class="tl-add-compact">
+                <div class="ig"><label>Orario</label><input type="time" id="tl-ora" style="width:130px"></div>
+                <div class="ig"><label>Fine (facoltativa)</label><input type="time" id="tl-fine" style="width:130px"></div>
+                <div class="ig ev"><label>Evento</label><input id="tl-txt" placeholder="es. Cerimonia in chiesa" onkeydown="if(event.key==='Enter')document.getElementById('tl-add').click()"></div>
+                <button class="tl-more" type="button" onclick="document.getElementById('tl-details').classList.toggle('open')">Categorie e note ▾</button>
+                <button class="btn-add" id="tl-add" onclick="addTimelineItem()" style="min-height:46px">+ Aggiungi</button>
+                <div class="tl-details" id="tl-details">
+                  <div class="ig">
+                    <label style="font-size:14px">Categorie evento</label>
+                    <div id="tl-cat-pills" class="tl-cat-pills" style="gap:5px"></div>
+                  </div>
+                  <div class="ig">
+                    <label style="font-size:14px">Note operative</label>
+                    <textarea id="tl-note" placeholder="es. PLANNER: coordinamento sposa..." style="width:100%;padding:9px 12px;border:1px solid var(--gray-l);font-family:inherit;font-size:17px;resize:vertical;min-height:70px;line-height:1.4"></textarea>
+                  </div>
                 </div>
-                <div class="ig" style="flex:3">
-                  <label style="font-size:14px">Note operative</label>
-                  <textarea id="tl-note" placeholder="es. PLANNER: coordinamento sposa..." style="width:100%;padding:7px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:15px;resize:vertical;min-height:54px;line-height:1.4"></textarea>
-                </div>
-                <div class="ig" style="align-self:end"><button class="btn-add" onclick="addTimelineItem()">+ Aggiungi</button></div>
               </div>
             </div>
             <div class="timeline-list" id="timeline-list"></div>
@@ -1048,18 +1097,22 @@ tr.b-vendor{cursor:pointer}
               </div>
             </div>
             <div class="form-card" style="margin-bottom:16px">
-              <div class="tl-add-form">
-                <div class="ig"><label>Orario</label><input type="time" id="tlb-ora" style="width:110px"></div>
-                <div class="ig" style="flex:1"><label>Evento</label><input id="tlb-txt" placeholder="es. Cerimonia in chiesa"></div>
-                <div class="ig" style="flex:2">
-                  <label style="font-size:14px">Categorie evento</label>
-                  <div id="tlb-cat-pills" class="tl-cat-pills" style="gap:4px"></div>
+              <div class="tl-add-compact">
+                <div class="ig"><label>Orario</label><input type="time" id="tlb-ora" style="width:130px"></div>
+                <div class="ig"><label>Fine (facoltativa)</label><input type="time" id="tlb-fine" style="width:130px"></div>
+                <div class="ig ev"><label>Evento</label><input id="tlb-txt" placeholder="es. Cerimonia in chiesa" onkeydown="if(event.key==='Enter')document.getElementById('tlb-add').click()"></div>
+                <button class="tl-more" type="button" onclick="document.getElementById('tlb-details').classList.toggle('open')">Categorie e note ▾</button>
+                <button class="btn-add" id="tlb-add" onclick="addTimelineItemB()" style="min-height:46px">+ Aggiungi</button>
+                <div class="tl-details" id="tlb-details">
+                  <div class="ig">
+                    <label style="font-size:14px">Categorie evento</label>
+                    <div id="tlb-cat-pills" class="tl-cat-pills" style="gap:5px"></div>
+                  </div>
+                  <div class="ig">
+                    <label style="font-size:14px">Note operative</label>
+                    <textarea id="tlb-note" placeholder="es. PLANNER: coordinamento sposa..." style="width:100%;padding:9px 12px;border:1px solid var(--gray-l);font-family:inherit;font-size:17px;resize:vertical;min-height:70px;line-height:1.4"></textarea>
+                  </div>
                 </div>
-                <div class="ig" style="flex:3">
-                  <label style="font-size:14px">Note operative</label>
-                  <textarea id="tlb-note" placeholder="es. PLANNER: coordinamento sposa..." style="width:100%;padding:7px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:15px;resize:vertical;min-height:54px;line-height:1.4"></textarea>
-                </div>
-                <div class="ig" style="align-self:end"><button class="btn-add" onclick="addTimelineItemB()">+ Aggiungi</button></div>
               </div>
             </div>
             <div class="timeline-list" id="timelineb-list"></div>
@@ -3030,6 +3083,15 @@ function mbNormHex(v){
 window.mbSyncHex=function(){
   document.getElementById('mb-hex').value=document.getElementById('mb-color').value.toUpperCase();
 };
+// Se nel campo nome si incolla un codice colore (6 cifre), viene letto come colore
+function mbNameIsHex(v){return /^#?[0-9a-f]{6}$/i.test((v||'').trim());}
+window.mbNameHex=function(){
+  const v=document.getElementById('mb-color-name').value;
+  if(!mbNameIsHex(v))return;
+  const h=mbNormHex(v);
+  document.getElementById('mb-color').value=h;
+  document.getElementById('mb-hex').value=h.toUpperCase();
+};
 window.mbSyncPicker=function(){
   const h=mbNormHex(document.getElementById('mb-hex').value);
   if(h)document.getElementById('mb-color').value=h;
@@ -3048,9 +3110,10 @@ window.mbCopyHex=function(el,hex){
   if(navigator.clipboard)navigator.clipboard.writeText(hex).then(done).catch(()=>{});
 };
 window.mbAddColor=async function(){
-  const hex=mbNormHex(document.getElementById('mb-hex').value);
+  const rawName=document.getElementById('mb-color-name').value.trim();
+  const hex=mbNameIsHex(rawName)?mbNormHex(rawName):mbNormHex(document.getElementById('mb-hex').value);
   if(!hex){alert('Codice colore non valido (es. #8B3A4A)');return;}
-  const nome=document.getElementById('mb-color-name').value.trim()||hex.toUpperCase();
+  const nome=(rawName&&!mbNameIsHex(rawName))?rawName:hex.toUpperCase();
   await push(ref(db,`matrimoni/${CW_ID}/moodboard/palette`),{hex,nome});
   document.getElementById('mb-color-name').value='';
 };
@@ -3152,14 +3215,17 @@ window.addTimelineItem=async function(){
   if(!txt||!ora){alert('Orario e evento obbligatori');return;}
   const cats=getTlSelectedCats();
   const note=document.getElementById('tl-note').value.trim();
-  await push(ref(db,`matrimoni/${CW_ID}/timeline`),{ora,txt,done:false,cats,...(note?{note}:{})});
+  const fine=document.getElementById('tl-fine').value;
+  await push(ref(db,`matrimoni/${CW_ID}/timeline`),{ora,txt,done:false,cats,...(fine?{fine}:{}),...(note?{note}:{})});
   document.getElementById('tl-txt').value='';
   document.getElementById('tl-ora').value='';
+  document.getElementById('tl-fine').value='';
   document.getElementById('tl-note').value='';
   resetTlCatPills();
+  document.getElementById('tl-details').classList.remove('open');
 };
 window.toggleTimeline=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{done:!done});};
-window.deleteTimelineItem=async function(id){await remove(ref(db,`matrimoni/${CW_ID}/timeline/${id}`));};
+window.deleteTimelineItem=async function(id){if(!confirm('Eliminare questo evento?'))return;await remove(ref(db,`matrimoni/${CW_ID}/timeline/${id}`));};
 
 const TL_CATS=['Generale','Chiesa','Musica Generale','Musica Chiesa','Musica Cocktail','Musica Cena','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Intrattenimento','Catering','Location','Wedding Planner','Assistente WP'];
 
@@ -3173,9 +3239,18 @@ function tlCats(item){
 // Inizializza le pill-filtro in cima (una sola selezione attiva alla volta)
 function initTlFilterPills(){
   const wrap=document.getElementById('tl-filter-pills');
-  if(!wrap||wrap.children.length>0)return;
+  if(!wrap)return;
+  // mostra solo le categorie realmente usate nei due piani
+  const used=new Set();
+  [timeline,timelineB].forEach(t=>Object.values(t||{}).forEach(it=>tlCats(it).forEach(c=>used.add(c))));
+  const cats=TL_CATS.filter(c=>used.has(c));
+  const sig=cats.join('|');
+  if(wrap.dataset.sig===sig&&wrap.children.length>0)return;
+  wrap.dataset.sig=sig;
+  const active=new Set([...wrap.querySelectorAll('.tl-pill.active:not(.tl-pill-all)')].map(p=>p.dataset.cat));
+  wrap.innerHTML='';
   const all=document.createElement('span');
-  all.className='tl-pill tl-pill-all active';
+  all.className='tl-pill tl-pill-all';
   all.textContent='Tutte';
   all.dataset.cat='__all__';
   all.onclick=()=>{
@@ -3184,9 +3259,9 @@ function initTlFilterPills(){
     renderTimeline();renderTimelineB();
   };
   wrap.appendChild(all);
-  TL_CATS.forEach(cat=>{
+  cats.forEach(cat=>{
     const p=document.createElement('span');
-    p.className='tl-pill';
+    p.className='tl-pill'+(active.has(cat)?' active':'');
     p.textContent=cat;
     p.dataset.cat=cat;
     p.onclick=()=>{
@@ -3197,6 +3272,7 @@ function initTlFilterPills(){
     };
     wrap.appendChild(p);
   });
+  all.classList.toggle('active',![...wrap.querySelectorAll('.tl-pill:not(.tl-pill-all)')].some(q=>q.classList.contains('active')));
 }
 
 // Inizializza le pill di selezione nel form di aggiunta
@@ -3239,8 +3315,9 @@ window.saveTimelineItem=async function(id){
   const cats=editPills.length>0?[...editPills].map(p=>p.dataset.cat):tlCats(timeline[id]||{});
   const noteEl=document.getElementById('tl-edit-note-'+id);
   const note=noteEl?noteEl.value.trim():'';
+  const fine=(document.getElementById('tl-edit-fine-'+id)||{}).value||'';
   tlEditingId=null;
-  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{ora,txt,cats,cat:null,...(note!==undefined?{note:note||null}:{})});
+  await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{ora,fine:fine||null,txt,cats,cat:null,...(note!==undefined?{note:note||null}:{})});
 };
 
 function tlCat(c){const v=c||'Generale';return v==='Fiori'?'Flower Designer':v;}
@@ -3272,7 +3349,7 @@ window.renderTimeline=function(){
     const editPillsHtml=TL_CATS.map(c=>`<span class="tl-pill${itemCats.includes(c)?' active':''}" data-cat="${c}" onclick="this.classList.toggle('active')">${c}</span>`).join('');
     div.innerHTML=`
       <div class="tl-dot"></div>
-      <div class="tl-time" onclick="editTimelineItem('${id}')">${item.ora}</div>
+      <div class="tl-time" onclick="editTimelineItem('${id}')">${item.ora}${item.fine?`<span class="tl-end">→ ${item.fine}</span>`:''}</div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <input type="checkbox" ${item.done?'checked':''} onchange="toggleTimeline('${id}',${item.done})" style="accent-color:var(--gold);width:14px;height:14px">
         <div class="tl-text" onclick="editTimelineItem('${id}')" title="Clicca per modificare">${item.txt}</div>
@@ -3283,6 +3360,7 @@ window.renderTimeline=function(){
       ${tlEditingId===id?`<div class="tl-edit-row" style="flex-direction:column;align-items:flex-start;gap:8px">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <input type="time" id="tl-edit-ora-${id}" value="${item.ora||''}">
+          <input type="time" id="tl-edit-fine-${id}" value="${item.fine||''}" title="Fine (facoltativa)">
           <input type="text" id="tl-edit-txt-${id}" value="${safeTxt}" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')saveTimelineItem('${id}');if(event.key==='Escape')cancelTimelineEdit()">
           <button class="tl-save" onclick="saveTimelineItem('${id}')">✓</button>
           <button class="tl-cancel" onclick="cancelTimelineEdit()">✕</button>
@@ -3295,6 +3373,13 @@ window.renderTimeline=function(){
   if(tlEditingId){const inp=document.getElementById('tl-edit-txt-'+tlEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
 }
 
+window.tlPlan=function(mode){
+  const cols=document.querySelector('#view-timeline .tl-columns');
+  cols.classList.remove('show-b','both');
+  if(mode==='b')cols.classList.add('show-b');
+  if(mode==='both')cols.classList.add('both');
+  document.querySelectorAll('#tl-plan-tabs .tl-plan-tab').forEach(b=>b.classList.toggle('active',b.dataset.plan===mode));
+};
 // ── TIMELINE B (Piano alternativo) ──
 // Inizializza le pill di selezione nel form Piano B
 function initTlCatPillsB(){
@@ -3325,14 +3410,17 @@ window.addTimelineItemB=async function(){
   if(!txt||!ora){alert('Orario e evento obbligatori');return;}
   const cats=getTlSelectedCatsB();
   const note=document.getElementById('tlb-note').value.trim();
-  await push(ref(db,`matrimoni/${CW_ID}/timelineB`),{ora,txt,done:false,cats,...(note?{note}:{})});
+  const fine=document.getElementById('tlb-fine').value;
+  await push(ref(db,`matrimoni/${CW_ID}/timelineB`),{ora,txt,done:false,cats,...(fine?{fine}:{}),...(note?{note}:{})});
   document.getElementById('tlb-txt').value='';
   document.getElementById('tlb-ora').value='';
+  document.getElementById('tlb-fine').value='';
   document.getElementById('tlb-note').value='';
   resetTlCatPillsB();
+  document.getElementById('tlb-details').classList.remove('open');
 };
 window.toggleTimelineB=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timelineB/${id}`),{done:!done});};
-window.deleteTimelineItemB=async function(id){await remove(ref(db,`matrimoni/${CW_ID}/timelineB/${id}`));};
+window.deleteTimelineItemB=async function(id){if(!confirm('Eliminare questo evento?'))return;await remove(ref(db,`matrimoni/${CW_ID}/timelineB/${id}`));};
 let tlEditingIdB=null;
 window.editTimelineItemB=function(id){tlEditingIdB=id;renderTimelineB();};
 window.cancelTimelineEditB=function(){tlEditingIdB=null;renderTimelineB();};
@@ -3344,10 +3432,12 @@ window.saveTimelineItemB=async function(id){
   const cats=editPills.length>0?[...editPills].map(p=>p.dataset.cat):tlCats(timelineB[id]||{});
   const noteEl=document.getElementById('tlb-edit-note-'+id);
   const note=noteEl?noteEl.value.trim():'';
+  const fine=(document.getElementById('tlb-edit-fine-'+id)||{}).value||'';
   tlEditingIdB=null;
-  await update(ref(db,`matrimoni/${CW_ID}/timelineB/${id}`),{ora,txt,cats,cat:null,...(note!==undefined?{note:note||null}:{})});
+  await update(ref(db,`matrimoni/${CW_ID}/timelineB/${id}`),{ora,fine:fine||null,txt,cats,cat:null,...(note!==undefined?{note:note||null}:{})});
 };
 window.renderTimelineB=function(){
+  initTlFilterPills();
   initTlCatPillsB();
   if(tlEditingIdB){
     const activeInp=document.getElementById('tlb-edit-txt-'+tlEditingIdB);
@@ -3372,7 +3462,7 @@ window.renderTimelineB=function(){
     const editPillsHtml=TL_CATS.map(c=>`<span class="tl-pill${itemCats.includes(c)?' active':''}" data-cat="${c}" onclick="this.classList.toggle('active')">${c}</span>`).join('');
     div.innerHTML=`
       <div class="tl-dot"></div>
-      <div class="tl-time" onclick="editTimelineItemB('${id}')">${item.ora}</div>
+      <div class="tl-time" onclick="editTimelineItemB('${id}')">${item.ora}${item.fine?`<span class="tl-end">→ ${item.fine}</span>`:''}</div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <input type="checkbox" ${item.done?'checked':''} onchange="toggleTimelineB('${id}',${item.done})" style="accent-color:var(--gray);width:14px;height:14px">
         <div class="tl-text" onclick="editTimelineItemB('${id}')" title="Clicca per modificare">${item.txt}</div>
@@ -3383,6 +3473,7 @@ window.renderTimelineB=function(){
       ${tlEditingIdB===id?`<div class="tl-edit-row" style="flex-direction:column;align-items:flex-start;gap:8px">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <input type="time" id="tlb-edit-ora-${id}" value="${item.ora||''}">
+          <input type="time" id="tlb-edit-fine-${id}" value="${item.fine||''}" title="Fine (facoltativa)">
           <input type="text" id="tlb-edit-txt-${id}" value="${safeTxt}" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')saveTimelineItemB('${id}');if(event.key==='Escape')cancelTimelineEditB()">
           <button class="tl-save" onclick="saveTimelineItemB('${id}')">✓</button>
           <button class="tl-cancel" onclick="cancelTimelineEditB()">✕</button>
@@ -3406,7 +3497,7 @@ window.copyTimelineAtoB=async function(){
   const newB={};
   Object.values(timeline).forEach(item=>{
     const key=push(ref(db,`matrimoni/${CW_ID}/timelineB`)).key; // genera nuovo id
-    newB[key]={ora:item.ora,txt:item.txt,done:false,cats:item.cats||[item.cat||'Generale'],...(item.note?{note:item.note}:{})};
+    newB[key]={ora:item.ora,...(item.fine?{fine:item.fine}:{}),txt:item.txt,done:false,cats:item.cats||[item.cat||'Generale'],...(item.note?{note:item.note}:{})};
   });
   await set(ref(db,`matrimoni/${CW_ID}/timelineB`),newB);
 };
@@ -3549,22 +3640,22 @@ function timelineActiveCat(){
 }
 
 window.exportTimelineCSV=function(){
-  const rows=[['Orario','Evento','Note operative','Categoria','Stato']];
-  timelineSorted().forEach(item=>rows.push([item.ora||'',item.txt||'',item.note||'',tlCats(item).join(', '),item.done?'Fatto':'Da fare']));
+  const rows=[['Orario','Fine','Evento','Note operative','Categoria','Stato']];
+  timelineSorted().forEach(item=>rows.push([item.ora||'',item.fine||'',item.txt||'',item.note||'',tlCats(item).join(', '),item.done?'Fatto':'Da fare']));
   const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}),'timeline.csv');
 };
 
 window.exportTimelineXLS=function(){
-  const headers=['Orario','Evento','Note operative','Categoria','Stato'];
-  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Evento':item.txt||'','Note operative':item.note||'','Categoria':tlCats(item).join(', '),'Stato':item.done?'Fatto':'Da fare'}));
+  const headers=['Orario','Fine','Evento','Note operative','Categoria','Stato'];
+  const rows=timelineSorted().map(item=>({'Orario':item.ora||'','Fine':item.fine||'','Evento':item.txt||'','Note operative':item.note||'','Categoria':tlCats(item).join(', '),'Stato':item.done?'Fatto':'Da fare'}));
   const ws=XLSX.utils.json_to_sheet(rows,{header:headers});
   const range=XLSX.utils.decode_range(ws['!ref']);
   for(let c=range.s.c;c<=range.e.c;c++){
     const cell=ws[XLSX.utils.encode_cell({r:0,c:c})];
     if(cell){cell.s={font:{bold:true},fill:{fgColor:{rgb:'F7F0D8'}}};}
   }
-  ws['!cols']=[{wch:12},{wch:48},{wch:40},{wch:20},{wch:14}];
+  ws['!cols']=[{wch:12},{wch:12},{wch:48},{wch:40},{wch:20},{wch:14}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Timeline');
   XLSX.writeFile(wb,'timeline.xlsx');
@@ -3578,16 +3669,16 @@ window.exportTimelinePDF=function(){
   const showCat=timelineActiveCat()==='Completa';
   const rows=timelineSorted().map(item=>`
       <tr>
-        <td style="white-space:nowrap;font-weight:600;color:#b08d57;padding:14px 16px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:15px">${item.ora||'—'}</td>
-        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${tlCats(item).join(', ')}</span>`:''}${item.note?`<div style="font-size:12px;color:#666;margin-top:6px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}</td>
+        <td style="white-space:nowrap;font-weight:600;color:#b08d57;padding:16px 18px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:19px">${item.ora||'—'}${item.fine?' – '+item.fine:''}</td>
+        <td style="padding:16px 18px;border-bottom:1px solid #e8e2d8;font-size:19px">${item.txt||''}${showCat?`<span style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-left:10px">${tlCats(item).join(', ')}</span>`:''}${item.note?`<div style="font-size:15px;color:#555;margin-top:6px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}</td>
       </tr>`).join('');
   w.document.write(`<html><head><title>${couple} — Timeline</title><style>
     body{font-family:Georgia,'Times New Roman',serif;margin:48px;color:#1a1a1a}
     .head{text-align:center;margin-bottom:36px;border-bottom:2px solid #b08d57;padding-bottom:24px}
     .head img{height:70px;width:auto;margin-bottom:14px}
-    h1{font-size:26px;margin:0 0 4px;font-weight:400;letter-spacing:1px}
-    .sub{font-size:12px;color:#8a8a8a;letter-spacing:3px;text-transform:uppercase}
-    .tl-title{text-align:center;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#b08d57;margin-bottom:20px}
+    h1{font-size:30px;margin:0 0 4px;font-weight:400;letter-spacing:1px}
+    .sub{font-size:14px;color:#8a8a8a;letter-spacing:3px;text-transform:uppercase}
+    .tl-title{text-align:center;font-size:15px;letter-spacing:4px;text-transform:uppercase;color:#b08d57;margin-bottom:20px}
     table{width:100%;border-collapse:collapse}
     @media print{body{margin:24px}}
   </style></head><body>
@@ -3611,16 +3702,16 @@ window.exportTimelinePDFB=function(){
   const filtered=selectedCats.length===0?sorted:sorted.filter(item=>{const ic=item.cats||[item.cat||'Generale'];return selectedCats.some(c=>ic.includes(c));});
   const rows=filtered.map(item=>`
       <tr>
-        <td style="white-space:nowrap;font-weight:600;color:#8a8a8a;padding:14px 16px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:15px">${item.ora||'—'}</td>
-        <td style="padding:14px 16px;border-bottom:1px solid #e8e2d8;font-size:15px">${item.txt||''}${showCat?`<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#8a8a8a;margin-left:10px">${(item.cats||[item.cat||'Generale']).join(', ')}</span>`:''}${item.note?`<div style="font-size:12px;color:#666;margin-top:6px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}</td>
+        <td style="white-space:nowrap;font-weight:600;color:#8a8a8a;padding:16px 18px;border-bottom:1px solid #e8e2d8;vertical-align:top;font-size:19px">${item.ora||'—'}${item.fine?' – '+item.fine:''}</td>
+        <td style="padding:16px 18px;border-bottom:1px solid #e8e2d8;font-size:19px">${item.txt||''}${showCat?`<span style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#8a8a8a;margin-left:10px">${(item.cats||[item.cat||'Generale']).join(', ')}</span>`:''}${item.note?`<div style="font-size:15px;color:#555;margin-top:6px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}</td>
       </tr>`).join('');
   w.document.write(`<html><head><title>${couple} — Timeline Piano B</title><style>
     body{font-family:Georgia,'Times New Roman',serif;margin:48px;color:#1a1a1a}
     .head{text-align:center;margin-bottom:36px;border-bottom:2px solid #8a8a8a;padding-bottom:24px}
     .head img{height:70px;width:auto;margin-bottom:14px}
-    h1{font-size:26px;margin:0 0 4px;font-weight:400;letter-spacing:1px}
-    .sub{font-size:12px;color:#8a8a8a;letter-spacing:3px;text-transform:uppercase}
-    .tl-title{text-align:center;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#8a8a8a;margin-bottom:20px}
+    h1{font-size:30px;margin:0 0 4px;font-weight:400;letter-spacing:1px}
+    .sub{font-size:14px;color:#8a8a8a;letter-spacing:3px;text-transform:uppercase}
+    .tl-title{text-align:center;font-size:15px;letter-spacing:4px;text-transform:uppercase;color:#8a8a8a;margin-bottom:20px}
     table{width:100%;border-collapse:collapse}
     @media print{body{margin:24px}}
   </style></head><body>
