@@ -961,9 +961,11 @@ tr.b-vendor{cursor:pointer}
         <div class="mb-pane" id="mb-pane-palette">
           <div class="form-card admin-only">
             <div class="form-grid">
-              <div class="ig" style="max-width:90px"><label>Colore</label><input type="color" id="mb-color" value="#8b3a4a" style="padding:3px;height:46px"></div>
-              <div class="ig span2"><label>Nome del colore</label><input type="text" id="mb-color-name" placeholder="es. Verde Uliveto"></div>
-              <div class="ig" style="align-self:end"><button class="btn-add" onclick="mbAddColor()">+ Aggiungi colore</button></div>
+              <div class="ig" style="max-width:90px"><label>Colore</label><input type="color" id="mb-color" value="#8b3a4a" oninput="mbSyncHex()" style="padding:3px;height:46px"></div>
+              <div class="ig" style="max-width:150px"><label>Codice</label><input type="text" id="mb-hex" value="#8B3A4A" maxlength="7" spellcheck="false" oninput="mbSyncPicker()" style="text-transform:uppercase;letter-spacing:1.5px"></div>
+              <div class="ig" style="max-width:56px" id="mb-eye-wrap"><label>&nbsp;</label><button type="button" class="btn-sm" onclick="mbEyedrop()" title="Preleva un colore da qualsiasi punto dello schermo" style="min-height:46px;font-size:20px">⌖</button></div>
+              <div class="ig span2"><label>Nome del colore (facoltativo)</label><input type="text" id="mb-color-name" placeholder="es. Verde Uliveto"></div>
+              <div class="ig" style="align-self:end"><button class="btn-add" onclick="mbAddColor()" style="width:100%;min-height:46px">+ Aggiungi</button></div>
             </div>
           </div>
           <div id="mb-palette-list"></div>
@@ -3019,10 +3021,36 @@ window.mbSaveConcept=async function(){
   const testo=document.getElementById('mb-concept-x').value.trim();
   await set(ref(db,`matrimoni/${CW_ID}/moodboard/concept`),{titolo,testo});
 };
+// Selettore colore e codice sempre allineati (come su Canva)
+function mbNormHex(v){
+  v=(v||'').trim().replace(/^#?/,'#');
+  if(/^#[0-9a-f]{3}$/i.test(v))v='#'+v[1]+v[1]+v[2]+v[2]+v[3]+v[3];
+  return /^#[0-9a-f]{6}$/i.test(v)?v.toLowerCase():null;
+}
+window.mbSyncHex=function(){
+  document.getElementById('mb-hex').value=document.getElementById('mb-color').value.toUpperCase();
+};
+window.mbSyncPicker=function(){
+  const h=mbNormHex(document.getElementById('mb-hex').value);
+  if(h)document.getElementById('mb-color').value=h;
+};
+// Contagocce: preleva un colore da qualsiasi punto dello schermo (es. da un'immagine del moodboard)
+window.mbEyedrop=async function(){
+  if(!window.EyeDropper)return;
+  try{
+    const r=await new EyeDropper().open();
+    document.getElementById('mb-color').value=r.sRGBHex;
+    mbSyncHex();
+  }catch(e){/* annullato */}
+};
+window.mbCopyHex=function(el,hex){
+  const done=()=>{const old=el.textContent;el.textContent='Copiato';setTimeout(()=>{el.textContent=old;},1100);};
+  if(navigator.clipboard)navigator.clipboard.writeText(hex).then(done).catch(()=>{});
+};
 window.mbAddColor=async function(){
-  const hex=document.getElementById('mb-color').value;
-  const nome=document.getElementById('mb-color-name').value.trim();
-  if(!nome){alert('Dai un nome al colore');return;}
+  const hex=mbNormHex(document.getElementById('mb-hex').value);
+  if(!hex){alert('Codice colore non valido (es. #8B3A4A)');return;}
+  const nome=document.getElementById('mb-color-name').value.trim()||hex.toUpperCase();
   await push(ref(db,`matrimoni/${CW_ID}/moodboard/palette`),{hex,nome});
   document.getElementById('mb-color-name').value='';
 };
@@ -3039,6 +3067,7 @@ window.mbDelete=async function(kind,id){
 };
 function renderMoodboard(){
   if(!document.getElementById('mb-pane-concept'))return;
+  const eyeW=document.getElementById('mb-eye-wrap');if(eyeW&&!window.EyeDropper)eyeW.style.display='none';
   const c=moodboard.concept||{};
   const cp=document.getElementById('mb-pane-concept');
   // non ridisegnare il concept mentre l'admin sta scrivendo
@@ -3050,7 +3079,7 @@ function renderMoodboard(){
   }
   const pal=Object.entries(moodboard.palette||{});
   document.getElementById('mb-palette-list').innerHTML=pal.length
-    ?`<div class="mb-swatches">${pal.map(([id,k])=>`<div class="mb-sw"><div class="chip" style="background:${mbEsc(k.hex)}"></div><div class="meta"><div class="nm">${mbEsc(k.nome)}</div><div class="hx">${mbEsc(k.hex)}</div></div>${IS_ADMIN?`<button class="mb-del" onclick="mbDelete('palette','${id}')">✕</button>`:''}</div>`).join('')}</div>`
+    ?`<div class="mb-swatches">${pal.map(([id,k])=>`<div class="mb-sw"><div class="chip" style="background:${mbEsc(k.hex)}"></div><div class="meta"><div class="nm">${mbEsc(k.nome)}</div><div class="hx" style="cursor:pointer" title="Clicca per copiare il codice" onclick="mbCopyHex(this,'${mbEsc(k.hex)}')">${mbEsc(k.hex)}</div></div>${IS_ADMIN?`<button class="mb-del" onclick="mbDelete('palette','${id}')">✕</button>`:''}</div>`).join('')}</div>`
     :`<div class="mb-empty">Nessun colore in palette${IS_ADMIN?' ancora — aggiungine uno qui sopra':''}.</div>`;
   const imgs=Object.entries(moodboard.immagini||{});
   ['mood','stationery'].forEach(tipo=>{
