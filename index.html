@@ -2281,7 +2281,7 @@ function startCountdown(dateStr){
     const m=Math.floor((diff%3600000)/60000);
     document.getElementById('countdown-units').innerHTML=
       `<div class="cd-unit" style="text-align:left"><div class="cd-num" style="font-size:44px">${d}</div><div class="cd-label">${d===1?(LANG==='en'?'day':'giorno'):t('days')}</div></div>`+
-      `<div class="cd-sub">${h} ${t('hours')} · ${m} ${t('mins')}</div>`;
+      `<div class="cd-sub">${h} ${String(t('hours')).toLowerCase()} · ${m} ${String(t('mins')).toLowerCase()}</div>`;
   }
   update();
   window._cdUpdate=update;
