@@ -224,8 +224,29 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .empty-state .ei{font-size:38px;margin-bottom:14px;opacity:.3}
 
 /* ── SEATING ── */
+.seat-cfg-body{display:block}
+.form-card.collapsed .seat-cfg-body{display:none}
+.seat-cfg-body .seating-controls{margin-bottom:14px}
+.seat-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.seat-hide{margin-left:auto;font-size:15px;color:var(--gray);display:flex;align-items:center;gap:8px;cursor:pointer}
+.seat-hide input{accent-color:var(--gold);width:16px;height:16px}
+.unassigned-pool{border-color:var(--gold);background:var(--gold-pale)}
+.unassigned-pool .pool-guests{background:transparent;padding:0}
+.table-card.full{border-color:var(--gold)}
+.table-card.over{border-color:var(--red)}
+.table-capacity.full{color:var(--gold);font-weight:600}
+.table-capacity.over{color:var(--red);font-weight:600}
+.guest-chip{font-size:16px;padding:7px 10px;gap:6px}
+.guest-chip.absent{opacity:.45}
+.guest-chip.absent .guest-chip-name{text-decoration:line-through}
+.guest-chip-menu{font-size:12px!important;padding:2px 6px!important;white-space:nowrap;letter-spacing:.5px}
+.g-dot{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:11px;font-weight:700;flex:none}
+.g-dot.al{background:#f5effb;color:#6b3fa0;border:1px solid #d9c8ee}
+.g-dot.tr{background:#fbf5df;color:#8a6d1f;border:1px solid #e6d7a3}
+.guest-chip-name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat-arrow{font-size:14px!important;padding:2px 5px!important}
 .seating-controls{display:flex;gap:14px;margin-bottom:20px;align-items:flex-end;flex-wrap:wrap}
-.seating-area{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.seating-area{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .table-card{background:white;border:1px solid var(--gray-l);padding:16px;position:relative}
 .table-card.drag-over{border-color:var(--gold);background:var(--gold-pale)}
 .table-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--gray-l)}
@@ -720,7 +741,7 @@ tr.b-vendor{cursor:pointer}
         <a onclick="showView('fornitori')" data-view="fornitori"><span class="icon">✦</span><span data-t="nav_vendors">Fornitori</span></a>
         <a onclick="showView('moodboard')" data-view="moodboard"><span class="icon">❖</span><span data-t="nav_mood">Concept &amp; Moodboard</span></a>
         <a onclick="showView('timeline')" data-view="timeline" class="admin-only-nav"><span class="icon">◷</span><span data-t="nav_timeline">Timeline</span></a>
-        <a onclick="showView('checklist')" data-view="checklist"><span class="icon">☑</span><span data-t="nav_checklist">Checklist</span></a>
+        <a onclick="showView('checklist')" data-view="checklist"><span class="icon">✧</span><span data-t="nav_checklist">Percorso</span></a>
       </nav>
       <div class="sidebar-section admin-only-nav" id="sb-mgmt">GESTIONE</div>
       <nav class="sidebar-nav">
@@ -913,31 +934,40 @@ tr.b-vendor{cursor:pointer}
 
       <!-- SEATING -->
       <div id="view-seating" class="view-panel fade-in" style="display:none">
-        <div class="seating-controls">
-          <div class="ig" style="flex:0 0 auto">
-            <label data-t="num_tables">N° tavoli</label>
-            <input type="number" id="seat-num-tables" value="10" min="1" max="50" style="width:80px" onchange="renderSeating()">
+        <div class="stats-bar wide" id="seat-stats"></div>
+        <div class="form-card admin-only collapsed" id="seat-cfg-card">
+          <h4 class="toggle-card" onclick="document.getElementById('seat-cfg-card').classList.toggle('collapsed')"><span>Impostazioni tavoli</span><span class="plus">+</span></h4>
+          <div class="seat-cfg-body">
+            <div class="seating-controls">
+              <div class="ig" style="flex:0 0 auto">
+                <label data-t="num_tables">N° tavoli</label>
+                <input type="number" id="seat-num-tables" value="10" min="1" max="50" style="width:90px" onchange="saveSeatingConfig()">
+              </div>
+              <div class="ig" style="flex:0 0 auto">
+                <label data-t="seats_per_table">Posti per tavolo</label>
+                <input type="number" id="seat-capacity" value="10" min="1" max="30" style="width:90px" onchange="saveSeatingConfig()">
+              </div>
+              <div class="ig" style="flex:0 0 auto">
+                <label data-t="table_sposi">Tavolo Sposi</label>
+                <div style="height:46px;display:flex;align-items:center"><input type="checkbox" id="seat-sposi" onchange="saveSeatingConfig()" style="accent-color:var(--gold);width:20px;height:20px;cursor:pointer"></div>
+              </div>
+            </div>
+            <div class="custom-tables-bar" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px;background:var(--cream-d);border-radius:6px">
+              <label data-t="custom_tables" style="font-size:15px;letter-spacing:1px;text-transform:uppercase;color:var(--gray)">Tavoli personalizzati</label>
+              <div id="custom-tables-chips" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+              <input id="new-custom-table" placeholder="es. Fotografi" style="padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:16px;width:140px" onkeydown="if(event.key==='Enter')addCustomTable()">
+              <button class="btn-sm" onclick="addCustomTable()" data-t="add_custom_table">+ Aggiungi</button>
+            </div>
+            <div style="font-size:14px;color:var(--gray);margin-top:8px">Le modifiche si salvano automaticamente.</div>
           </div>
-          <div class="ig" style="flex:0 0 auto">
-            <label data-t="seats_per_table">Posti per tavolo</label>
-            <input type="number" id="seat-capacity" value="10" min="1" max="30" style="width:80px" onchange="renderSeating()">
-          </div>
-          <div class="ig" style="flex:0 0 auto">
-            <label data-t="table_sposi">Tavolo Sposi</label>
-            <div style="height:38px;display:flex;align-items:center"><input type="checkbox" id="seat-sposi" onchange="renderSeating()" style="accent-color:var(--gold);width:20px;height:20px;cursor:pointer"></div>
-          </div>
-          <button class="btn-add" onclick="saveSeatingConfig()" data-t="save_config">Salva config</button>
-          <button class="btn-sm" onclick="autoAssign()" data-t="auto_assign">Auto-assegna non assegnati</button>
+        </div>
+        <div class="seat-toolbar">
+          <button class="btn-sm admin-only" onclick="autoAssign()" data-t="auto_assign">Auto-assegna non assegnati</button>
           <button class="btn-sm" onclick="exportSeatingChartPDF()" data-t="seating_chart_pdf">Piantina PDF</button>
+          <label class="seat-hide"><input type="checkbox" id="seat-hide-empty" onchange="renderSeating()"> Nascondi tavoli vuoti</label>
         </div>
-        <div class="custom-tables-bar" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding:12px;background:var(--cream-d);border-radius:6px">
-          <label data-t="custom_tables" style="font-size:15px;letter-spacing:1px;text-transform:uppercase;color:var(--gray)">Tavoli personalizzati</label>
-          <div id="custom-tables-chips" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-          <input id="new-custom-table" placeholder="es. Fotografi" style="padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:16px;width:140px" onkeydown="if(event.key==='Enter')addCustomTable()">
-          <button class="btn-sm" onclick="addCustomTable()" data-t="add_custom_table">+ Aggiungi</button>
-        </div>
-        <div class="unassigned-pool">
-          <h4 data-t="unassigned">Non assegnati (<span id="unassigned-count">0</span>)</h4>
+        <div class="unassigned-pool" id="unassigned-pool">
+          <h4><span data-t="unassigned_l">Senza tavolo</span> (<span id="unassigned-count">0</span>)</h4>
           <div class="pool-guests" id="pool-guests" ondragover="onDragOverPool(event)" ondrop="onDropPool(event)"></div>
         </div>
         <div class="seating-area" id="seating-area"></div>
@@ -959,7 +989,7 @@ tr.b-vendor{cursor:pointer}
             <button class="pt-btn active" id="pt-principale" onclick="switchPiantinaScenario('principale')" data-t="scenario_main">Principale</button>
             <button class="pt-btn" id="pt-planB" onclick="switchPiantinaScenario('planB')" data-t="scenario_b">Piano B</button>
           </div>
-          <div class="admin-only" id="piantina-hint" style="font-size:15px;color:var(--gray);margin-bottom:8px">
+          <div class="admin-only" id="piantina-hint" style="font-size:16px;color:var(--gray);margin-bottom:8px">
             Trascina i tavoli sulla piantina per posizionarli come nella sala reale.
           </div>
           <div class="admin-only" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
@@ -1205,10 +1235,10 @@ tr.b-vendor{cursor:pointer}
         <div class="cl-toolbar">
           <div class="cl-pills" id="cl-cat-pills"></div>
           <div class="cl-pills admin-only" id="cl-who-pills"></div>
-          <button class="btn-sm admin-only" onclick="loadChecklistTemplate()" style="margin-left:auto">✦ Carica percorso standard</button>
+          <button class="btn-sm admin-only" onclick="loadChecklistTemplate()" style="margin-left:auto">✦ Carica il percorso standard</button>
         </div>
         <div id="checklist-list"></div>
-        <div id="empty-checklist" class="empty-state" style="display:none"><div class="ei">☑</div><p data-t="no_tasks">Nessuna attività</p><p class="admin-only" style="margin-top:12px"><button class="btn-add" onclick="loadChecklistTemplate()">✦ Carica il percorso standard del matrimonio</button></p></div>
+        <div id="empty-checklist" class="empty-state" style="display:none"><div class="ei">✧</div><p data-t="no_tasks">Nessuna attività</p><p class="admin-only" style="margin-top:12px"><button class="btn-add" onclick="loadChecklistTemplate()">✦ Carica il percorso standard del matrimonio</button></p></div>
       </div>
 
       <!-- ADMIN: MATRIMONI -->
@@ -1396,7 +1426,7 @@ let LANG='it';
 const T={
   it:{
     nav_dash:'Dashboard',nav_guests:'Ospiti',nav_seating:'Tavoli',nav_budget:'Budget',
-    nav_vendors:'Fornitori',nav_mood:'Concept & Moodboard',nav_timeline:'Timeline',nav_checklist:'Checklist',
+    nav_vendors:'Fornitori',nav_mood:'Concept & Moodboard',nav_timeline:'Timeline',nav_checklist:'Percorso',
     nav_weddings:'Matrimoni',nav_archive:'Archivio',
     dash_title:'Dashboard',countdown_label:'Al matrimonio',
     rsvp_status:'Stato RSVP',payment_alerts:'Pagamenti in scadenza',
@@ -1436,7 +1466,7 @@ const T={
   },
   en:{
     nav_dash:'Dashboard',nav_guests:'Guests',nav_seating:'Seating',nav_budget:'Budget',
-    nav_vendors:'Vendors',nav_mood:'Concept & Moodboard',nav_timeline:'Timeline',nav_checklist:'Checklist',
+    nav_vendors:'Vendors',nav_mood:'Concept & Moodboard',nav_timeline:'Timeline',nav_checklist:'Journey',
     nav_weddings:'Weddings',nav_archive:'Archive',
     dash_title:'Dashboard',countdown_label:'To the wedding',
     rsvp_status:'RSVP Status',payment_alerts:'Upcoming payments',
@@ -2832,6 +2862,7 @@ window.renderSeating=function(){
   area.innerHTML='';
   // Legge i flag: dalla config salvata o dai checkbox correnti
   const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
+  const hideEmpty=!!(document.getElementById('seat-hide-empty')&&document.getElementById('seat-hide-empty').checked);
   // Costruisce una card tavolo (cap=null => capacita libera, nessun limite)
   function buildCard(tId,label,capLimit,altNames){
     const tGuests=allGuests.filter(([,g])=>{
@@ -2845,18 +2876,24 @@ window.renderSeating=function(){
     card.ondragover=e=>{e.preventDefault();card.classList.add('drag-over');};
     card.ondragleave=()=>card.classList.remove('drag-over');
     card.ondrop=e=>{e.preventDefault();card.classList.remove('drag-over');onDropTable(e,tId);};
-    const isFull=capLimit!==null && tGuests.length>=capLimit;
-    const capLabel=capLimit!==null?`${tGuests.length}/${capLimit}`:`${tGuests.length}`;
+    const presentN=tGuests.filter(([,g])=>g.rsvp!=='Assente').length;
+    const isFull=capLimit!==null && presentN>=capLimit;
+    const isOver=capLimit!==null && presentN>capLimit;
+    if(hideEmpty&&tGuests.length===0)return;
+    card.classList.toggle('full',isFull&&!isOver);card.classList.toggle('over',isOver);
+    const capLabel=capLimit!==null?`${presentN}/${capLimit}`:`${presentN}`;
     card.innerHTML=`<div class="table-card-head">
       <div class="table-card-name">${label}</div>
-      <div class="table-capacity ${isFull?'full':''}">${capLabel}</div>
+      <div class="table-capacity ${isOver?'over':(isFull?'full':'')}">${capLabel}</div>
     </div>
     <div class="table-guests" id="tg-${tId}">
       ${tGuests.sort((a,b)=>seatOrder(a[1])-seatOrder(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||'')).map(([gid,g],idx,arr)=>
-        `<div class="guest-chip" draggable="true" data-gid="${gid}" data-table="${tId}" ondragstart="onDragStart(event,'${gid}')" ondragover="onChipDragOver(event)" ondragleave="onChipDragLeave(event)" ondrop="onChipDrop(event,'${gid}','${tId}')">
+        `<div class="guest-chip${g.rsvp==='Assente'?' absent':''}" draggable="true" data-gid="${gid}" data-table="${tId}" ondragstart="onDragStart(event,'${gid}')" ondragover="onChipDragOver(event)" ondragleave="onChipDragLeave(event)" ondrop="onChipDrop(event,'${gid}','${tId}')">
           <span class="seat-num">${idx+1}</span>
           <span class="guest-chip-name">${g.cognome} ${g.nome}</span>
-          <span class="guest-chip-menu badge ${menuBadge(g.menu)}" style="font-size:12px;padding:1px 5px">${(g.menu||'N').substring(0,3)}</span>
+          ${g.allergeni?`<span class="g-dot al" title="${String(g.allergeni).replace(/"/g,'&quot;')}">A</span>`:''}
+          ${g.transfer==='Sì'?'<span class="g-dot tr" title="Transfer">T</span>':''}
+          <span class="guest-chip-menu badge ${menuBadge(g.menu)}">${g.rsvp==='Assente'?'Assente':(g.menu||'Normale')}</span>
           <span class="seat-arrows">
             <button class="seat-arrow" onclick="event.stopPropagation();moveSeat('${gid}',-1)" ${idx===0?'disabled':''} title="Su">▲</button>
             <button class="seat-arrow" onclick="event.stopPropagation();moveSeat('${gid}',1)" ${idx===arr.length-1?'disabled':''} title="Giù">▼</button>
@@ -2873,7 +2910,25 @@ window.renderSeating=function(){
     buildCard(String(i),(LANG==='en'?'Table ':'Tavolo ')+i,cap);
   }
   // Pool
-  const unassigned=allGuests.filter(([,g])=>!g.tavolo||g.tavolo==='');
+  const unassigned=allGuests.filter(([,g])=>(!g.tavolo||g.tavolo==='')&&g.rsvp!=='Assente');
+  // Statistiche
+  {
+    const valid=new Set(['sposi',...customTables.map(c=>c.id)]);
+    for(let i=1;i<=numT;i++)valid.add(String(i));
+    const seated=allGuests.filter(([,g])=>g.rsvp!=='Assente'&&g.tavolo&&String(g.tavolo)!=='');
+    const seatedNum=allGuests.filter(([,g])=>g.rsvp!=='Assente'&&/^\d+$/.test(String(g.tavolo||''))&&+g.tavolo>=1&&+g.tavolo<=numT).length;
+    const free=Math.max(0,numT*cap-seatedNum);
+    const nT=numT+customTables.length+(showSposi?1:0);
+    const st=document.getElementById('seat-stats');
+    if(st)st.innerHTML=`
+      <div class="stat-i"><div class="sn">${nT}</div><div class="sl">Tavoli</div></div>
+      <div class="stat-i"><div class="sn">${numT*cap}</div><div class="sl">Posti totali</div></div>
+      <div class="stat-i green"><div class="sn">${seated.length}</div><div class="sl">Assegnati</div></div>
+      <div class="stat-i ${unassigned.length?'gold':''}"><div class="sn">${unassigned.length}</div><div class="sl">Senza tavolo</div></div>
+      <div class="stat-i"><div class="sn">${free}</div><div class="sl">Posti liberi</div></div>`;
+    const up=document.getElementById('unassigned-pool');
+    if(up)up.style.display=unassigned.length?'block':'none';
+  }
   // Aggiorna il datalist con le opzioni tavolo disponibili (sposi + custom + numerici)
   const dl=document.getElementById('tavoli-list');
   if(dl){
@@ -2887,7 +2942,7 @@ window.renderSeating=function(){
   pool.innerHTML=unassigned.map(([gid,g])=>
     `<div class="guest-chip" draggable="true" data-gid="${gid}" ondragstart="onDragStart(event,'${gid}')" style="margin:0">
       <span class="guest-chip-name">${g.cognome} ${g.nome}</span>
-      <span class="guest-chip-menu" style="font-size:13px;color:var(--gray)">${g.menu||''}</span>
+      <span class="guest-chip-menu" style="color:var(--gray)">${g.menu||''}</span>
     </div>`).join('');
   // NON chiama renderPiantina qui: si aggiorna solo quando cambia seatingCfg, non gli ospiti
 };
@@ -2963,9 +3018,9 @@ window.onDropTable=async function(e,tId){
 window.autoAssign=async function(){
   const numT=seatingCfg.tables||10;
   const cap=seatingCfg.capacity||10;
-  const unassigned=Object.entries(guests).filter(([,g])=>!g.tavolo||g.tavolo==='');
+  const unassigned=Object.entries(guests).filter(([,g])=>(!g.tavolo||g.tavolo==='')&&g.rsvp!=='Assente');
   const counts={};
-  for(let i=1;i<=numT;i++){counts[i]=Object.values(guests).filter(g=>g.tavolo===String(i)).length;}
+  for(let i=1;i<=numT;i++){counts[i]=Object.values(guests).filter(g=>g.tavolo===String(i)&&g.rsvp!=='Assente').length;}
   for(const [gid] of unassigned){
     for(let i=1;i<=numT;i++){
       if(counts[i]<cap){await update(ref(db,`matrimoni/${CW_ID}/ospiti/${gid}`),{tavolo:String(i),posto:counts[i]+1});counts[i]++;break;}
