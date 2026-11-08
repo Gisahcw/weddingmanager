@@ -299,6 +299,12 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .mb-imgs{columns:3 240px;column-gap:18px}
 .mb-img{break-inside:avoid;margin-bottom:18px;background:#fff;border:1px solid var(--gray-l);position:relative}
 .mb-img img{display:block;width:100%;height:auto}
+.mb-embed{position:relative;background:#fff;border:1px solid var(--gray-l);margin-bottom:22px;max-width:960px}
+.mb-embed .ratio{position:relative;padding-top:62.5%}
+.mb-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.mb-embed .cap{padding:10px 14px;font-size:16px;color:var(--gray);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mb-embed .cap a,.mb-linkcard a{color:var(--gold);text-decoration:none;letter-spacing:1.5px;text-transform:uppercase;font-size:14px}
+.mb-linkcard{padding:22px 18px;text-align:center;background:#fff;border:1px solid var(--gray-l);margin-bottom:18px;break-inside:avoid;position:relative}
 .mb-img .cap{padding:10px 14px;font-size:16px;color:var(--gray)}
 .mb-empty{padding:40px 20px;text-align:center;color:var(--gray);font-size:17px;border:1px dashed var(--gray-l)}
 .mb-concept-t{width:100%;background:transparent;border:none;border-bottom:1px solid var(--gold);padding:8px 0;font-family:'Playfair Display',serif;font-style:italic;font-size:26px;color:var(--black);outline:none;margin-bottom:18px}
@@ -1052,7 +1058,7 @@ tr.b-vendor{cursor:pointer}
         <div class="mb-pane" id="mb-pane-mood">
           <div class="form-card admin-only">
             <div class="form-grid">
-              <div class="ig span2"><label>Link dell'immagine</label><input type="text" id="mb-mood-url" placeholder="Incolla il link (Google Drive, Dropbox, GitHub, .jpg/.png)"></div>
+              <div class="ig span2"><label>Link dell'immagine</label><input type="text" id="mb-mood-url" placeholder="Incolla il link (Canva, Google Drive, Dropbox, .jpg/.png)"></div>
               <div class="ig"><label>Didascalia</label><input type="text" id="mb-mood-cap" placeholder="facoltativa"></div>
               <div class="ig" style="align-self:end"><button class="btn-add" onclick="mbAddImage('mood')">+ Aggiungi</button></div>
             </div>
@@ -1062,7 +1068,7 @@ tr.b-vendor{cursor:pointer}
         <div class="mb-pane" id="mb-pane-stationery">
           <div class="form-card admin-only">
             <div class="form-grid">
-              <div class="ig span2"><label>Link dell'immagine</label><input type="text" id="mb-stat-url" placeholder="Incolla il link (Google Drive, Dropbox, GitHub, .jpg/.png)"></div>
+              <div class="ig span2"><label>Link dell'immagine</label><input type="text" id="mb-stat-url" placeholder="Incolla il link (Canva, Google Drive, Dropbox, .jpg/.png)"></div>
               <div class="ig"><label>Didascalia</label><input type="text" id="mb-stat-cap" placeholder="es. Partecipazione, Menù"></div>
               <div class="ig" style="align-self:end"><button class="btn-add" onclick="mbAddImage('stationery')">+ Aggiungi</button></div>
             </div>
@@ -3182,7 +3188,7 @@ window.mbAddImage=async function(tipo){
   const pre=tipo==='mood'?'mb-mood':'mb-stat';
   const raw=document.getElementById(pre+'-url').value.trim();
   if(!raw){alert('Incolla il link di un\'immagine');return;}
-  await push(ref(db,`matrimoni/${CW_ID}/moodboard/immagini`),{tipo,url:normalizePiantinaUrl(raw),didascalia:document.getElementById(pre+'-cap').value.trim()});
+  await push(ref(db,`matrimoni/${CW_ID}/moodboard/immagini`),{tipo,url:/canva\.(com|link)\//i.test(raw)?raw:normalizePiantinaUrl(raw),didascalia:document.getElementById(pre+'-cap').value.trim()});
   document.getElementById(pre+'-url').value='';document.getElementById(pre+'-cap').value='';
 };
 window.mbDelete=async function(kind,id){
@@ -3208,8 +3214,21 @@ function renderMoodboard(){
   const imgs=Object.entries(moodboard.immagini||{});
   ['mood','stationery'].forEach(tipo=>{
     const list=imgs.filter(([,i])=>i.tipo===tipo);
+    const delB=id=>IS_ADMIN?`<button class="mb-del" onclick="mbDelete('immagini','${id}')">✕</button>`:'';
+    const isCanva=u=>/^https?:\/\/([a-z0-9-]+\.)?canva\.(com|link)\//i.test(u||'');
+    const canvaEmbed=u=>{const m=(u||'').match(/canva\.com\/design\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)\/(?:view|watch|edit)/i);return m?`https://www.canva.com/design/${m[1]}/${m[2]}/view?embed`:null;};
+    const cv=list.filter(([,i])=>isCanva(i.url));
+    const im=list.filter(([,i])=>!isCanva(i.url));
+    const cvHtml=cv.map(([id,i])=>{
+      const emb=canvaEmbed(i.url);
+      const link=`<a href="${mbEsc(i.url)}" target="_blank" rel="noopener">Apri su Canva ↗</a>`;
+      return emb
+        ?`<div class="mb-embed"><div class="ratio"><iframe src="${mbEsc(emb)}" loading="lazy" allowfullscreen></iframe></div><div class="cap"><span>${mbEsc(i.didascalia)||'Canva'}</span>${link}</div>${delB(id)}</div>`
+        :`<div class="mb-linkcard"><div style="margin-bottom:10px">${mbEsc(i.didascalia)||'Design Canva'}</div>${link}${delB(id)}</div>`;
+    }).join('');
+    const imHtml=im.length?`<div class="mb-imgs">${im.map(([id,i])=>`<div class="mb-img"><img src="${mbEsc(i.url)}" alt="${mbEsc(i.didascalia)}" loading="lazy" onerror="this.outerHTML='<div class=\\'mb-linkcard\\'><a href=\\''+this.src+'\\' target=\\'_blank\\' rel=\\'noopener\\'>Apri immagine ↗</a></div>'">${i.didascalia?`<div class="cap">${mbEsc(i.didascalia)}</div>`:''}${delB(id)}</div>`).join('')}</div>`:'';
     document.getElementById('mb-'+tipo+'-list').innerHTML=list.length
-      ?`<div class="mb-imgs">${list.map(([id,i])=>`<div class="mb-img"><img src="${mbEsc(i.url)}" alt="${mbEsc(i.didascalia)}" loading="lazy">${i.didascalia?`<div class="cap">${mbEsc(i.didascalia)}</div>`:''}${IS_ADMIN?`<button class="mb-del" onclick="mbDelete('immagini','${id}')">✕</button>`:''}</div>`).join('')}</div>`
+      ?cvHtml+imHtml
       :`<div class="mb-empty">Nessuna immagine${IS_ADMIN?' ancora — incolla un link qui sopra':''}.</div>`;
   });
 }
