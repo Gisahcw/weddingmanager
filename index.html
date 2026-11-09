@@ -1049,10 +1049,13 @@ tr.b-vendor{cursor:pointer}
             <h4 data-t="floorplan" style="margin:0;font-family:'Playfair Display',serif;font-size:20px;font-weight:400">Piantina della Location</h4>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
               <span class="admin-only" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <input id="piantina-url" placeholder="Incolla il link dell'immagine (.jpg/.png)" style="width:280px;padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:15px">
+                <input type="file" id="piantina-file" accept="image/*,application/pdf" style="display:none" onchange="uploadPiantinaFile(this)">
+                <button class="btn-sm" id="piantina-upload-btn" onclick="document.getElementById('piantina-file').click()" style="background:var(--gold);color:#fff;border-color:var(--gold)">⇪ Carica file (immagine o PDF)</button>
+                <input id="piantina-url" placeholder="oppure incolla un link" style="width:180px;padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:15px">
                 <button class="btn-sm" onclick="savePiantinaUrl()" data-t="load_floorplan">Carica</button>
                 <button class="btn-sm" onclick="removePiantina()" data-t="remove_floorplan">Rimuovi</button>
               </span>
+              <button class="btn-sm" id="piantina-3d-btn" onclick="open3D()">◈ Vista 3D</button>
               <button class="btn-sm" id="piantina-export-btn" onclick="exportPiantinaPDF()" data-t="export_floorplan">⤓ PDF</button>
             </div>
           </div>
@@ -1470,6 +1473,14 @@ tr.b-vendor{cursor:pointer}
 </div>
 
 <!-- ══ MODAL: NUOVO MATRIMONIO ══ -->
+<div class="modal-overlay" id="modal-3d" style="z-index:400">
+  <div style="position:relative;width:min(1200px,96vw);height:min(760px,90vh);background:#1a1a1a;border-radius:8px;overflow:hidden">
+    <button class="modal-close" onclick="close3D()" style="color:#fff;z-index:2">✕</button>
+    <div id="three-wrap" style="position:absolute;inset:0"></div>
+    <div id="three-msg" style="position:absolute;left:16px;bottom:12px;color:rgba(255,255,255,.75);font-size:15px;letter-spacing:.5px;z-index:2">Trascina per ruotare · scorri per ingrandire · due dita per spostare</div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-wedding">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-wedding')">✕</button>
@@ -1620,7 +1631,7 @@ const EN_MAP={
 "Nascondi tavoli vuoti":"Hide empty tables","Neonato":"Infant","Nessun evento":"No events","Nessun ospite in questa categoria":"No guests in this category","Nessuna piantina caricata.":"No floor plan uploaded.",
 "Nessuna risposta dal link RSVP ancora":"No replies from the RSVP link yet","No":"No","Nome *":"First name *","Nome del colore (facoltativo)":"Colour name (optional)","Normale":"Standard","Note":"Notes","Note operative":"Operational notes",
 "OSPITI PRESENTI":"GUESTS PRESENT","Oggi!":"Today!","Orario":"Time","Ospiti":"Guests","Ospiti confermati":"Confirmed guests","PANORAMICA":"OVERVIEW","PDF":"PDF","Pagato finora":"Paid so far","Palette colori":"Colour palettes",
-"Partecipazione":"Invitation","Per":"For","Pesce":"Fish","Piano A — Principale":"Plan A — Main","Piano B — Alternativo":"Plan B — Alternative","Piantina tavoli":"Seating chart","Planimetria & tavoli":"Floor plan & tables",
+"Partecipazione":"Invitation","Per":"For","Pesce":"Fish","Piano A — Principale":"Plan A — Main","Piano B — Alternativo":"Plan B — Alternative","Piantina tavoli":"Seating chart","Planimetria & tavoli":"Floor plan & tables","⇪ Carica file (immagine o PDF)":"⇪ Upload file (image or PDF)","◈ Vista 3D":"◈ 3D view","oppure incolla un link":"or paste a link","Trascina per ruotare · scorri per ingrandire · due dita per spostare":"Drag to rotate · scroll to zoom · two fingers to pan",
 "Posti liberi":"Seats free","Posti totali":"Total seats","Previsto":"Planned","Prossime":"Upcoming","Prova abito":"Dress fitting","Questa settimana":"This week","RSVP":"RSVP","Saldato":"Paid in full","Salva":"Save","Scadute":"Overdue",
 "Scarica PDF":"Download PDF","Scheda Tecnica":"Technical sheet","Sei invitato al loro matrimonio. Conferma la tua presenza.":"You are invited to their wedding. Please confirm your attendance.","Senza cipolla":"No onion","Senza data":"No date",
 "Senza tavolo":"No table","Sotto il budget":"Under budget","Sposa":"Bride","Sposi":"Couple","Sposo":"Groom","Staff":"Staff","Stationery":"Stationery","Sì":"Yes","Tavoli":"Tables","Tavolo Sposi":"Couple table","Telefono":"Phone",
@@ -2930,6 +2941,148 @@ window.savePiantinaUrl=async function(){
   await syncPublicPiantina();
   renderPiantina();
 };
+
+// ── CARICAMENTO PIANTINA DA FILE ──
+function loadScriptOnce(src){return new Promise((res,rej)=>{if(document.querySelector(`script[src="${src}"]`)){res();return;}const sc=document.createElement('script');sc.src=src;sc.onload=res;sc.onerror=()=>rej(new Error('Impossibile caricare '+src));document.head.appendChild(sc);});}
+function canvasToJpegUnder(cv,maxBytes){
+  let q=0.85,out=cv.toDataURL('image/jpeg',q);
+  while(out.length>maxBytes&&q>0.4){q-=0.1;out=cv.toDataURL('image/jpeg',q);}
+  return out;
+}
+function drawScaled(src,sw,sh,maxDim){
+  const k=Math.min(1,maxDim/Math.max(sw,sh));
+  const cv=document.createElement('canvas');cv.width=Math.round(sw*k);cv.height=Math.round(sh*k);
+  const c=cv.getContext('2d');c.fillStyle='#fff';c.fillRect(0,0,cv.width,cv.height);c.drawImage(src,0,0,cv.width,cv.height);
+  return cv;
+}
+window.uploadPiantinaFile=async function(inp){
+  const f=inp.files&&inp.files[0];inp.value='';
+  if(!f)return;
+  const btn=document.getElementById('piantina-upload-btn');
+  const label=btn.textContent;btn.textContent='Caricamento…';btn.disabled=true;
+  try{
+    let cv;
+    if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){
+      await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const pdf=await window.pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
+      const page=await pdf.getPage(1);
+      const vp0=page.getViewport({scale:1});
+      const sc=Math.min(3,2000/Math.max(vp0.width,vp0.height));
+      const vp=page.getViewport({scale:sc});
+      const big=document.createElement('canvas');big.width=Math.round(vp.width);big.height=Math.round(vp.height);
+      const bc=big.getContext('2d');bc.fillStyle='#fff';bc.fillRect(0,0,big.width,big.height);
+      await page.render({canvasContext:bc,viewport:vp}).promise;
+      cv=drawScaled(big,big.width,big.height,1800);
+    }else if(f.type.startsWith('image/')){
+      const url=URL.createObjectURL(f);
+      const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('Immagine non leggibile'));i.src=url;});
+      cv=drawScaled(img,img.naturalWidth,img.naturalHeight,1800);
+      URL.revokeObjectURL(url);
+    }else{alert('Formato non supportato. Usa un\'immagine (JPG/PNG) o un PDF.');return;}
+    const data=canvasToJpegUnder(cv,600000);
+    ensurePiantine();
+    seatingCfg.piantine[piantinaScenario].url=data;
+    await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+    await syncPublicPiantina();
+    renderPiantina();
+  }catch(e){alert('Errore nel caricamento: '+e.message);}
+  finally{btn.textContent=label;btn.disabled=false;}
+};
+
+// ── VISTA 3D ──
+let _3d=null;
+function txtSprite(THREE,text,sub,scale){
+  const cv=document.createElement('canvas');cv.width=512;cv.height=160;
+  const c=cv.getContext('2d');
+  c.fillStyle='rgba(255,255,255,.94)';
+  const r=36;c.beginPath();c.moveTo(r,8);c.arcTo(504,8,504,152,r);c.arcTo(504,152,8,152,r);c.arcTo(8,152,8,8,r);c.arcTo(8,8,504,8,r);c.fill();
+  c.strokeStyle='#b08d57';c.lineWidth=6;c.stroke();
+  c.fillStyle='#1a1a1a';c.textAlign='center';c.textBaseline='middle';
+  c.font='bold 64px Georgia,serif';c.fillText(text,256,sub?58:80,470);
+  if(sub){c.fillStyle='#b08d57';c.font='44px Georgia,serif';c.fillText(sub,256,116,470);}
+  const tex=new THREE.CanvasTexture(cv);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));
+  sp.scale.set(scale,scale*160/512,1);sp.renderOrder=5;return sp;
+}
+window.close3D=function(){
+  document.getElementById('modal-3d').classList.remove('active');
+  if(_3d){cancelAnimationFrame(_3d.raf);window.removeEventListener('resize',_3d.onResize);try{_3d.renderer.dispose();}catch(_){}
+    document.getElementById('three-wrap').innerHTML='';_3d=null;}
+};
+window.open3D=async function(){
+  const p=currentPiantina();
+  if(!p.url){alert('Carica prima una piantina');return;}
+  const modal=document.getElementById('modal-3d'),wrap=document.getElementById('three-wrap'),msg=document.getElementById('three-msg');
+  modal.classList.add('active');wrap.innerHTML='';
+  const hint='Trascina per ruotare · scorri per ingrandire · due dita per spostare';
+  msg.textContent='Caricamento 3D…';
+  try{
+    await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
+    await loadScriptOnce('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js');
+  }catch(e){msg.textContent='Impossibile caricare il motore 3D (controlla la connessione).';return;}
+  const THREE=window.THREE;
+  const W=100;
+  const tex=await new Promise(res=>{new THREE.TextureLoader().setCrossOrigin('anonymous').load(p.url,t=>res(t),undefined,()=>res(null));});
+  let H=W*0.65;
+  if(tex&&tex.image&&tex.image.width)H=W*tex.image.height/tex.image.width;
+  else msg.textContent='Piantina non leggibile in 3D (usa "Carica file"): mostro solo i tavoli. · '+hint;
+  if(tex&&msg.textContent.startsWith('Caricamento'))msg.textContent=hint;
+  const scene=new THREE.Scene();scene.background=new THREE.Color(0x202225);
+  const cw=wrap.clientWidth||900,ch=wrap.clientHeight||600;
+  const camera=new THREE.PerspectiveCamera(45,cw/ch,0.5,1000);
+  camera.position.set(0,Math.max(W,H)*0.85,H*0.62);
+  const renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(cw,ch);
+  wrap.appendChild(renderer.domElement);
+  const controls=new THREE.OrbitControls(camera,renderer.domElement);
+  controls.target.set(0,0,0);controls.maxPolarAngle=Math.PI/2.05;controls.minDistance=10;controls.maxDistance=220;controls.update();
+  scene.add(new THREE.AmbientLight(0xffffff,0.85));
+  const dl=new THREE.DirectionalLight(0xffffff,0.6);dl.position.set(30,80,40);scene.add(dl);
+  // pavimento con la piantina
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,H),new THREE.MeshBasicMaterial(tex?{map:tex}:{color:0x3a3d42}));
+  floor.rotation.x=-Math.PI/2;scene.add(floor);
+  const P=(pp)=>[(pp.x/100-0.5)*W,(pp.y/100-0.5)*H];
+  // tavoli
+  const numT=seatingCfg.tables||10;
+  const ids=[];
+  if(seatingCfg.sposi)ids.push('sposi');
+  (seatingCfg.customTables||[]).forEach(ct=>ids.push(ct.id));
+  for(let i=1;i<=numT;i++)ids.push(String(i));
+  const pos=p.posizioni||{};
+  const ctNames={};(seatingCfg.customTables||[]).forEach(ct=>{ctNames[ct.id]=ct.nome;});
+  const cap=Math.max(2,Math.min(parseInt(seatingCfg.capacity)||10,14));
+  ids.forEach((tId,idx)=>{
+    const count=Object.values(guests).filter(g=>g.tavolo===tId||(ctNames[tId]&&g.tavolo&&g.tavolo.toLowerCase()===ctNames[tId].toLowerCase())).length;
+    if(count===0)return;
+    const pp=pos[tId]||{x:5+(idx%10)*9,y:6+Math.floor(idx/10)*12};
+    const [x,z]=P(pp);
+    const g=new THREE.Group();g.position.set(x,0,z);
+    const cloth=new THREE.Mesh(new THREE.CylinderGeometry(2.4,2.4,1.2,40),new THREE.MeshStandardMaterial({color:0xfaf6ef}));cloth.position.y=0.6;g.add(cloth);
+    const top=new THREE.Mesh(new THREE.CylinderGeometry(2.4,2.4,0.08,40),new THREE.MeshStandardMaterial({color:0xb08d57}));top.position.y=1.24;g.add(top);
+    const n=Math.min(Math.max(count,2),cap);
+    for(let k=0;k<n;k++){
+      const a=k/n*Math.PI*2;
+      const chair=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.55,0.9,16),new THREE.MeshStandardMaterial({color:0x6b2737}));
+      chair.position.set(Math.cos(a)*3.3,0.45,Math.sin(a)*3.3);g.add(chair);
+    }
+    const label=tId==='sposi'?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):'Tavolo '+tId;
+    const sp=txtSprite(THREE,label,count+' ospiti',9);sp.position.set(0,4.6,0);g.add(sp);
+    scene.add(g);
+  });
+  // elementi sala
+  (p.elementi||[]).forEach(e=>{
+    const [x,z]=P({x:e.x||50,y:e.y||50});
+    const box=new THREE.Mesh(new THREE.BoxGeometry(5,1.6,2.6),new THREE.MeshStandardMaterial({color:0x3c3c50}));
+    box.position.set(x,0.8,z);scene.add(box);
+    const sp=txtSprite(THREE,e.nome,'',9);sp.position.set(x,4,z);scene.add(sp);
+  });
+  const onResize=()=>{const w=wrap.clientWidth,h=wrap.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};
+  window.addEventListener('resize',onResize);
+  _3d={renderer,onResize,raf:0};
+  const loop=()=>{_3d.raf=requestAnimationFrame(loop);controls.update();renderer.render(scene,camera);};
+  loop();
+};
 window.removePiantina=async function(){
   const nome=piantinaScenario==='planB'?'Piano B':'Principale';
   if(!confirm('Rimuovere la piantina "'+nome+'"? Le posizioni dei tavoli di questo scenario andranno perse.'))return;
@@ -3012,8 +3165,9 @@ window.renderPiantina=function(){
   const url=currentPiantina().url||'';
   const exportBtn=document.getElementById('piantina-export-btn');
   if(exportBtn)exportBtn.style.display=url?'inline-block':'none';
+  const b3=document.getElementById('piantina-3d-btn');if(b3)b3.style.display=url?'inline-block':'none';
   const urlInput=document.getElementById('piantina-url');
-  if(urlInput&&document.activeElement!==urlInput)urlInput.value=url;
+  if(urlInput&&document.activeElement!==urlInput)urlInput.value=url.startsWith('data:')?'':url;
   if(!url){
     wrap.style.display='none';empty.style.display='block';
     if(hint)hint.style.display='none';
