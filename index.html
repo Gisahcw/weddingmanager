@@ -3408,9 +3408,11 @@ function budgetCats(){
   return Array.from(document.querySelectorAll('#f-cat option')).map(o=>o.value||o.textContent);
 }
 // Pagato di un fornitore: acconti versati; se "Saldato" conta l'intero importo
+function kidsOfVendor(v){const vid=Object.keys(vendors).find(k=>vendors[k]===v);return vid?Object.values(budget).filter(b=>b.vid===vid):[];}
+function vendorTotal(v){return vendorAmount(v)+kidsOfVendor(v).reduce((t,k)=>t+voceAmount(k),0);}
 function vendorPaid(v){
   const acc=accontiTotal(v);
-  return v.stato==='Saldato'?Math.max(vendorAmount(v),acc):acc;
+  return v.stato==='Saldato'?Math.max(vendorTotal(v),acc):acc;
 }
 // Totali di budget: fornitori (automatico) + voci manuali
 function budgetTotals(){
@@ -3424,7 +3426,7 @@ function budgetTotals(){
   Object.entries(budget).forEach(([id,b])=>{
     const lv=b.vid&&vendors[b.vid]?vendors[b.vid]:null;
     const c=get(lv?(lv.cat||BUDGET_OTHER):(b.cat||BUDGET_OTHER));
-    if(lv)(c.kids[b.vid]=c.kids[b.vid]||[]).push([id,b]);else c.voci.push([id,b]);c.prev+=voceAmount(b);c.vat+=vatOf(b,'prev');c.paid+=b.real||0;
+    if(lv)(c.kids[b.vid]=c.kids[b.vid]||[]).push([id,b]);else c.voci.push([id,b]);c.prev+=voceAmount(b);c.vat+=vatOf(b,'prev');c.paid+=(lv&&lv.stato==='Saldato')?0:(b.real||0);
   });
   let prev=0,paid=0,vat=0;
   Object.values(cats).forEach(c=>{prev+=c.prev;paid+=c.paid;vat+=c.vat;});
@@ -3468,8 +3470,10 @@ function renderBudget(){
         ${locked
           ?`<td class="num" title="Calcolato: apri ⚙ per modificare">${eur(amt)}</td>`
           :`<td class="num" contenteditable="true" onblur="updateBudgetItem('${id}','prev',this.textContent.replace('€','').trim())">${(b.prev||0).toLocaleString('it-IT',{useGrouping:'always'})}</td>`}
-        <td class="num" contenteditable="true" onblur="updateBudgetItem('${id}','real',this.textContent.replace('€','').trim())" style="border-bottom:1px solid var(--gold)">${(b.real||0).toLocaleString('it-IT',{useGrouping:'always'})}</td>
-        <td class="num ${diff>=0?'diff-pos':'diff-neg'}">${eur(diff)}</td>
+        ${kid&&!(b.real>0)
+          ?`<td class="num" style="color:var(--gray)" title="Il pagamento si registra nella scheda del fornitore">—</td><td class="num" style="color:var(--gray)">—</td>`
+          :`<td class="num" contenteditable="true" onblur="updateBudgetItem('${id}','real',this.textContent.replace('€','').trim())" style="border-bottom:1px solid var(--gold)">${(b.real||0).toLocaleString('it-IT',{useGrouping:'always'})}</td>
+        <td class="num ${diff>=0?'diff-pos':'diff-neg'}">${eur(diff)}</td>`}
         <td style="font-size:16px">${b.scadenza||'—'}</td>
         <td style="white-space:nowrap"><button class="btn-icon b-gear" onclick="toggleBudgetEdit('${id}')" title="Prezzo unitario e IVA">⚙</button><button class="btn-icon" onclick="deleteBudgetItem('${id}')">✕</button></td>`;
       tbody.appendChild(tr);
@@ -3494,12 +3498,15 @@ function renderBudget(){
       tr.title='Apri la scheda del fornitore';
       tr.addEventListener('click',()=>openVendorEdit(id));
       const due=v.scadenza&&v.stato!=='Saldato'&&new Date(v.scadenza)-today<=15*86400000;
-      const amt=vendorAmount(v);const sm=ppSummary(v,'importo');
+      const own=vendorAmount(v);const sm=own>0?ppSummary(v,'importo'):'';
+      const kids=c.kids[id]||[];
+      const amt=own+kids.reduce((t,[,k])=>t+voceAmount(k),0);
+      const paidT=paid+(v.stato==='Saldato'?0:kids.reduce((t,[,k])=>t+(k.real||0),0));
       tr.innerHTML=`
-        <td>${v.nome}<span class="b-link">Fornitori</span>${sm?`<div class="b-sub">${sm}</div>`:''}${(c.kids[id]||[]).length?`<div class="b-sub">+ ${(c.kids[id]).length} ${(c.kids[id]).length==1?'voce collegata':'voci collegate'} · totale ${eur(amt+c.kids[id].reduce((t,[,k])=>t+voceAmount(k),0))}</div>`:''}</td>
+        <td>${v.nome}<span class="b-link">Fornitori</span>${sm?`<div class="b-sub">${sm}</div>`:''}${kids.length?`<div class="b-sub">${own>0?`Fornitore € ${Math.round(own)} + `:''}${kids.length} ${kids.length==1?'voce':'voci'} sotto</div>`:''}</td>
         <td class="num">${eur(amt)}</td>
-        <td class="num">${eur(paid)}</td>
-        <td class="num ${amt-paid>0?'':'diff-pos'}">${eur(amt-paid)}</td>
+        <td class="num">${eur(paidT)}</td>
+        <td class="num ${amt-paidT>0?'':'diff-pos'}">${eur(amt-paidT)}</td>
         <td style="font-size:16px;color:${due?'var(--red)':'inherit'}">${v.scadenza||'—'}</td><td></td>`;
       tbody.appendChild(tr);
       (c.kids[id]||[]).forEach(([kid,kb])=>addVoce(kid,kb,true));
@@ -3561,7 +3568,7 @@ function renderVendors(){
       'Acconto pagato':'b-gold','Saldato':'b-teal'
     }[v.stato]||'b-gray';
     const accTot=accontiTotal(v);
-    const vAmt=vendorAmount(v);const vSm=ppSummary(v,'importo');
+    const vAmt=vendorTotal(v);const vSm=vendorAmount(v)>0?ppSummary(v,'importo'):'';
     const saldo=vAmt&&accTot?vAmt-accTot:null;
     const canEdit=IS_ADMIN;
     const ce=canEdit?'contenteditable="true"':''; // celle editabili solo per admin
