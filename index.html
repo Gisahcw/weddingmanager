@@ -1659,6 +1659,7 @@ const EN_MAP={
 "Prezzo unitario (€)":"Unit price (€)","Moltiplica per":"Multiply by","Ospiti (non assenti)":"Guests (not absent)","N° tavoli":"No. of tables","Quantità fissa":"Fixed quantity","Quantità":"Quantity","IVA":"VAT","Nessuna":"None","IVA esclusa":"VAT excluded","IVA inclusa":"VAT included","Importo inserito":"Amount entered","IVA predefinita":"Default VAT","Previsto (IVA incl.)":"Planned (VAT incl.)","Collega a fornitore":"Link to vendor","Fornitore":"Vendor","— nessuno —":"— none —","Calcolato: apri ⚙ per modificare":"Calculated: open ⚙ to edit","Prezzo unitario e IVA":"Unit price and VAT","es. 180":"e.g. 180","es. 12":"e.g. 12","calcolato":"calculated","Timeline Piano A — Principale":"Timeline Plan A — Main","Completa":"Complete","Nessun matrimonio in archivio":"No weddings in archive"
 };
 const EN_FRAG=[
+[/Tra (\d+) giorni/g,'In $1 days'],[/(\d+) confermati/g,'$1 confirmed'],[/Percorso (\d+)\/(\d+)/g,'Journey $1/$2'],[/^Concluso$/,'Completed'],[/ · Concluso/g,' · Completed'],[/Archivia ✓/g,'Archive ✓'],
 [/\+ (\d+) (?:voci collegate|voce collegata) · totale/g,'+ $1 linked items · total'],
 [/\b(\d+) ospiti confermati\b/g,'$1 confirmed guests'],[/\b(\d+) tavoli\b/g,'$1 tables'],[/\b(\d+) pezzi\b/g,'$1 pieces'],[/IVA (\d+)% inclusa/g,'VAT $1% included'],[/\bIVA (\d+)%/g,'VAT $1%'],[/\bdi cui IVA\b/g,'of which VAT'],
 [/\btra (\d+) giorni\b/g,'in $1 days'],[/\btra 1 giorno\b/g,'in 1 day'],[/\b(\d+) giorni fa\b/g,'$1 days ago'],[/\boggi\b/g,'today'],[/\bdomani\b/g,'tomorrow'],[/\bieri\b/g,'yesterday'],
@@ -2359,27 +2360,42 @@ onAuthStateChanged(auth,async(user)=>{
 });
 
 // ── ADMIN: WEDDINGS ──
+const wEsc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function wDays(d){if(!d)return null;const t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(d+'T00:00:00')-t)/86400000);}
+function wStats(w){
+  const gs=Object.values(w.ospiti||{});
+  const conf=gs.filter(g=>g.rsvp==='Confermato').length;
+  const cl=Object.values(w.checklist||{});
+  const done=cl.filter(c=>c.done).length;
+  return {tot:gs.length,conf,cl:cl.length,done};
+}
+const wSort=(a,b)=>(a[1].data||'9999').localeCompare(b[1].data||'9999');
 function loadAdminWeddings(){
   showView('admin-weddings');
   onValue(ref(db,'matrimoni'),(snap)=>{
     const grid=document.getElementById('weddings-grid');
     grid.innerHTML='';
     if(snap.exists()){
-      for(const [wid,w] of Object.entries(snap.val())){
+      for(const [wid,w] of Object.entries(snap.val()).sort(wSort)){
+        window._weddingCache[wid]=w;
         if(!w.pubblico&&w.nome1){update(ref(db,`matrimoni/${wid}/pubblico`),{nome1:w.nome1,nome2:w.nome2,data:w.data});}
         if(w.archived)continue;
-        const gc=w.ospiti?Object.keys(w.ospiti).length:0;
+        const st=wStats(w),dd=wDays(w.data);
+        const when=dd===null?'':dd>0?`Tra ${dd} giorni`:dd===0?'Oggi!':'Concluso';
         const card=document.createElement('div');
         card.style.cssText='background:white;border:1px solid var(--gray-l);padding:24px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden';
         card.innerHTML=`<div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .3s" class="card-line"></div>
-          <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin-bottom:6px">${w.nome1} & ${w.nome2}</h3>
-          <div style="color:var(--gold);font-size:15px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">${formatDate(w.data)}</div>
-          <div style="font-size:16px;color:var(--gray);margin-bottom:6px">♡ ${gc} ospiti${w.location?' · '+w.location:''}</div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin-bottom:6px">${wEsc(w.nome1)} & ${wEsc(w.nome2)}</h3>
+          <div style="color:var(--gold);font-size:15px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">${formatDate(w.data)}${when?' · '+when:''}</div>
+          ${w.location?`<div style="font-size:16px;color:var(--gray);margin-bottom:8px">${wEsc(w.location)}</div>`:'<div style="margin-bottom:8px"></div>'}
+          <div style="font-size:16px;color:var(--gray);margin-bottom:4px">♡ ${st.tot} ospiti · ${st.conf} confermati</div>
+          ${st.cl?`<div style="font-size:16px;color:var(--gray)">✧ Percorso ${st.done}/${st.cl}</div>`:''}
           <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
             <button class="btn-sm" onclick="event.stopPropagation();loadWeddingById('${wid}')">Gestisci</button>
-            <button class="btn-sm" onclick="event.stopPropagation();archiveWedding('${wid}')" style="color:var(--gray)">Archivia</button>
-            <button class="btn-sm" onclick="event.stopPropagation();deleteWeddingConfirm('${wid}','${w.nome1} & ${w.nome2}')" style="color:var(--red)">Elimina</button>
+            <button class="btn-sm" onclick="event.stopPropagation();archiveWedding('${wid}')" style="color:var(--gray)">${dd!==null&&dd<0?'Archivia ✓':'Archivia'}</button>
+            <button class="btn-sm" onclick="event.stopPropagation();deleteWeddingConfirm('${wid}')" style="color:var(--red)">Elimina</button>
           </div>`;
+        card.onclick=()=>loadWeddingById(wid);
         card.onmouseenter=()=>card.querySelector('.card-line').style.transform='scaleX(1)';
         card.onmouseleave=()=>card.querySelector('.card-line').style.transform='scaleX(0)';
         grid.appendChild(card);
@@ -2397,18 +2413,18 @@ function loadAdminWeddings(){
     archiveGrid.innerHTML='';
     let hasArchive=false;
     if(snap.exists()){
-      for(const [wid,w] of Object.entries(snap.val())){
+      for(const [wid,w] of Object.entries(snap.val()).sort((a,b)=>wSort(b,a))){
         if(!w.archived)continue;
         window._weddingCache[wid]=w;
         hasArchive=true;
-        window._weddingCache[wid]=w;
         const card=document.createElement('div');
         card.className='archive-card';
-        card.innerHTML=`<h3>${w.nome1} & ${w.nome2}</h3>
+        card.innerHTML=`<h3>${wEsc(w.nome1)} & ${wEsc(w.nome2)}</h3>
           <div class="arc-date">${formatDate(w.data)}</div>
           <div style="font-size:16px;color:var(--gray);margin-bottom:12px">♡ ${w.ospiti?Object.keys(w.ospiti).length:0} ospiti</div>
           <button class="btn-sm" onclick="loadWeddingById('${wid}')">Apri</button>
-          <button class="btn-sm" style="color:var(--green);margin-left:8px" onclick="unarchiveWedding('${wid}')">Ripristina</button>`;
+          <button class="btn-sm" style="color:var(--green);margin-left:8px" onclick="unarchiveWedding('${wid}')">Ripristina</button>
+          <button class="btn-sm" style="color:var(--red);margin-left:8px" onclick="deleteWeddingConfirm('${wid}')">Elimina</button>`;
         archiveGrid.appendChild(card);
       }
     }
@@ -2428,8 +2444,11 @@ window.archiveWedding=async function(wid){
   if(confirm('Archiviare questo matrimonio?')){await update(ref(db,`matrimoni/${wid}`),{archived:true});}
 };
 window.unarchiveWedding=async function(wid){await update(ref(db,`matrimoni/${wid}`),{archived:false});};
-window.deleteWeddingConfirm=async function(wid,name){
-  if(confirm(`Eliminare definitivamente ${name}? Questa azione non può essere annullata.`)){await remove(ref(db,`matrimoni/${wid}`));}
+window.deleteWeddingConfirm=async function(wid){
+  const w=window._weddingCache[wid]||{};
+  const name=`${w.nome1||''} & ${w.nome2||''}`;
+  const t=prompt(`Eliminare definitivamente ${name}? Tutti i dati (ospiti, budget, fornitori, timeline) andranno persi e non si può annullare.\n\nPer confermare scrivi ELIMINA`);
+  if(t&&t.trim().toUpperCase()==='ELIMINA'){await remove(ref(db,`matrimoni/${wid}`));}
 };
 
 // ── LOAD WEDDING ──
@@ -4219,17 +4238,18 @@ window.createWedding=async function(){
   if(!n1||!n2||!date||!email||!pwd){errEl.textContent='Compila tutti i campi obbligatori';return;}
   if(pwd.length<6){errEl.textContent='Password minimo 6 caratteri';return;}
   try{
-    const uc=await createUserWithEmailAndPassword(auth,email,pwd);
+    // App secondaria: l'account sposi si crea senza disconnettere l'admin
+    const auth2=getAuth(initializeApp(FC,'creator'));
+    const uc=await createUserWithEmailAndPassword(auth2,email,pwd);
+    try{await signOut(auth2);}catch(_){}
     const wRef=push(ref(db,'matrimoni'));
     await set(wRef,{nome1:n1,nome2:n2,data:date,uid:uc.user.uid,email,location:loc,archived:false,pubblico:{nome1:n1,nome2:n2,data:date}});
     closeModal('modal-wedding');
-    alert(`Matrimonio creato!
-
-Credenziali sposi:
-Email: ${email}
-Password: ${pwd}
-
-⚠️ Firebase ti ha spostato sull account sposi. Clicca ESCI e rientra con il tuo account admin.`);
+    ['m-n1','m-n2','m-date','m-email','m-pwd','m-location'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    errEl.textContent='';
+    const cred=`Email: ${email}\nPassword: ${pwd}`;
+    try{await navigator.clipboard.writeText(cred);}catch(_){}
+    alert(`Matrimonio creato!\n\nCredenziali sposi (copiate negli appunti):\n${cred}`);
   }catch(e){
     errEl.textContent=e.code==='auth/email-already-in-use'?'Email già in uso':'Errore: '+e.message;
   }
