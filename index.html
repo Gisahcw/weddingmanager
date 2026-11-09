@@ -159,6 +159,7 @@ input,select,textarea,button{font-variant-numeric:lining-nums;font-feature-setti
 .dash-card.collapsed .toggle-card .plus{transform:rotate(0)}
 .dash-card:not(.collapsed) .toggle-card .plus{transform:rotate(45deg)}
 @media(max-width:700px){.dash-two-col{grid-template-columns:1fr}}
+.b-kid td:first-child{padding-left:34px}.b-kid td:first-child::before{content:'↳';color:var(--gold);margin-right:6px;float:left;margin-left:-20px}
 .pp-hint{font-size:16px;color:var(--gold);min-height:20px;align-self:center}
 .b-sub{font-size:14px;color:var(--gray);margin-top:3px;font-variant-numeric:lining-nums}
 .b-edit td{background:var(--cream-d);padding:12px 16px!important}
@@ -1094,6 +1095,7 @@ tr.b-vendor{cursor:pointer}
           </div>
           <div class="form-grid">
             <div class="ig"><label>Categoria</label><select id="b-cat"></select></div>
+            <div class="ig"><label>Collega a fornitore</label><select id="b-vendor" onchange="bVendorPick()"><option value="">— nessuno —</option></select></div>
             <div class="ig span2"><label data-t="expense_item">Voce di spesa</label><input type="text" id="b-desc" placeholder="es. Bomboniere, Confetti..."></div>
             <div class="ig"><label>Previsto (€)</label><input type="number" id="b-prev" placeholder="0"></div>
             <div class="ig"><label>Effettivo (€)</label><input type="number" id="b-real" placeholder="0"></div>
@@ -1107,7 +1109,7 @@ tr.b-vendor{cursor:pointer}
             <div class="ig" style="align-self:end"><button class="btn-add" onclick="addBudgetItem()" data-t="add_btn">+ Aggiungi</button></div>
           </div>
         </div>
-        <p style="color:var(--gray);font-size:16px;margin:0 0 14px">Le voci con l'etichetta <span class="b-link" style="margin:0 4px">Fornitori</span> arrivano in automatico dalla pagina Fornitori (importo e acconti). Qui aggiungi solo le spese senza fornitore. Gli importi mostrati sono IVA inclusa.</p>
+        <p style="color:var(--gray);font-size:16px;margin:0 0 14px">Le voci con l'etichetta <span class="b-link" style="margin:0 4px">Fornitori</span> arrivano in automatico dalla pagina Fornitori (importo e acconti). Qui aggiungi le altre spese, oppure collegale a un fornitore (menu, open bar…) con ⚙. Gli importi mostrati sono IVA inclusa.</p>
         <div id="budget-alerts"></div>
         <div class="tw"><table>
           <thead><tr><th>Voce</th><th class="num" data-t="planned">Previsto</th><th class="num">Pagato</th><th class="num">Da pagare</th><th data-t="due_date">Scadenza</th><th></th></tr></thead>
@@ -1654,9 +1656,10 @@ const EN_MAP={
 "Definire concept e budget con gli sposi":"Define concept and budget with the couple","Scegliere e bloccare la location":"Choose and secure the venue","Definire data, rito e ufficiante":"Set date, ceremony and officiant","Prima lista ospiti":"First guest list","Save the date":"Save the date","Confermare fotografo e videomaker":"Confirm photographer and videographer","Scegliere catering e menu":"Choose catering and menu","Scegliere l'abito della sposa":"Choose the bridal gown","Confermare fiorista e allestimenti":"Confirm florist and decor","Confermare musica (band / DJ)":"Confirm music (band / DJ)","Definire stationery e grafica coordinata":"Define stationery and coordinated graphics","Scegliere l'abito dello sposo":"Choose the groom's outfit","Confermare hair & make-up":"Confirm hair & make-up","Organizzare transfer e alloggi ospiti":"Arrange guest transfers and accommodation","Inviare le partecipazioni":"Send the invitations","Documenti per il rito (civile / religioso)":"Documents for the ceremony (civil / religious)","Scegliere le fedi":"Choose the wedding rings","Prova menu con il catering":"Menu tasting with the caterer","Sopralluogo tecnico in location":"Technical site visit at the venue","Prova trucco e capelli":"Hair and make-up trial","Chiudere gli RSVP":"Close RSVPs","Prova finale abito e ritocchi":"Final dress fitting and alterations","Piantina tavoli e tableau":"Seating chart and tableau","Timeline definitiva (Piano A e B) condivisa con i fornitori":"Final timeline (Plan A and B) shared with vendors","Saldare i fornitori":"Pay vendors in full","Comunicare i numeri definitivi al catering":"Send final numbers to the caterer","Briefing finale con tutti i fornitori":"Final briefing with all vendors","Consegnare stationery e materiali in location":"Deliver stationery and materials to the venue","Preparare valigia e documenti viaggio di nozze":"Pack and prepare honeymoon documents","Preparare buste e mance":"Prepare envelopes and tips","Controllare meteo e piano B":"Check the weather and Plan B","Prova generale della cerimonia":"Ceremony rehearsal","Ringraziare i fornitori":"Thank the vendors","Saldo finale e chiusura budget":"Final balance and budget close",
 "Nota privata (admin)":"Private note (admin)","★ Nota privata (admin)":"★ Private note (admin)","CSV":"CSV","Backup Excel":"Excel backup","Allergeni / Note":"Allergens / Notes","Auto-assegna non assegnati":"Auto-assign unassigned","Previsto (€)":"Planned (€)","Effettivo (€)":"Actual (€)","Scadenza pagamento":"Payment due date","Voce":"Item","Pagato":"Paid","Da pagare":"To pay","Nessuna voce aggiunta":"No items added","Nome Fornitore":"Vendor name","Importo (€)":"Amount (€)","Acconto pagato (€)":"Deposit paid (€)","Scadenza saldo":"Balance due date","Cat.":"Cat.","Nessun fornitore aggiunto":"No vendors added","I Matrimoni":"Weddings",
 "Lattosio":"Lactose","Frutta secca":"Tree nuts","Crostacei":"Shellfish","Soia":"Soy","Sesamo":"Sesame","Timeline del giorno":"Day timeline","TIMELINE DEL GIORNO":"DAY TIMELINE","Timeline Piano B — Alternativo":"Timeline Plan B — Alternative",
-"Prezzo unitario (€)":"Unit price (€)","Moltiplica per":"Multiply by","Ospiti (non assenti)":"Guests (not absent)","N° tavoli":"No. of tables","Quantità fissa":"Fixed quantity","Quantità":"Quantity","IVA":"VAT","Nessuna":"None","IVA esclusa":"VAT excluded","IVA inclusa":"VAT included","Importo inserito":"Amount entered","IVA predefinita":"Default VAT","Previsto (IVA incl.)":"Planned (VAT incl.)","Calcolato: apri ⚙ per modificare":"Calculated: open ⚙ to edit","Prezzo unitario e IVA":"Unit price and VAT","es. 180":"e.g. 180","es. 12":"e.g. 12","calcolato":"calculated","Timeline Piano A — Principale":"Timeline Plan A — Main","Completa":"Complete","Nessun matrimonio in archivio":"No weddings in archive"
+"Prezzo unitario (€)":"Unit price (€)","Moltiplica per":"Multiply by","Ospiti (non assenti)":"Guests (not absent)","N° tavoli":"No. of tables","Quantità fissa":"Fixed quantity","Quantità":"Quantity","IVA":"VAT","Nessuna":"None","IVA esclusa":"VAT excluded","IVA inclusa":"VAT included","Importo inserito":"Amount entered","IVA predefinita":"Default VAT","Previsto (IVA incl.)":"Planned (VAT incl.)","Collega a fornitore":"Link to vendor","Fornitore":"Vendor","— nessuno —":"— none —","Calcolato: apri ⚙ per modificare":"Calculated: open ⚙ to edit","Prezzo unitario e IVA":"Unit price and VAT","es. 180":"e.g. 180","es. 12":"e.g. 12","calcolato":"calculated","Timeline Piano A — Principale":"Timeline Plan A — Main","Completa":"Complete","Nessun matrimonio in archivio":"No weddings in archive"
 };
 const EN_FRAG=[
+[/\+ (\d+) (?:voci collegate|voce collegata) · totale/g,'+ $1 linked items · total'],
 [/\b(\d+) ospiti confermati\b/g,'$1 confirmed guests'],[/\b(\d+) tavoli\b/g,'$1 tables'],[/\b(\d+) pezzi\b/g,'$1 pieces'],[/IVA (\d+)% inclusa/g,'VAT $1% included'],[/\bIVA (\d+)%/g,'VAT $1%'],[/\bdi cui IVA\b/g,'of which VAT'],
 [/\btra (\d+) giorni\b/g,'in $1 days'],[/\btra 1 giorno\b/g,'in 1 day'],[/\b(\d+) giorni fa\b/g,'$1 days ago'],[/\boggi\b/g,'today'],[/\bdomani\b/g,'tomorrow'],[/\bieri\b/g,'yesterday'],
 [/\b(\d+) scadute\b/g,'$1 overdue'],[/\bscaduto\b/g,'overdue'],[/\b(\d+) in attesa\b/g,'$1 pending'],[/\b(\d+) assenti\b/g,'$1 absent'],[/\b(\d+) confermati\b/g,'$1 confirmed'],
@@ -3386,10 +3389,15 @@ window.addBudgetItem=async function(){
   const desc=document.getElementById('b-desc').value.trim();
   if(!desc){alert('Inserisci una voce');return;}
   const item={desc,cat:document.getElementById('b-cat').value,prev:parseFloat(document.getElementById('b-prev').value)||0,real:parseFloat(document.getElementById('b-real').value)||0,scadenza:document.getElementById('b-scad').value,...ppFields('b')};
+  const vsel=document.getElementById('b-vendor').value;
+  if(vsel&&vendors[vsel]){item.vid=vsel;item.cat=vendors[vsel].cat||item.cat;}
   await push(ref(db,`matrimoni/${CW_ID}/budget/voci`),item);
   ['b-desc','b-prev','b-real','b-scad'].forEach(id=>document.getElementById(id).value='');
   ppResetDefaults('b');
 };
+window.bVendorPick=function(){const v=vendors[document.getElementById('b-vendor').value];if(v&&v.cat){const c=document.getElementById('b-cat');if([...c.options].some(o=>o.value===v.cat))c.value=v.cat;}};
+window.linkBudgetItem=async function(id,vid){await set(ref(db,`matrimoni/${CW_ID}/budget/voci/${id}/vid`),vid||null);};
+function vendorOptions(sel){return '<option value="">— nessuno —</option>'+Object.entries(vendors).sort((a,b)=>(a[1].nome||'').localeCompare(b[1].nome||'')).map(([id,v])=>`<option value="${id}" ${id===sel?'selected':''}>${v.nome}</option>`).join('');}
 window.deleteBudgetItem=async function(id){if(confirm('Eliminare?'))await remove(ref(db,`matrimoni/${CW_ID}/budget/voci/${id}`));};
 window.updateBudgetItem=async function(id,f,v){await set(ref(db,`matrimoni/${CW_ID}/budget/voci/${id}/${f}`),isNaN(v)?v:parseFloat(v)||0);};
 window.saveBudgetMax=async function(){await set(ref(db,`matrimoni/${CW_ID}/budget/max`),parseFloat(document.getElementById('budget-max').value)||0);};
@@ -3407,15 +3415,16 @@ function vendorPaid(v){
 // Totali di budget: fornitori (automatico) + voci manuali
 function budgetTotals(){
   const cats={};
-  const get=c=>cats[c]||(cats[c]={vendors:[],voci:[],prev:0,paid:0,vat:0});
+  const get=c=>cats[c]||(cats[c]={vendors:[],voci:[],kids:{},prev:0,paid:0,vat:0});
   Object.entries(vendors).forEach(([id,v])=>{
     const c=get(v.cat||BUDGET_OTHER);
     const paid=vendorPaid(v);
     c.vendors.push([id,v,paid]);c.prev+=vendorAmount(v);c.vat+=vatOf(v,'importo');c.paid+=paid;
   });
   Object.entries(budget).forEach(([id,b])=>{
-    const c=get(b.cat||BUDGET_OTHER);
-    c.voci.push([id,b]);c.prev+=voceAmount(b);c.vat+=vatOf(b,'prev');c.paid+=b.real||0;
+    const lv=b.vid&&vendors[b.vid]?vendors[b.vid]:null;
+    const c=get(lv?(lv.cat||BUDGET_OTHER):(b.cat||BUDGET_OTHER));
+    if(lv)(c.kids[b.vid]=c.kids[b.vid]||[]).push([id,b]);else c.voci.push([id,b]);c.prev+=voceAmount(b);c.vat+=vatOf(b,'prev');c.paid+=b.real||0;
   });
   let prev=0,paid=0,vat=0;
   Object.values(cats).forEach(c=>{prev+=c.prev;paid+=c.paid;vat+=c.vat;});
@@ -3428,6 +3437,7 @@ function renderBudget(){
   if(sel&&!sel.options.length){
     sel.innerHTML=[...budgetCats().filter(c=>c!==BUDGET_OTHER),BUDGET_OTHER].map(c=>`<option>${c}</option>`).join('');
   }
+  const bvs=document.getElementById('b-vendor');if(bvs){const cur=bvs.value;bvs.innerHTML=vendorOptions(cur);}
   ['b','f'].forEach(p=>{if(!_ppTouched[p]){const e=document.getElementById(p+'-iva');if(e&&e.value!==String(budgetIvaDefault))e.value=String(budgetIvaDefault);}});
   const T=budgetTotals();
   const today=new Date();
@@ -3446,28 +3456,13 @@ function renderBudget(){
     trh.className='b-cat';
     trh.innerHTML=`<td><span class="cat-n">${cat}</span></td><td class="num">${eur(c.prev)}</td><td class="num">${eur(c.paid)}</td><td class="num">${eur(c.prev-c.paid)}</td><td colspan="2"></td>`;
     tbody.appendChild(trh);
-    c.vendors.forEach(([id,v,paid])=>{
-      const tr=document.createElement('tr');
-      tr.className='b-vendor';
-      tr.title='Apri la scheda del fornitore';
-      tr.addEventListener('click',()=>openVendorEdit(id));
-      const due=v.scadenza&&v.stato!=='Saldato'&&new Date(v.scadenza)-today<=15*86400000;
-      const amt=vendorAmount(v);const sm=ppSummary(v,'importo');
-      tr.innerHTML=`
-        <td>${v.nome}<span class="b-link">Fornitori</span>${sm?`<div class="b-sub">${sm}</div>`:''}</td>
-        <td class="num">${eur(amt)}</td>
-        <td class="num">${eur(paid)}</td>
-        <td class="num ${amt-paid>0?'':'diff-pos'}">${eur(amt-paid)}</td>
-        <td style="font-size:16px;color:${due?'var(--red)':'inherit'}">${v.scadenza||'—'}</td><td></td>`;
-      tbody.appendChild(tr);
-    });
-    c.voci.forEach(([id,b])=>{
+    const addVoce=(id,b,kid)=>{
       const amt=voceAmount(b);
       const diff=amt-(b.real||0);
       if(b.scadenza&&!b.paid){const d=new Date(b.scadenza);if((d-today)<=15*86400000&&d>=today)alerts.push(b);}
       const sm=ppSummary(b,'prev');
       const locked=isPP(b)||(parseFloat(b.iva)||0)>0;
-      const tr=document.createElement('tr');
+      const tr=document.createElement('tr');if(kid)tr.className='b-kid';
       tr.innerHTML=`
         <td><div contenteditable="true" onblur="updateBudgetItem('${id}','desc',this.textContent.trim())">${b.desc}</div>${sm?`<div class="b-sub">${sm}</div>`:''}</td>
         ${locked
@@ -3482,6 +3477,7 @@ function renderBudget(){
         const sel=(val,opts)=>opts.map(([v,l])=>`<option value="${v}" ${String(val)===String(v)?'selected':''}>${l}</option>`).join('');
         const er=document.createElement('tr');er.className='b-edit';
         er.innerHTML=`<td colspan="6"><div class="b-edit-grid">
+          <label>Fornitore<select onchange="linkBudgetItem('${id}',this.value)">${vendorOptions(b.vid)}</select></label>
           <label>Importo (€)<input type="number" value="${b.prev||''}" ${isPP(b)?'disabled':''} onchange="updateBudgetItem('${id}','prev',this.value)"></label>
           <label>Prezzo unitario (€)<input type="number" value="${b.pp||''}" placeholder="es. 180" onchange="updateBudgetItem('${id}','pp',this.value)"></label>
           <label>Moltiplica per<select onchange="updateBudgetItem('${id}','ppBase',this.value)">${sel(b.ppBase||'present',[['present','Ospiti (non assenti)'],['conf','Ospiti confermati'],['tables','N° tavoli'],['fixed','Quantità fissa']])}</select></label>
@@ -3491,7 +3487,24 @@ function renderBudget(){
         </div></td>`;
         tbody.appendChild(er);
       }
+    };
+    c.vendors.forEach(([id,v,paid])=>{
+      const tr=document.createElement('tr');
+      tr.className='b-vendor';
+      tr.title='Apri la scheda del fornitore';
+      tr.addEventListener('click',()=>openVendorEdit(id));
+      const due=v.scadenza&&v.stato!=='Saldato'&&new Date(v.scadenza)-today<=15*86400000;
+      const amt=vendorAmount(v);const sm=ppSummary(v,'importo');
+      tr.innerHTML=`
+        <td>${v.nome}<span class="b-link">Fornitori</span>${sm?`<div class="b-sub">${sm}</div>`:''}${(c.kids[id]||[]).length?`<div class="b-sub">+ ${(c.kids[id]).length} ${(c.kids[id]).length==1?'voce collegata':'voci collegate'} · totale ${eur(amt+c.kids[id].reduce((t,[,k])=>t+voceAmount(k),0))}</div>`:''}</td>
+        <td class="num">${eur(amt)}</td>
+        <td class="num">${eur(paid)}</td>
+        <td class="num ${amt-paid>0?'':'diff-pos'}">${eur(amt-paid)}</td>
+        <td style="font-size:16px;color:${due?'var(--red)':'inherit'}">${v.scadenza||'—'}</td><td></td>`;
+      tbody.appendChild(tr);
+      (c.kids[id]||[]).forEach(([kid,kb])=>addVoce(kid,kb,true));
     });
+    c.voci.forEach(([id,b])=>addVoce(id,b,false));
   });
   document.getElementById('empty-budget').style.display=rows===0?'block':'none';
   const pct=T.max>0?Math.round(T.paid/T.max*100):0;
