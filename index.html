@@ -1941,6 +1941,26 @@ window.submitRsvp=async function(){
 
 // ── CUCINA MODE ──
 // ── MODALITÀ CHECK-IN STAFF ──
+const ciEsc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const ciList=gs=>Object.entries(gs).filter(([,g])=>g.rsvp!=='Assente');
+function ciCard(gid,g,onclick){
+  const presente=!!g.checkin?.presente;
+  const ora=g.checkin?.ora||'';
+  const tLabel=g.tavolo?tableLabel(g.tavolo,'it'):'Senza tavolo';
+  const allerg=[g.allergeni,g.intolleranze].filter(Boolean).join(' · ');
+  const card=document.createElement('div');
+  card.className='ci-card'+(presente?' checked':'');
+  card.innerHTML=`
+    <div class="ci-circle">${presente?'✓':''}</div>
+    <div class="ci-info">
+      <div class="ci-name">${ciEsc(g.cognome)} ${ciEsc(g.nome)}</div>
+      <div class="ci-meta"><span>⊞ ${ciEsc(tLabel)}</span>${g.posto?`<span>· posto ${ciEsc(g.posto)}</span>`:''}<span class="badge ${menuBadge(g.menu)}" style="font-size:12px;padding:1px 6px">${ciEsc(g.menu||'Normale')}</span>${g.rsvp==='In attesa'?'<span style="color:var(--gold)">· non ha confermato</span>':''}</div>
+      ${allerg?`<div class="ci-meta" style="color:var(--red);margin-top:2px">⚠ ${ciEsc(allerg)}</div>`:''}
+      ${ora?`<div class="ci-ora">✓ Arrivato alle ${ciEsc(ora)}</div>`:''}
+    </div>`;
+  if(onclick)card.onclick=()=>{if(presente&&!confirm('Annullare l\'arrivo di '+(g.nome||'')+' '+(g.cognome||'')+'?'))return;onclick(gid);};
+  return card;
+}
 let ciStaffGuests={};
 let ciStaffTab='waiting';
 async function loadCheckinPage(wid,key){
@@ -1948,10 +1968,11 @@ async function loadCheckinPage(wid,key){
   if(!snap.exists()){document.getElementById('ci-grid-staff').innerHTML='<p style="color:red;padding:20px">Matrimonio non trovato.</p>';return;}
   const w=snap.val();
   // Verifica chiave
-  if(key&&w.checkinKey&&w.checkinKey!==key){
+  if(w.checkinKey&&w.checkinKey!==key){
     document.getElementById('ci-grid-staff').innerHTML='<p style="color:red;padding:20px">Accesso non autorizzato.</p>';
     return;
   }
+  window.customTableNames=w.tavoliNomi||{};
   document.getElementById('ci-couple-title').textContent=`${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)}`;
   // Ascolta ospiti in tempo reale
   onValue(ref(db,`matrimoni/${wid}/ospiti`),(s)=>{
@@ -1977,8 +1998,7 @@ window.toggleCheckinStaff=async function(gid){
   await update(ref(db,`matrimoni/${WID_PARAM}/ospiti`),upd);
 };
 window.renderCheckinStaff=function(){
-  const all=Object.entries(ciStaffGuests);
-  const confirmed=all.filter(([,g])=>g.rsvp==='Confermato'||!g.rsvp);
+  const confirmed=ciList(ciStaffGuests);
   const total=confirmed.length;
   const arrived=confirmed.filter(([,g])=>g.checkin?.presente).length;
   const pct=total>0?Math.round(arrived/total*100):0;
@@ -2003,22 +2023,7 @@ window.renderCheckinStaff=function(){
   grid.innerHTML='';
   empty.style.display=filtered.length===0?'block':'none';
   grid.style.display=filtered.length===0?'none':'grid';
-  filtered.forEach(([gid,g])=>{
-    const presente=!!g.checkin?.presente;
-    const ora=g.checkin?.ora||'';
-    const tLabel=g.tavolo?(isNaN(g.tavolo)?g.tavolo:'Tavolo '+g.tavolo):'Senza tavolo';
-    const card=document.createElement('div');
-    card.className='ci-card'+(presente?' checked':'');
-    card.innerHTML=`
-      <div class="ci-circle">${presente?'✓':''}</div>
-      <div class="ci-info">
-        <div class="ci-name">${g.cognome||''} ${g.nome||''}</div>
-        <div class="ci-meta"><span>⊞ ${tLabel}</span>${g.posto?`<span>· posto ${g.posto}</span>`:''}</div>
-        ${ora?`<div class="ci-ora">✓ Arrivato alle ${ora}</div>`:''}
-      </div>`;
-    card.onclick=()=>toggleCheckinStaff(gid);
-    grid.appendChild(card);
-  });
+  filtered.forEach(([gid,g])=>grid.appendChild(ciCard(gid,g,toggleCheckinStaff)));
 };
 
 async function loadKitchenPage(wid){
@@ -2734,8 +2739,7 @@ window.toggleCheckin=async function(gid){
   await update(ref(db,`matrimoni/${CW_ID}/ospiti`),upd);
 };
 window.renderCheckin=function(){
-  const all=Object.entries(guests);
-  const confirmed=all.filter(([,g])=>g.rsvp==='Confermato'||!g.rsvp);
+  const confirmed=ciList(guests);
   const total=confirmed.length;
   const arrivedList=confirmed.filter(([,g])=>g.checkin?.presente);
   const arrived=arrivedList.length;
@@ -2764,26 +2768,7 @@ window.renderCheckin=function(){
   grid.innerHTML='';
   empty.style.display=filtered.length===0?'block':'none';
   grid.style.display=filtered.length===0?'none':'grid';
-  filtered.forEach(([gid,g])=>{
-    const presente=!!g.checkin?.presente;
-    const ora=g.checkin?.ora||'';
-    const tLabel=g.tavolo?(g.tavolo==='sposi'||isCustomTable(g.tavolo))?tableLabel(g.tavolo,'it'):'Tavolo '+g.tavolo:'Senza tavolo';
-    const card=document.createElement('div');
-    card.className='ci-card'+(presente?' checked':'');
-    card.innerHTML=`
-      <div class="ci-circle">${presente?'✓':''}</div>
-      <div class="ci-info">
-        <div class="ci-name">${g.cognome||''} ${g.nome||''}</div>
-        <div class="ci-meta">
-          <span>⊞ ${tLabel}</span>
-          ${g.posto?`<span>· posto ${g.posto}</span>`:''}
-          <span class="badge ${menuBadge(g.menu)}" style="font-size:12px;padding:1px 6px">${g.menu||'Normale'}</span>
-        </div>
-        ${ora?`<div class="ci-ora">✓ Arrivato alle ${ora}</div>`:''}
-      </div>`;
-    if(canCheckin())card.onclick=()=>toggleCheckin(gid);
-    grid.appendChild(card);
-  });
+  filtered.forEach(([gid,g])=>grid.appendChild(ciCard(gid,g,canCheckin()?toggleCheckin:null)));
 };
 // Sincronizza i nomi dei tavoli custom nel nodo pubblico (leggibile dalla cucina)
 async function syncPublicTableNames(){
