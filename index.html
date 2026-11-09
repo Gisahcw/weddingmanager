@@ -333,6 +333,17 @@ tr.rsvp-unmatched{background:rgba(230,150,60,.06)}
 .pt-btn{background:none;border:1px solid var(--gray-l);color:var(--gray);padding:6px 16px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:15px;letter-spacing:1px;text-transform:uppercase;transition:all .2s}
 .pt-btn:hover{border-color:var(--gold);color:var(--gold)}
 .pt-btn.active{background:var(--gold);border-color:var(--gold);color:#fff}
+#sala-stage{border:1px solid var(--gray-l);border-radius:6px;background:#fff;overflow:hidden}
+#sala-svg{display:block;width:100%;height:auto;max-height:min(62vh,560px);touch-action:none;user-select:none}
+#sala-stage.big #sala-svg{max-height:none}
+.sala-bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:15px;color:var(--gray)}
+.sala-bar label{display:flex;gap:6px;align-items:center;letter-spacing:.5px}
+.sala-bar input,.sala-bar select,#sala-panel input,#sala-panel select{padding:5px 8px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:15px;width:72px;background:#fff}
+.sala-bar select{width:auto}
+#sala-panel{margin-top:12px;display:none;flex-wrap:wrap;gap:12px;align-items:center;padding:12px 14px;background:var(--cream-d);border-radius:6px;font-size:15px;color:var(--gray)}
+#sala-panel b{color:var(--black);font-size:17px;font-weight:600}
+#sala-panel label{display:flex;gap:6px;align-items:center}
+#sala-warn{font-size:15px;color:var(--red);margin-top:8px}
 .piantina-marker{position:absolute;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid var(--gold);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);user-select:none;touch-action:none;white-space:nowrap}
 .piantina-marker[data-draggable]{cursor:grab}
 .piantina-marker[data-draggable]:active{cursor:grabbing}
@@ -1034,7 +1045,7 @@ tr.b-vendor{cursor:pointer}
         </div>
         <div class="seat-toolbar">
           <button class="btn-sm admin-only" onclick="autoAssign()">Auto-assegna non assegnati</button>
-          <button class="btn-sm" onclick="exportSeatingChartPDF()" data-t="seating_chart_pdf">Piantina PDF</button>
+          <button class="btn-sm" onclick="exportSeatingChartPDF()">PDF tavoli (posti)</button>
           <label class="seat-hide"><input type="checkbox" id="seat-hide-empty" onchange="renderSeating()"> Nascondi tavoli vuoti</label>
         </div>
         <div class="unassigned-pool" id="unassigned-pool">
@@ -1046,15 +1057,16 @@ tr.b-vendor{cursor:pointer}
         <!-- PIANTINA LOCATION -->
         <div class="piantina-section" style="margin-top:32px;border-top:1px solid var(--gray-l);padding-top:24px">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px">
-            <h4 data-t="floorplan" style="margin:0;font-family:'Playfair Display',serif;font-size:20px;font-weight:400">Piantina della Location</h4>
+            <h4 style="margin:0;font-family:'Playfair Display',serif;font-size:20px;font-weight:400">Planimetria della sala</h4>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
               <span class="admin-only" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                 <input type="file" id="piantina-file" accept="image/*,application/pdf" style="display:none" onchange="uploadPiantinaFile(this)">
-                <button class="btn-sm" id="piantina-upload-btn" onclick="document.getElementById('piantina-file').click()" style="background:var(--gold);color:#fff;border-color:var(--gold)">⇪ Carica file (immagine o PDF)</button>
-                <input id="piantina-url" placeholder="oppure incolla un link" style="width:180px;padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:15px">
+                <button class="btn-sm" id="piantina-upload-btn" onclick="document.getElementById('piantina-file').click()" style="background:var(--gold);color:#fff;border-color:var(--gold)">⇪ Carica sfondo (immagine o PDF)</button>
+                <input id="piantina-url" placeholder="sfondo: incolla un link" style="width:180px;padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:15px">
                 <button class="btn-sm" onclick="savePiantinaUrl()" data-t="load_floorplan">Carica</button>
-                <button class="btn-sm" onclick="removePiantina()" data-t="remove_floorplan">Rimuovi</button>
+                <button class="btn-sm" onclick="removePiantina()">Rimuovi sfondo</button>
               </span>
+              <button class="btn-sm" id="piantina-zoom-btn" onclick="togglePiantinaSize()">⤢ Ingrandisci</button>
               <button class="btn-sm" id="piantina-3d-btn" onclick="open3D()">◈ Vista 3D</button>
               <button class="btn-sm" id="piantina-export-btn" onclick="exportPiantinaPDF()" data-t="export_floorplan">⤓ PDF</button>
             </div>
@@ -1063,25 +1075,17 @@ tr.b-vendor{cursor:pointer}
             <button class="pt-btn active" id="pt-principale" onclick="switchPiantinaScenario('principale')" data-t="scenario_main">Principale</button>
             <button class="pt-btn" id="pt-planB" onclick="switchPiantinaScenario('planB')" data-t="scenario_b">Piano B</button>
           </div>
-          <div class="admin-only" id="piantina-hint" style="font-size:16px;color:var(--gray);margin-bottom:8px">
-            Trascina i tavoli sulla piantina per posizionarli come nella sala reale.
-          </div>
-          <div class="admin-only" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-            <label style="font-size:15px;color:var(--gray);letter-spacing:1px;text-transform:uppercase">Elementi sala</label>
-            <input id="new-elemento" placeholder="es. Ingresso, Buffet, Palco..." style="padding:6px 10px;border:1px solid var(--gray-l);border-radius:4px;font-family:inherit;font-size:15px;width:180px" onkeydown="if(event.key==='Enter')addElementoSala()">
+          <div class="admin-only sala-bar">
+            <label>Sala (m) <input id="sala-w" type="number" step="0.5" min="3" max="200" onchange="salaSetCfg()"> × <input id="sala-h" type="number" step="0.5" min="3" max="200" onchange="salaSetCfg()"></label>
+            <label>Tavoli tondi Ø <input id="sala-d" type="number" step="0.1" min="0.8" max="4" onchange="salaSetCfg()"> m</label>
+            <label>Griglia <select id="sala-snap" onchange="salaSetSnap()"><option value="0">libera</option><option value="0.1">10 cm</option><option value="0.25" selected>25 cm</option><option value="0.5">50 cm</option></select></label>
+            <label>Elemento <input id="new-elemento" placeholder="es. Palco, Pista, Buffet…" style="width:170px" onkeydown="if(event.key==='Enter')addElementoSala()"></label>
             <button class="btn-sm" onclick="addElementoSala()">+ Aggiungi</button>
-            <div id="elementi-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
           </div>
-          <div id="piantina-wrap" style="position:relative;display:inline-block;max-width:100%;min-width:300px;min-height:220px;border:1px solid var(--gray-l);border-radius:6px;overflow:hidden;background:var(--cream-d)">
-            <img id="piantina-img" alt="Piantina location" style="display:block;max-width:100%;height:auto;min-height:220px">
-            <div id="piantina-error" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:16px;color:var(--gray);background:var(--cream-d)">
-              Immagine non caricata.<br>Verifica che il link punti direttamente al file (non alla pagina di anteprima) e che sia condiviso pubblicamente.
-            </div>
-            <div id="piantina-markers" style="position:absolute;inset:0"></div>
-          </div>
-          <div id="piantina-empty" style="padding:30px;text-align:center;color:var(--gray);font-size:16px;background:var(--cream-d);border-radius:6px">
-            Nessuna piantina caricata.
-          </div>
+          <div class="admin-only" id="piantina-hint" style="font-size:15px;color:var(--gray);margin-bottom:8px">Trascina tavoli ed elementi per posizionarli (misure in metri). Clicca un elemento per cambiare forma, misure e rotazione.</div>
+          <div id="sala-stage"><svg id="sala-svg" xmlns="http://www.w3.org/2000/svg"><g id="sala-g"></g></svg></div>
+          <div id="sala-warn"></div>
+          <div id="sala-panel" class="admin-only"></div>
         </div>
       </div>
 
@@ -1631,7 +1635,7 @@ const EN_MAP={
 "Nascondi tavoli vuoti":"Hide empty tables","Neonato":"Infant","Nessun evento":"No events","Nessun ospite in questa categoria":"No guests in this category","Nessuna piantina caricata.":"No floor plan uploaded.",
 "Nessuna risposta dal link RSVP ancora":"No replies from the RSVP link yet","No":"No","Nome *":"First name *","Nome del colore (facoltativo)":"Colour name (optional)","Normale":"Standard","Note":"Notes","Note operative":"Operational notes",
 "OSPITI PRESENTI":"GUESTS PRESENT","Oggi!":"Today!","Orario":"Time","Ospiti":"Guests","Ospiti confermati":"Confirmed guests","PANORAMICA":"OVERVIEW","PDF":"PDF","Pagato finora":"Paid so far","Palette colori":"Colour palettes",
-"Partecipazione":"Invitation","Per":"For","Pesce":"Fish","Piano A — Principale":"Plan A — Main","Piano B — Alternativo":"Plan B — Alternative","Piantina tavoli":"Seating chart","Planimetria & tavoli":"Floor plan & tables","⇪ Carica file (immagine o PDF)":"⇪ Upload file (image or PDF)","◈ Vista 3D":"◈ 3D view","oppure incolla un link":"or paste a link","Trascina per ruotare · scorri per ingrandire · due dita per spostare":"Drag to rotate · scroll to zoom · two fingers to pan",
+"Partecipazione":"Invitation","Per":"For","Pesce":"Fish","Piano A — Principale":"Plan A — Main","Piano B — Alternativo":"Plan B — Alternative","Piantina tavoli":"Seating chart","Planimetria & tavoli":"Floor plan & tables","⇪ Carica sfondo (immagine o PDF)":"⇪ Upload background (image or PDF)","Rimuovi sfondo":"Remove background","Planimetria della sala":"Room floor plan","PDF tavoli (posti)":"Tables PDF (seats)","Sala (m)":"Room (m)","Tavoli tondi Ø":"Round tables Ø","Griglia":"Grid","Elemento":"Element","Tondo":"Round","Rettangolare":"Rectangular","Imperiale":"Imperial","Forma":"Shape","Lunghezza":"Length","Larghezza":"Width","Profondità":"Depth","Rotazione":"Rotation","Reimposta":"Reset","libera":"free","◈ Vista 3D":"◈ 3D view","⤢ Ingrandisci":"⤢ Enlarge","⤡ Riduci":"⤡ Shrink","oppure incolla un link":"or paste a link","Trascina per ruotare · scorri per ingrandire · due dita per spostare":"Drag to rotate · scroll to zoom · two fingers to pan",
 "Posti liberi":"Seats free","Posti totali":"Total seats","Previsto":"Planned","Prossime":"Upcoming","Prova abito":"Dress fitting","Questa settimana":"This week","RSVP":"RSVP","Saldato":"Paid in full","Salva":"Save","Scadute":"Overdue",
 "Scarica PDF":"Download PDF","Scheda Tecnica":"Technical sheet","Sei invitato al loro matrimonio. Conferma la tua presenza.":"You are invited to their wedding. Please confirm your attendance.","Senza cipolla":"No onion","Senza data":"No date",
 "Senza tavolo":"No table","Sotto il budget":"Under budget","Sposa":"Bride","Sposi":"Couple","Sposo":"Groom","Staff":"Staff","Stationery":"Stationery","Sì":"Yes","Tavoli":"Tables","Tavolo Sposi":"Couple table","Telefono":"Phone",
@@ -2477,7 +2481,7 @@ function loadWedding(wid,w){
   // Popola la chiave check-in se già impostata
   if(w.checkinKey){const inp=document.getElementById('checkin-key-input');if(inp)inp.value=w.checkinKey;}
   startCountdown(w.data);
-  const L1=onValue(ref(db,`matrimoni/${wid}/ospiti`),(s)=>{guests=s.exists()?s.val():{};renderGuests();renderSeating();renderDashboard();if(document.getElementById('view-checkin')?.style.display!=='none')renderCheckin();});
+  const L1=onValue(ref(db,`matrimoni/${wid}/ospiti`),(s)=>{guests=s.exists()?s.val():{};renderGuests();renderSeating();renderDashboard();if(typeof renderPiantina==='function'&&!salaDrag)renderPiantina();if(document.getElementById('view-checkin')?.style.display!=='none')renderCheckin();});
   const L2=onValue(ref(db,`matrimoni/${wid}/budget`),(s)=>{const d=s.exists()?s.val():{};budget=d.voci||{};document.getElementById('budget-max').value=d.max||20000;budgetIvaDefault=d.ivaDefault!==undefined?d.ivaDefault:22;const bid=document.getElementById('budget-iva-default');if(bid)bid.value=String(budgetIvaDefault);renderBudget();});
   const L3=onValue(ref(db,`matrimoni/${wid}/fornitori`),(s)=>{vendors=s.exists()?s.val():{};renderVendors();renderBudget();});
   const L4=onValue(ref(db,`matrimoni/${wid}/checklist`),(s)=>{checklist=s.exists()?s.val():{};renderChecklist();});
@@ -2904,34 +2908,6 @@ window.switchPiantinaScenario=function(s){
   renderPiantina();
 };
 
-window.addElementoSala=async function(){
-  const inp=document.getElementById('new-elemento');
-  const nome=(inp.value||'').trim();
-  if(!nome)return;
-  ensurePiantine();
-  const p=currentPiantina();
-  if(!p.elementi)p.elementi=[];
-  const id='el_'+Date.now().toString(36);
-  p.elementi.push({id,nome,x:50,y:50});
-  inp.value='';
-  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
-  await syncPublicPiantina();
-  renderPiantina();
-};
-window.removeElementoSala=async function(id){
-  ensurePiantine();
-  const p=currentPiantina();
-  p.elementi=(p.elementi||[]).filter(e=>e.id!==id);
-  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
-  await syncPublicPiantina();
-  renderPiantina();
-};
-function renderElementiChips(){
-  const wrap=document.getElementById('elementi-chips');
-  if(!wrap)return;
-  const list=currentPiantina().elementi||[];
-  wrap.innerHTML=list.map(e=>`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(60,60,80,.1);border:1px solid #6c7a8d;border-radius:4px;padding:2px 8px;font-size:14px">${e.nome}<button onclick="removeElementoSala('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--gray);font-size:15px;padding:0;margin-left:2px">✕</button></span>`).join('');
-}
 window.savePiantinaUrl=async function(){
   const raw=(document.getElementById('piantina-url').value||'').trim();
   if(!raw){alert('Incolla il link di un\'immagine');return;}
@@ -2983,8 +2959,7 @@ window.uploadPiantinaFile=async function(inp){
     const data=canvasToJpegUnder(cv,600000);
     ensurePiantine();
     seatingCfg.piantine[piantinaScenario].url=data;
-    await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
-    await syncPublicPiantina();
+    await salaSave();
     renderPiantina();
   }catch(e){alert('Errore nel caricamento: '+e.message);}
   finally{btn.textContent=label;btn.disabled=false;}
@@ -3011,8 +2986,7 @@ window.close3D=function(){
     document.getElementById('three-wrap').innerHTML='';_3d=null;}
 };
 window.open3D=async function(){
-  const p=currentPiantina();
-  if(!p.url){alert('Carica prima una piantina');return;}
+  const p=currentPiantina(),S=salaCfg();
   const modal=document.getElementById('modal-3d'),wrap=document.getElementById('three-wrap'),msg=document.getElementById('three-msg');
   modal.classList.add('active');wrap.innerHTML='';
   const hint='Trascina per ruotare · scorri per ingrandire · due dita per spostare';
@@ -3021,61 +2995,47 @@ window.open3D=async function(){
     await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
     await loadScriptOnce('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js');
   }catch(e){msg.textContent='Impossibile caricare il motore 3D (controlla la connessione).';return;}
-  const THREE=window.THREE;
-  const W=100;
-  const tex=await new Promise(res=>{new THREE.TextureLoader().setCrossOrigin('anonymous').load(p.url,t=>res(t),undefined,()=>res(null));});
-  let H=W*0.65;
-  if(tex&&tex.image&&tex.image.width)H=W*tex.image.height/tex.image.width;
-  else msg.textContent='Piantina non leggibile in 3D (usa "Carica file"): mostro solo i tavoli. · '+hint;
-  if(tex&&msg.textContent.startsWith('Caricamento'))msg.textContent=hint;
+  const THREE=window.THREE,W=S.w,H=S.h;
+  const tex=p.url?await new Promise(res=>{new THREE.TextureLoader().setCrossOrigin('anonymous').load(p.url,t=>res(t),undefined,()=>res(null));}):null;
+  msg.textContent=hint;
   const scene=new THREE.Scene();scene.background=new THREE.Color(0x202225);
-  const cw=wrap.clientWidth||900,ch=wrap.clientHeight||600;
-  const camera=new THREE.PerspectiveCamera(45,cw/ch,0.5,1000);
-  camera.position.set(0,Math.max(W,H)*0.85,H*0.62);
+  const cw=wrap.clientWidth||900,ch=wrap.clientHeight||600,M=Math.max(W,H);
+  const camera=new THREE.PerspectiveCamera(45,cw/ch,0.1,1000);
+  camera.position.set(0,M*0.95,H*0.7);
   const renderer=new THREE.WebGLRenderer({antialias:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(cw,ch);
   wrap.appendChild(renderer.domElement);
   const controls=new THREE.OrbitControls(camera,renderer.domElement);
-  controls.target.set(0,0,0);controls.maxPolarAngle=Math.PI/2.05;controls.minDistance=10;controls.maxDistance=220;controls.update();
+  controls.target.set(0,0,0);controls.maxPolarAngle=Math.PI/2.05;controls.minDistance=3;controls.maxDistance=M*4;controls.update();
   scene.add(new THREE.AmbientLight(0xffffff,0.85));
-  const dl=new THREE.DirectionalLight(0xffffff,0.6);dl.position.set(30,80,40);scene.add(dl);
-  // pavimento con la piantina
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,H),new THREE.MeshBasicMaterial(tex?{map:tex}:{color:0x3a3d42}));
+  const dl=new THREE.DirectionalLight(0xffffff,0.6);dl.position.set(W*0.4,M,H*0.5);scene.add(dl);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,H),new THREE.MeshBasicMaterial({color:0xece6d8}));
   floor.rotation.x=-Math.PI/2;scene.add(floor);
-  const P=(pp)=>[(pp.x/100-0.5)*W,(pp.y/100-0.5)*H];
-  // tavoli
-  const numT=seatingCfg.tables||10;
-  const ids=[];
-  if(seatingCfg.sposi)ids.push('sposi');
-  (seatingCfg.customTables||[]).forEach(ct=>ids.push(ct.id));
-  for(let i=1;i<=numT;i++)ids.push(String(i));
-  const pos=p.posizioni||{};
-  const ctNames={};(seatingCfg.customTables||[]).forEach(ct=>{ctNames[ct.id]=ct.nome;});
-  const cap=Math.max(2,Math.min(parseInt(seatingCfg.capacity)||10,14));
-  ids.forEach((tId,idx)=>{
-    const count=Object.values(guests).filter(g=>g.tavolo===tId||(ctNames[tId]&&g.tavolo&&g.tavolo.toLowerCase()===ctNames[tId].toLowerCase())).length;
-    if(count===0)return;
-    const pp=pos[tId]||{x:5+(idx%10)*9,y:6+Math.floor(idx/10)*12};
-    const [x,z]=P(pp);
-    const g=new THREE.Group();g.position.set(x,0,z);
-    const cloth=new THREE.Mesh(new THREE.CylinderGeometry(2.4,2.4,1.2,40),new THREE.MeshStandardMaterial({color:0xfaf6ef}));cloth.position.y=0.6;g.add(cloth);
-    const top=new THREE.Mesh(new THREE.CylinderGeometry(2.4,2.4,0.08,40),new THREE.MeshStandardMaterial({color:0xb08d57}));top.position.y=1.24;g.add(top);
-    const n=Math.min(Math.max(count,2),cap);
-    for(let k=0;k<n;k++){
-      const a=k/n*Math.PI*2;
-      const chair=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.55,0.9,16),new THREE.MeshStandardMaterial({color:0x6b2737}));
-      chair.position.set(Math.cos(a)*3.3,0.45,Math.sin(a)*3.3);g.add(chair);
+  if(tex){const bg=new THREE.Mesh(new THREE.PlaneGeometry(W,H),new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:0.6}));bg.rotation.x=-Math.PI/2;bg.position.y=0.01;scene.add(bg);}
+  const wm=new THREE.MeshStandardMaterial({color:0x4a4a4a});
+  [[W,0.2,0,-H/2],[W,0.2,0,H/2],[0.2,H,-W/2,0],[0.2,H,W/2,0]].forEach(([w,d,x,z])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,0.5,d),wm);m.position.set(x,0.25,z);scene.add(m);});
+  const X=x=>x-W/2,Z=y=>y-H/2;
+  const label=(t,sub,sc)=>txtSprite(THREE,t,sub,sc);
+  salaTables().forEach(t=>{
+    const g=new THREE.Group();g.position.set(X(t.x),0,Z(t.y));g.rotation.y=-t.rot*Math.PI/180;
+    const clothM=new THREE.MeshStandardMaterial({color:0xfaf6ef}),topM=new THREE.MeshStandardMaterial({color:0xb08d57});
+    if(t.shape==='round'){
+      const c=new THREE.Mesh(new THREE.CylinderGeometry(t.d/2,t.d/2,0.74,48),clothM);c.position.y=0.37;g.add(c);
+      const tp=new THREE.Mesh(new THREE.CylinderGeometry(t.d/2,t.d/2,0.04,48),topM);tp.position.y=0.76;g.add(tp);
+    }else{
+      const c=new THREE.Mesh(new THREE.BoxGeometry(t.l,0.74,t.w),clothM);c.position.y=0.37;g.add(c);
+      const tp=new THREE.Mesh(new THREE.BoxGeometry(t.l,0.04,t.w),topM);tp.position.y=0.76;g.add(tp);
     }
-    const label=tId==='sposi'?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):'Tavolo '+tId;
-    const sp=txtSprite(THREE,label,count+' ospiti',9);sp.position.set(0,4.6,0);g.add(sp);
+    const chM=new THREE.MeshStandardMaterial({color:0x6b2737});
+    chairsOf(t).forEach(c=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,0.46,16),chM);m.position.set(c.x,0.23,c.y);g.add(m);});
     scene.add(g);
+    const sp=label(t.label,t.count+' ospiti',Math.max(2.4,M*0.12));sp.position.set(X(t.x),1.9,Z(t.y));scene.add(sp);
   });
-  // elementi sala
   (p.elementi||[]).forEach(e=>{
-    const [x,z]=P({x:e.x||50,y:e.y||50});
-    const box=new THREE.Mesh(new THREE.BoxGeometry(5,1.6,2.6),new THREE.MeshStandardMaterial({color:0x3c3c50}));
-    box.position.set(x,0.8,z);scene.add(box);
-    const sp=txtSprite(THREE,e.nome,'',9);sp.position.set(x,4,z);scene.add(sp);
+    const L=elLayout(e);
+    const box=new THREE.Mesh(new THREE.BoxGeometry(L.w,0.9,L.h),new THREE.MeshStandardMaterial({color:0x3c3c50}));
+    box.position.set(X(L.x),0.45,Z(L.y));box.rotation.y=-L.rot*Math.PI/180;scene.add(box);
+    const sp=label(e.nome,'',Math.max(2.4,M*0.12));sp.position.set(X(L.x),1.8,Z(L.y));scene.add(sp);
   });
   const onResize=()=>{const w=wrap.clientWidth,h=wrap.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};
   window.addEventListener('resize',onResize);
@@ -3084,13 +3044,13 @@ window.open3D=async function(){
   loop();
 };
 window.removePiantina=async function(){
-  const nome=piantinaScenario==='planB'?'Piano B':'Principale';
-  if(!confirm('Rimuovere la piantina "'+nome+'"? Le posizioni dei tavoli di questo scenario andranno perse.'))return;
   ensurePiantine();
-  seatingCfg.piantine[piantinaScenario]={url:'',posizioni:{}};
+  if(!currentPiantina().url){alert('Nessuno sfondo caricato');return;}
+  if(!confirm('Rimuovere lo sfondo? Tavoli ed elementi restano dove sono.'))return;
+  currentPiantina().url='';
   await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
   await syncPublicPiantina();
-  renderPiantina();
+  drawSala();
 };
 // Sincronizza le piantine nel nodo pubblico (per la vista sposi)
 async function syncPublicPiantina(){
@@ -3106,198 +3066,280 @@ async function savePiantinaPos(tId,xPct,yPct){
   await syncPublicPiantina();
 }
 
-// Esporta la piantina con i marker in PDF stampabile
-window.exportPiantinaPDF=function(){
-  const url=currentPiantina().url||'';
-  if(!url){alert('Nessuna piantina caricata');return;}
-  const w=CW_DATA||{};
-  const numT=seatingCfg.tables||10;
-  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
-  const customTables=seatingCfg.customTables||[];
+// ── EDITOR SALA (planimetria in scala) ──
+let salaSel=null,salaSnap=0.25,salaDrag=null;
+const SALA_DEF={w:20,h:12,d:1.8};
+const salaR=(v,n=1000)=>Math.round(v*n)/n;
+function salaCfg(){ensurePiantine();const p=currentPiantina();if(!p.sala)p.sala={...SALA_DEF};return p.sala;}
+function salaIds(){
   const ids=[];
-  if(showSposi)ids.push('sposi');
-  customTables.forEach(ct=>ids.push(ct.id));
-  for(let i=1;i<=numT;i++)ids.push(String(i));
-  const pos=currentPiantina().posizioni||{};
-  let markers='';
-  ids.forEach((tId,idx)=>{
-    const count=Object.values(guests).filter(g=>g.tavolo===tId).length;
+  if(seatingCfg.sposi)ids.push('sposi');
+  (seatingCfg.customTables||[]).forEach(ct=>ids.push(ct.id));
+  for(let i=1;i<=(seatingCfg.tables||10);i++)ids.push(String(i));
+  return ids;
+}
+function tLayout(tId){
+  const p=currentPiantina(),S=salaCfg(),o=(p.tav&&p.tav[tId])||{};
+  const shape=o.shape||'round',d=o.d||S.d||1.8,w=o.w||0.9,l=o.l||2.4,rot=o.rot||0;
+  let x=o.x,y=o.y;
+  if(x==null||y==null){
+    const old=p.posizioni&&p.posizioni[tId];
+    if(old){x=old.x/100*S.w;y=old.y/100*S.h;}
+    else{
+      const idx=Math.max(0,salaIds().indexOf(tId)),step=(S.d||1.8)+1.8,cols=Math.max(1,Math.floor((S.w-1)/step));
+      x=1+step/2+(idx%cols)*step;y=1+step/2+Math.floor(idx/cols)*step;
+    }
+  }
+  return {x:salaR(Math.min(S.w,Math.max(0,x))),y:salaR(Math.min(S.h,Math.max(0,y))),rot,shape,d,w,l};
+}
+function tRadius(t){return t.shape==='round'?t.d/2:Math.hypot(t.l,t.w)/2;}
+function salaTables(){
+  const ctNames={};(seatingCfg.customTables||[]).forEach(ct=>{ctNames[ct.id]=ct.nome;});
+  const out=[];
+  salaIds().forEach(tId=>{
+    const count=Object.values(guests).filter(g=>g.rsvp!=='Assente'&&(g.tavolo===tId||(ctNames[tId]&&g.tavolo&&g.tavolo.toLowerCase()===ctNames[tId].toLowerCase()))).length;
     if(count===0)return;
-    const p=pos[tId]||{x:5+(idx%10)*9, y:6+Math.floor(idx/10)*12};
-    const label=(tId==='sposi')?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):tId;
-    markers+=`<div style="position:absolute;left:${p.x}%;top:${p.y}%;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);border:2px solid #b08d57;border-radius:20px;padding:3px 9px;display:flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2)">
-      <span style="font-size:11px;font-weight:700;color:#1a1a1a">${label}</span>
-      <span style="font-size:9px;background:#b08d57;color:#fff;border-radius:10px;padding:1px 6px;font-weight:700">${count}</span>
-    </div>`;
+    const label=tId==='sposi'?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):'Tavolo '+tId;
+    out.push({tId,label,count,...tLayout(tId)});
   });
-  // Elementi sala nel PDF
-  (currentPiantina().elementi||[]).forEach(e=>{
-    markers+=`<div style="position:absolute;left:${e.x||50}%;top:${e.y||50}%;transform:translate(-50%,-50%);background:rgba(60,60,80,.85);border:2px solid #6c7a8d;border-radius:6px;padding:3px 10px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.2)">
-      <span style="font-size:10px;font-weight:700;color:#fff;letter-spacing:.5px">${e.nome}</span>
-    </div>`;
+  return out;
+}
+function chairsOf(t){
+  const n=t.count,out=[];
+  if(t.shape==='round'){
+    const R=t.d/2+0.3;
+    for(let i=0;i<n;i++){const a=-Math.PI/2+i/n*Math.PI*2;out.push({x:Math.cos(a)*R,y:Math.sin(a)*R});}
+  }else{
+    const ends=(t.shape==='imp'&&n>=2)?2:0,rest=n-ends,top=Math.ceil(rest/2),bot=rest-top;
+    const side=(k,sy)=>{for(let i=0;i<k;i++)out.push({x:-t.l/2+(i+0.5)*t.l/k,y:sy*(t.w/2+0.3)});};
+    side(top,-1);side(bot,1);
+    if(ends){out.push({x:-(t.l/2+0.3),y:0});out.push({x:t.l/2+0.3,y:0});}
+  }
+  return out;
+}
+function elLayout(e){
+  const S=salaCfg();
+  return {x:e.mx!=null?e.mx:(e.x!=null?e.x/100*S.w:S.w/2),y:e.my!=null?e.my:(e.y!=null?e.y/100*S.h:S.h/2),w:e.mw||2,h:e.mh||1,rot:e.rot||0};
+}
+function elDefaultSize(name){
+  const n=(name||'').toLowerCase();
+  if(/palco|stage/.test(n))return [4,2.5];
+  if(/pista|danza|dance/.test(n))return [5,5];
+  if(/buffet|bar|open/.test(n))return [3,0.8];
+  if(/dj|consolle/.test(n))return [2,1];
+  if(/ingresso|entrata|porta|uscita/.test(n))return [1.5,0.4];
+  if(/torta|cake/.test(n))return [1,1];
+  return [2,1];
+}
+function salaWarnings(tabs){
+  const S=salaCfg(),bad={};
+  for(let i=0;i<tabs.length;i++){
+    const a=tabs[i],ra=tRadius(a);
+    if(a.x-ra-0.5<0||a.y-ra-0.5<0||a.x+ra+0.5>S.w||a.y+ra+0.5>S.h)bad[a.tId]='fuori sala';
+    for(let j=i+1;j<tabs.length;j++){
+      const b=tabs[j],gap=Math.hypot(a.x-b.x,a.y-b.y)-ra-tRadius(b);
+      if(gap<1.2){bad[a.tId]=bad[a.tId]||'vicino';bad[b.tId]=bad[b.tId]||'vicino';}
+    }
+  }
+  return bad;
+}
+function salaSvgInner(editor){
+  const S=salaCfg(),p=currentPiantina(),tabs=salaTables(),bad=salaWarnings(tabs);
+  let o='';
+  o+=`<rect x="0" y="0" width="${S.w}" height="${S.h}" fill="#fff"/>`;
+  if(p.url)o+=`<image href="${ciEsc(p.url)}" x="0" y="0" width="${S.w}" height="${S.h}" preserveAspectRatio="none" opacity="0.6"/>`;
+  if(editor){
+    for(let x=1;x<S.w;x++)o+=`<line x1="${x}" y1="0" x2="${x}" y2="${S.h}" stroke="#e9e3d6" stroke-width="0.02"/>`;
+    for(let y=1;y<S.h;y++)o+=`<line x1="0" y1="${y}" x2="${S.w}" y2="${y}" stroke="#e9e3d6" stroke-width="0.02"/>`;
+  }
+  o+=`<rect x="0" y="0" width="${S.w}" height="${S.h}" fill="none" stroke="#1a1a1a" stroke-width="0.12"/>`;
+  o+=`<text x="${S.w/2}" y="-0.35" text-anchor="middle" font-size="0.5" fill="#6b6b6b">${salaR(S.w,100)} m</text>`;
+  o+=`<text transform="translate(-0.35 ${S.h/2}) rotate(-90)" text-anchor="middle" font-size="0.5" fill="#6b6b6b">${salaR(S.h,100)} m</text>`;
+  (p.elementi||[]).forEach(e=>{
+    const L=elLayout(e),sel=salaSel&&salaSel.k==='e'&&salaSel.id===e.id;
+    const fs=Math.max(0.22,Math.min(0.38,L.w/Math.max(4,(e.nome||'').length)*1.15));
+    o+=`<g data-k="e" data-id="${ciEsc(e.id)}" transform="translate(${L.x} ${L.y}) rotate(${L.rot})" style="cursor:${editor?'grab':'default'}">
+      <rect x="${-L.w/2}" y="${-L.h/2}" width="${L.w}" height="${L.h}" rx="0.08" fill="rgba(60,60,80,.9)" stroke="${sel?'#d4a017':'#3c3c50'}" stroke-width="${sel?0.1:0.04}"/>
+      <text transform="rotate(${-L.rot})" text-anchor="middle" dominant-baseline="central" font-size="${fs}" fill="#fff" font-weight="600">${ciEsc(e.nome)}</text></g>`;
   });
+  tabs.forEach(t=>{
+    const sel=salaSel&&salaSel.k==='t'&&salaSel.id===t.tId,warn=bad[t.tId];
+    const stroke=warn?'#c0392b':'#b08d57';
+    let g=`<g data-k="t" data-id="${ciEsc(t.tId)}" transform="translate(${t.x} ${t.y}) rotate(${t.rot})" style="cursor:${editor?'grab':'default'}">`;
+    if(sel)g+=`<circle r="${tRadius(t)+0.62}" fill="none" stroke="#d4a017" stroke-width="0.07" stroke-dasharray="0.25 0.18"/>`;
+    chairsOf(t).forEach(c=>{g+=`<circle cx="${salaR(c.x)}" cy="${salaR(c.y)}" r="0.22" fill="#fff" stroke="${stroke}" stroke-width="0.05"/>`;});
+    g+=t.shape==='round'?`<circle r="${t.d/2}" fill="#faf6ef" stroke="${stroke}" stroke-width="0.07"/>`
+      :`<rect x="${-t.l/2}" y="${-t.w/2}" width="${t.l}" height="${t.w}" rx="${t.shape==='imp'?0.05:0.03}" fill="#faf6ef" stroke="${stroke}" stroke-width="0.07"/>`;
+    const nm=t.label.length>13?t.label.slice(0,12)+'…':t.label;
+    g+=`<text transform="rotate(${-t.rot})" text-anchor="middle" y="-0.05" font-size="0.3" font-weight="700" fill="#1a1a1a">${ciEsc(nm)}</text>
+        <text transform="rotate(${-t.rot})" text-anchor="middle" y="0.3" font-size="0.24" fill="#6b6b6b">${t.count} ospiti</text></g>`;
+    o+=g;
+  });
+  return {inner:o,bad,tabs};
+}
+function drawSalaSvg(){
+  const S=salaCfg(),svg=document.getElementById('sala-svg');if(!svg)return;
+  svg.setAttribute('viewBox',`${-1.2} ${-1.2} ${S.w+2.4} ${S.h+2.4}`);
+  const r=salaSvgInner(IS_ADMIN);
+  document.getElementById('sala-g').innerHTML=r.inner;
+  const n=Object.keys(r.bad).length,warn=document.getElementById('sala-warn');
+  const far=Object.values(r.bad).filter(v=>v==='vicino').length,out=Object.values(r.bad).filter(v=>v==='fuori sala').length;
+  warn.innerHTML=n?`⚠ ${far?`${far} tavoli a meno di 1,2 m dal vicino`:''}${far&&out?' · ':''}${out?`${out} fuori sala o troppo vicini al bordo`:''}`:(r.tabs.length?'':'Assegna gli ospiti ai tavoli: compariranno qui.');
+  return r;
+}
+function salaInput(id,v){const e=document.getElementById(id);if(e&&document.activeElement!==e)e.value=v;}
+window.drawSala=function(){
+  const S=salaCfg();
+  // la selezione deve esistere ancora
+  if(salaSel){
+    const ok=salaSel.k==='t'?salaTables().some(t=>t.tId===salaSel.id):(currentPiantina().elementi||[]).some(e=>e.id===salaSel.id);
+    if(!ok)salaSel=null;
+  }
+  salaInput('sala-w',S.w);salaInput('sala-h',S.h);salaInput('sala-d',S.d||1.8);
+  drawSalaSvg();
+  renderSalaPanel();
+};
+window.renderPiantina=function(){if(!document.getElementById('sala-svg'))return;initSala();drawSala();};
+async function salaSave(){
+  await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
+  await syncPublicPiantina();
+}
+window.salaSetCfg=async function(){
+  const S=salaCfg();
+  const w=parseFloat(document.getElementById('sala-w').value),h=parseFloat(document.getElementById('sala-h').value),d=parseFloat(document.getElementById('sala-d').value);
+  if(w>=3&&w<=200)S.w=w;if(h>=3&&h<=200)S.h=h;if(d>=0.8&&d<=4)S.d=d;
+  drawSala();await salaSave();
+};
+window.salaSetSnap=function(){salaSnap=parseFloat(document.getElementById('sala-snap').value)||0;};
+const salaSnapV=v=>salaSnap?Math.round(v/salaSnap)*salaSnap:v;
+function salaPt(e){const svg=document.getElementById('sala-svg');const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());}
+function salaGet(sel){
+  if(sel.k==='t'){const t=tLayout(sel.id);return {x:t.x,y:t.y};}
+  const e=(currentPiantina().elementi||[]).find(x=>x.id===sel.id);return e?elLayout(e):null;
+}
+function salaPatchT(id,patch){
+  const p=currentPiantina();if(!p.tav)p.tav={};
+  p.tav[id]={...tLayout(id),...(p.tav[id]||{}),...patch};
+  const o=p.tav[id];
+  p.tav[id]={x:o.x,y:o.y,rot:o.rot||0,shape:o.shape||'round',d:o.d,w:o.w,l:o.l};
+}
+function salaPatchE(id,patch){
+  const e=(currentPiantina().elementi||[]).find(x=>x.id===id);if(!e)return;
+  const L=elLayout(e);
+  Object.assign(e,{mx:L.x,my:L.y,mw:L.w,mh:L.h,rot:L.rot},patch);
+}
+function initSala(){
+  const svg=document.getElementById('sala-svg');if(!svg||svg._init)return;svg._init=true;
+  svg.addEventListener('pointerdown',e=>{
+    if(!IS_ADMIN)return;
+    const g=e.target.closest('[data-k]');
+    if(!g){if(salaSel){salaSel=null;drawSala();}return;}
+    salaSel={k:g.dataset.k,id:g.dataset.id};
+    const pt=salaPt(e),cur=salaGet(salaSel);
+    salaDrag={dx:cur.x-pt.x,dy:cur.y-pt.y,moved:false};
+    drawSala();
+    try{svg.setPointerCapture(e.pointerId);}catch(_){}
+    e.preventDefault();
+  });
+  svg.addEventListener('pointermove',e=>{
+    if(!salaDrag||!salaSel)return;
+    const S=salaCfg(),pt=salaPt(e);
+    const x=salaR(Math.min(S.w,Math.max(0,salaSnapV(pt.x+salaDrag.dx)))),y=salaR(Math.min(S.h,Math.max(0,salaSnapV(pt.y+salaDrag.dy))));
+    if(salaSel.k==='t')salaPatchT(salaSel.id,{x,y});else salaPatchE(salaSel.id,{mx:x,my:y});
+    salaDrag.moved=true;drawSalaSvg();
+  });
+  const end=async()=>{
+    if(!salaDrag)return;const mv=salaDrag.moved;salaDrag=null;
+    if(mv){drawSala();await salaSave();}
+  };
+  svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+}
+function renderSalaPanel(){
+  const el=document.getElementById('sala-panel');if(!el)return;
+  if(!IS_ADMIN||!salaSel){el.style.display='none';el.innerHTML='';return;}
+  el.style.display='flex';
+  if(salaSel.k==='t'){
+    const t=salaTables().find(x=>x.tId===salaSel.id);if(!t){el.style.display='none';return;}
+    const sizes=t.shape==='round'
+      ?`<label>Ø <input type="number" step="0.1" min="0.6" value="${t.d}" onchange="salaSetT('d',this.value)"> m</label>`
+      :`<label>Lunghezza <input type="number" step="0.1" min="0.6" value="${t.l}" onchange="salaSetT('l',this.value)"> m</label><label>Larghezza <input type="number" step="0.1" min="0.4" value="${t.w}" onchange="salaSetT('w',this.value)"> m</label>`;
+    el.innerHTML=`<b>${ciEsc(t.label)}</b>
+      <label>Forma <select style="width:auto" onchange="salaSetT('shape',this.value)"><option value="round" ${t.shape==='round'?'selected':''}>Tondo</option><option value="rect" ${t.shape==='rect'?'selected':''}>Rettangolare</option><option value="imp" ${t.shape==='imp'?'selected':''}>Imperiale</option></select></label>
+      ${sizes}
+      <label>Rotazione <input type="number" step="15" value="${t.rot}" onchange="salaSetT('rot',this.value)">°</label>
+      <button class="btn-sm" onclick="salaRot(-15)">↺ 15°</button><button class="btn-sm" onclick="salaRot(15)">↻ 15°</button>
+      <button class="btn-sm" onclick="salaResetT()">Reimposta</button>`;
+  }else{
+    const e=(currentPiantina().elementi||[]).find(x=>x.id===salaSel.id);if(!e){el.style.display='none';return;}
+    const L=elLayout(e);
+    el.innerHTML=`<b>Elemento</b>
+      <label>Nome <input style="width:150px" value="${ciEsc(e.nome)}" onchange="salaSetE('nome',this.value)"></label>
+      <label>Larghezza <input type="number" step="0.1" min="0.2" value="${salaR(L.w,100)}" onchange="salaSetE('mw',this.value)"> m</label>
+      <label>Profondità <input type="number" step="0.1" min="0.2" value="${salaR(L.h,100)}" onchange="salaSetE('mh',this.value)"> m</label>
+      <label>Rotazione <input type="number" step="15" value="${L.rot}" onchange="salaSetE('rot',this.value)">°</label>
+      <button class="btn-sm" onclick="salaRot(-15)">↺ 15°</button><button class="btn-sm" onclick="salaRot(15)">↻ 15°</button>
+      <button class="btn-sm" style="color:var(--red)" onclick="salaDelE()">Elimina</button>`;
+  }
+}
+window.salaSetT=async function(f,v){
+  if(!salaSel||salaSel.k!=='t')return;
+  const patch={};
+  if(f==='shape')patch.shape=v;
+  else{const n=parseFloat(v);if(isNaN(n))return;patch[f]=f==='rot'?((n%360)+360)%360:Math.max(0.3,n);}
+  salaPatchT(salaSel.id,patch);drawSala();await salaSave();
+};
+window.salaSetE=async function(f,v){
+  if(!salaSel||salaSel.k!=='e')return;
+  const patch={};
+  if(f==='nome'){if(!v.trim())return;patch.nome=v.trim();}
+  else{const n=parseFloat(v);if(isNaN(n))return;patch[f]=f==='rot'?((n%360)+360)%360:Math.max(0.2,n);}
+  salaPatchE(salaSel.id,patch);drawSala();await salaSave();
+};
+window.salaRot=async function(d){
+  if(!salaSel)return;
+  if(salaSel.k==='t'){const t=tLayout(salaSel.id);salaPatchT(salaSel.id,{rot:(((t.rot+d)%360)+360)%360});}
+  else{const e=(currentPiantina().elementi||[]).find(x=>x.id===salaSel.id);if(!e)return;salaPatchE(salaSel.id,{rot:((((elLayout(e).rot)+d)%360)+360)%360});}
+  drawSala();await salaSave();
+};
+window.salaResetT=async function(){
+  if(!salaSel||salaSel.k!=='t')return;
+  const p=currentPiantina();if(p.tav)delete p.tav[salaSel.id];
+  if(p.posizioni)delete p.posizioni[salaSel.id];
+  drawSala();await salaSave();
+};
+window.salaDelE=async function(){
+  if(!salaSel||salaSel.k!=='e')return;
+  const p=currentPiantina();p.elementi=(p.elementi||[]).filter(e=>e.id!==salaSel.id);salaSel=null;
+  drawSala();await salaSave();
+};
+window.addElementoSala=async function(){
+  const inp=document.getElementById('new-elemento');
+  const nome=(inp.value||'').trim();
+  if(!nome)return;
+  ensurePiantine();
+  const p=currentPiantina(),S=salaCfg();
+  if(!p.elementi)p.elementi=[];
+  const [w,h]=elDefaultSize(nome);
+  const id='el_'+Date.now().toString(36);
+  p.elementi.push({id,nome,mx:salaR(S.w/2),my:salaR(S.h/2),mw:w,mh:h,rot:0});
+  inp.value='';salaSel={k:'e',id};
+  drawSala();await salaSave();
+};
+window.exportPiantinaPDF=function(){
+  const S=salaCfg(),w=CW_DATA||{};
+  const r=salaSvgInner(false);
+  const land=S.w>=S.h*0.9;
+  const list=r.tabs.map(t=>`<span style="display:inline-block;margin:2px 10px 2px 0">${ciEsc(t.label)} <b>${t.count}</b></span>`).join('');
   const win=window.open('','_blank');
-  win.document.write(`<html><head><title>Piantina — ${w.nome1||''} & ${w.nome2||''}</title>
-    <style>@media print{@page{size:landscape;margin:10mm}}</style></head>
-    <body style="font-family:Arial,sans-serif;padding:20px;color:#1a1a1a;text-align:center;margin:0">
-      <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:56px"><br>
-      <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin:8px 0 16px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)} · Piantina ${piantinaScenario==='planB'?'Piano B':'Principale'}</div>
-      <div style="position:relative;display:inline-block;max-width:100%">
-        <img id="pfimg" src="${url}" style="display:block;max-width:100%;height:auto">
-        ${markers}
-      </div>
-      <script>
-        var im=document.getElementById('pfimg');
-        function go(){setTimeout(function(){window.print();},300);}
-        if(im.complete)go(); else im.onload=go;
-      <\/script>
-    </body></html>`);
+  win.document.write(`<html><head><title>Planimetria — ${ciEsc(w.nome1)} & ${ciEsc(w.nome2)}</title>
+    <style>@page{size:${land?'A4 landscape':'A4 portrait'};margin:10mm}body{font-family:Arial,sans-serif;margin:0;padding:12px;color:#1a1a1a;text-align:center}svg{width:100%;max-height:${land?'150mm':'210mm'}}</style></head><body>
+    <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:50px"><br>
+    <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin:6px 0 10px">${ciEsc(w.nome1)} & ${ciEsc(w.nome2)} — ${formatDate(w.data)} · Planimetria ${piantinaScenario==='planB'?'(Piano B)':''} · Sala ${salaR(S.w,100)} × ${salaR(S.h,100)} m</div>
+    <svg viewBox="-1.2 -1.2 ${S.w+2.4} ${S.h+2.4}" xmlns="http://www.w3.org/2000/svg">${r.inner}</svg>
+    <div style="font-size:12px;margin-top:8px;color:#444;text-align:left">${list}</div>
+    <script>setTimeout(function(){window.print();},500)<\/script></body></html>`);
   win.document.close();
 };
-
-window.renderPiantina=function(){
-  const wrap=document.getElementById('piantina-wrap');
-  const empty=document.getElementById('piantina-empty');
-  const img=document.getElementById('piantina-img');
-  const markers=document.getElementById('piantina-markers');
-  const hint=document.getElementById('piantina-hint');
-  if(!wrap)return;
-  const url=currentPiantina().url||'';
-  const exportBtn=document.getElementById('piantina-export-btn');
-  if(exportBtn)exportBtn.style.display=url?'inline-block':'none';
-  const b3=document.getElementById('piantina-3d-btn');if(b3)b3.style.display=url?'inline-block':'none';
-  const urlInput=document.getElementById('piantina-url');
-  if(urlInput&&document.activeElement!==urlInput)urlInput.value=url.startsWith('data:')?'':url;
-  if(!url){
-    wrap.style.display='none';empty.style.display='block';
-    if(hint)hint.style.display='none';
-    return;
-  }
-  wrap.style.display='inline-block';empty.style.display='none';
-  if(hint)hint.style.display=IS_ADMIN?'block':'none';
-  const errEl=document.getElementById('piantina-error');
-  if(errEl)errEl.style.display='none';
-  markers.style.display='block';
-  if(img.getAttribute('src')!==url){
-    img.onerror=window.onPiantinaError; // agganciato qui: la funzione esiste di sicuro
-    img.onload=function(){if(errEl)errEl.style.display='none';markers.style.display='block';};
-    img.src=url;
-  }
-  // Elenco tavoli con almeno un ospite, come nella griglia
-  const numT=seatingCfg.tables||10;
-  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
-  const customTables=seatingCfg.customTables||[];
-  const ids=[];
-  if(showSposi)ids.push('sposi');
-  customTables.forEach(ct=>ids.push(ct.id));
-  for(let i=1;i<=numT;i++)ids.push(String(i));
-  const pos=currentPiantina().posizioni||{};
-  markers.innerHTML='';
-  if(IS_ADMIN)initPiantinaEvents(); // delegation: un solo listener, non uno per marker
-  // Mappa id custom table -> nome (per match retrocompatibile)
-  const ctNameMap={};
-  customTables.forEach(ct=>{ctNameMap[ct.id]=ct.nome;});
-  ids.forEach((tId,idx)=>{
-    const ctNome=ctNameMap[tId];
-    const count=Object.values(guests).filter(g=>{
-      if(g.tavolo===tId)return true;
-      if(ctNome&&g.tavolo&&g.tavolo.toLowerCase()===ctNome.toLowerCase())return true;
-      return false;
-    }).length;
-    if(count===0)return; // mostra solo i tavoli occupati
-    const p=pos[tId]||{x:5+(idx%10)*9, y:6+Math.floor(idx/10)*12}; // posizione iniziale a griglia
-    const label=(tId==='sposi')?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||tId):tId;
-    const m=document.createElement('div');
-    m.className='piantina-marker';
-    m.dataset.tid=tId;
-    m.style.left=p.x+'%';
-    m.style.top=p.y+'%';
-    m.title=label+' — '+count+' ospiti';
-    m.innerHTML=`<span class="pm-label">${label}</span><span class="pm-count">${count}</span>`;
-    if(IS_ADMIN)m.dataset.draggable='1';
-    markers.appendChild(m);
-  });
-  // Marker elementi sala (ingresso, buffet, palco...)
-  const elementi=currentPiantina().elementi||[];
-  elementi.forEach(e=>{
-    const m=document.createElement('div');
-    m.className='piantina-marker pm-elemento';
-    m.dataset.elid=e.id;
-    m.style.left=(e.x||50)+'%';
-    m.style.top=(e.y||50)+'%';
-    m.title=e.nome;
-    m.innerHTML=`<span class="pm-label">${e.nome}</span>`;
-    if(IS_ADMIN){
-      m.dataset.draggable='1';
-      // pulsante rimozione visibile solo su hover
-      const rm=document.createElement('button');
-      rm.className='pm-remove';
-      rm.textContent='✕';
-      rm.title='Rimuovi';
-      rm.onclick=(ev)=>{ev.stopPropagation();removeElementoSala(e.id);};
-      m.appendChild(rm);
-    }
-    markers.appendChild(m);
-  });
-  renderElementiChips();
-};
-
-// Trascinamento marker sulla piantina — event delegation (un solo listener sul contenitore)
-let dragMarker=null;
-function initPiantinaEvents(){
-  const markers=document.getElementById('piantina-markers');
-  if(!markers||markers._delegated)return;
-  markers._delegated=true;
-  markers.addEventListener('pointerdown',function(e){
-    if(!IS_ADMIN)return;
-    const m=e.target.closest('[data-draggable]');
-    if(!m)return;
-    startMarkerDrag(e,m);
-  });
-}
-function startMarkerDrag(e,m){
-  e.preventDefault();
-  dragMarker=m;
-  dragMarker.style.cursor='grabbing';
-  dragMarker.setPointerCapture(e.pointerId);
-  dragMarker.addEventListener('pointermove',onMarkerDrag);
-  dragMarker.addEventListener('pointerup',endMarkerDrag,{once:true});
-}
-function onMarkerDrag(e){
-  if(!dragMarker)return;
-  const wrap=document.getElementById('piantina-wrap');
-  const r=wrap.getBoundingClientRect();
-  let x=((e.clientX-r.left)/r.width)*100;
-  let y=((e.clientY-r.top)/r.height)*100;
-  x=Math.max(0,Math.min(100,x));
-  y=Math.max(0,Math.min(100,y));
-  dragMarker.style.left=x+'%';
-  dragMarker.style.top=y+'%';
-}
-async function endMarkerDrag(e){
-  if(!dragMarker)return;
-  const m=dragMarker;
-  m.removeEventListener('pointermove',onMarkerDrag);
-  m.style.cursor='grab';
-  dragMarker=null;
-  const wrap=document.getElementById('piantina-wrap');
-  const r=wrap.getBoundingClientRect();
-  let x=((e.clientX-r.left)/r.width)*100;
-  let y=((e.clientY-r.top)/r.height)*100;
-  x=Math.max(0,Math.min(100,x));
-  y=Math.max(0,Math.min(100,y));
-  if(m.dataset.elid){
-    // Elemento sala: aggiorna posizione nell'array elementi
-    ensurePiantine();
-    const p=currentPiantina();
-    const el=(p.elementi||[]).find(e=>e.id===m.dataset.elid);
-    if(el){el.x=Math.round(x*10)/10;el.y=Math.round(y*10)/10;}
-    await set(ref(db,`matrimoni/${CW_ID}/seating`),seatingCfg);
-    await syncPublicPiantina();
-  }else{
-    await savePiantinaPos(m.dataset.tid,x,y);
-  }
-}
 
 window.renderSeating=function(){
   const area=document.getElementById('seating-area');
