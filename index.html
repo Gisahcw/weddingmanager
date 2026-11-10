@@ -4161,13 +4161,6 @@ function initTlFilterPills(){
 // "Generale" e le categorie specifiche si escludono a vicenda
 window.tlPillToggle=function(p){
   p.classList.toggle('active');
-  const wrap=p.parentElement;
-  if(p.dataset.cat==='Generale'){
-    if(p.classList.contains('active'))wrap.querySelectorAll('.tl-pill').forEach(q=>{if(q!==p)q.classList.remove('active');});
-  }else if(p.classList.contains('active')){
-    const g=wrap.querySelector('.tl-pill[data-cat="Generale"]');
-    if(g)g.classList.remove('active');
-  }
 };
 // Inizializza le pill di selezione nel form di aggiunta
 function initTlCatPills(){
