@@ -513,6 +513,10 @@ tr.b-vendor{cursor:pointer}
 .tl-item input[type=checkbox]{width:20px!important;height:20px!important;flex:0 0 auto}
 .tl-item .tl-text{font-size:20px}
 .tl-end{display:block;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gray);margin-top:1px;letter-spacing:.5px}
+.tl-item .tl-note{white-space:pre-line;line-height:1.5;color:#3f3f3f;background:rgba(176,141,87,.08);border-left:3px solid var(--gold);padding:7px 12px;border-radius:0 4px 4px 0;cursor:pointer}
+.tl-item .tl-note-l{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.tl-item .tl-note-add{font-size:14px!important;color:var(--gray-l);cursor:pointer;letter-spacing:.5px;margin-top:4px!important}
+.tl-item:hover .tl-note-add{color:var(--gold)}
 .tl-item .btn-icon{opacity:.35;transition:opacity .2s}
 .tl-item:hover .btn-icon{opacity:1}
 .tl-cat-badge{background:transparent!important;border:1px solid var(--gold-pale);color:var(--gold);font-size:12px}
@@ -1258,16 +1262,13 @@ tr.b-vendor{cursor:pointer}
                 <div class="ig"><label>Orario</label><input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tl-ora" style="width:120px"></div>
                 <div class="ig"><label>Fine (facoltativa)</label><input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tl-fine" style="width:120px"></div>
                 <div class="ig ev"><label>Evento</label><input id="tl-txt" placeholder="es. Cerimonia in chiesa" onkeydown="if(event.key==='Enter')document.getElementById('tl-add').click()"></div>
-                <button class="tl-more" type="button" onclick="document.getElementById('tl-details').classList.toggle('open')">Categorie e note ▾</button>
+                <button class="tl-more" type="button" onclick="document.getElementById('tl-details').classList.toggle('open')">Categorie ▾</button>
                 <button class="btn-add" id="tl-add" onclick="addTimelineItem()" style="min-height:46px">+ Aggiungi</button>
+                <div class="ig" style="flex-basis:100%;margin-top:6px"><label>Note operative</label><textarea id="tl-note" placeholder="es. PLANNER: coordinamento sposa…" style="width:100%;padding:9px 12px;border:1px solid var(--gray-l);font-family:inherit;font-size:17px;resize:vertical;min-height:46px;line-height:1.4" rows="2"></textarea></div>
                 <div class="tl-details" id="tl-details">
                   <div class="ig">
                     <label style="font-size:14px">Categorie evento</label>
                     <div id="tl-cat-pills" class="tl-cat-pills" style="gap:5px"></div>
-                  </div>
-                  <div class="ig">
-                    <label style="font-size:14px">Note operative</label>
-                    <textarea id="tl-note" placeholder="es. PLANNER: coordinamento sposa..." style="width:100%;padding:9px 12px;border:1px solid var(--gray-l);font-family:inherit;font-size:17px;resize:vertical;min-height:70px;line-height:1.4"></textarea>
                   </div>
                 </div>
               </div>
@@ -1289,16 +1290,13 @@ tr.b-vendor{cursor:pointer}
                 <div class="ig"><label>Orario</label><input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tlb-ora" style="width:120px"></div>
                 <div class="ig"><label>Fine (facoltativa)</label><input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tlb-fine" style="width:120px"></div>
                 <div class="ig ev"><label>Evento</label><input id="tlb-txt" placeholder="es. Cerimonia in chiesa" onkeydown="if(event.key==='Enter')document.getElementById('tlb-add').click()"></div>
-                <button class="tl-more" type="button" onclick="document.getElementById('tlb-details').classList.toggle('open')">Categorie e note ▾</button>
+                <button class="tl-more" type="button" onclick="document.getElementById('tlb-details').classList.toggle('open')">Categorie ▾</button>
                 <button class="btn-add" id="tlb-add" onclick="addTimelineItemB()" style="min-height:46px">+ Aggiungi</button>
+                <div class="ig" style="flex-basis:100%;margin-top:6px"><label>Note operative</label><textarea id="tlb-note" placeholder="es. PLANNER: coordinamento sposa…" style="width:100%;padding:9px 12px;border:1px solid var(--gray-l);font-family:inherit;font-size:17px;resize:vertical;min-height:46px;line-height:1.4" rows="2"></textarea></div>
                 <div class="tl-details" id="tlb-details">
                   <div class="ig">
                     <label style="font-size:14px">Categorie evento</label>
                     <div id="tlb-cat-pills" class="tl-cat-pills" style="gap:5px"></div>
-                  </div>
-                  <div class="ig">
-                    <label style="font-size:14px">Note operative</label>
-                    <textarea id="tlb-note" placeholder="es. PLANNER: coordinamento sposa..." style="width:100%;padding:9px 12px;border:1px solid var(--gray-l);font-family:inherit;font-size:17px;resize:vertical;min-height:70px;line-height:1.4"></textarea>
                   </div>
                 </div>
               </div>
@@ -1621,7 +1619,7 @@ const EN_MAP={
 "ADMIN":"ADMIN","Accedi":"Sign in","Accedi come":"Sign in as","Acconto pagato":"Deposit paid","Affianca":"Side by side","Allergeni":"Allergens","Altre voci":"Other items","Altro":"Other",
 "Ancora da pagare":"Still to pay","Animazione Bambini":"Children's entertainment","Apri Tavoli e Piantina":"Open Tables & Floor plan","Apri il Percorso →":"Open the Journey →","Archivia":"Archive",
 "Arrivati":"Arrived","Assegnati":"Assigned","Assente":"Absent","Assenti":"Absent","Assistente WP":"WP assistant","Attività da fare":"Tasks to do","Auto Sposi":"Couple's car","Bambini":"Children","Bambino":"Child",
-"Bomboniere":"Favours","Budget":"Budget","Budget speso":"Budget spent","Carne":"Meat","Categoria":"Category","Categorie e note ▾":"Categories & notes ▾","Categorie evento":"Event categories","Catering":"Catering",
+"Bomboniere":"Favours","Budget":"Budget","Budget speso":"Budget spent","Carne":"Meat","Categoria":"Category","Categorie ▾":"Categories & notes ▾","Categorie evento":"Event categories","Catering":"Catering",
 "Cena":"Dinner","Cerimonia":"Ceremony","Check-in":"Check-in","Chiave check-in":"Check-in key","Chiesa":"Church","Chiesa / Celebrante":"Church / Officiant","Codice":"Code","Cognome *":"Last name *","Colore":"Colour",
 "Completate":"Completed","Con allergeni":"With allergens","Con transfer":"With transfer","Concept":"Concept","Concept & Moodboard":"Concept & Moodboard","Condivisione e link":"Sharing & links","Confermati":"Confirmed","Confermato":"Confirmed",
 "Da arrivare":"To arrive","Da contattare":"To contact","Da fare":"To do","Da fare ora":"To do now","Didascalia":"Caption","Documenti":"Documents","Elementi sala":"Room elements","Elimina":"Delete","Email":"Email",
@@ -1633,7 +1631,7 @@ const EN_MAP={
 "Le modifiche si salvano automaticamente.":"Changes are saved automatically.","Le voci con l'etichetta":"Items labelled","Link dell'immagine":"Image link","Lista Cucina":"Kitchen list","Location":"Venue","Logistica":"Logistics",
 "Make-up":"Make-up","Makeup & Hair Stylist":"Make-up & Hair Stylist","Menu":"Menu","Moodboard":"Moodboard","Musica":"Music","Musica Cena":"Dinner music","Musica Chiesa":"Church music","Musica Cocktail":"Cocktail music","Musica Generale":"General music",
 "Nascondi tavoli vuoti":"Hide empty tables","Neonato":"Infant","Nessun evento":"No events","Nessun ospite in questa categoria":"No guests in this category","Nessuna piantina caricata.":"No floor plan uploaded.",
-"Nessuna risposta dal link RSVP ancora":"No replies from the RSVP link yet","No":"No","Nome *":"First name *","Nome del colore (facoltativo)":"Colour name (optional)","Normale":"Standard","Note":"Notes","Note operative":"Operational notes",
+"Nessuna risposta dal link RSVP ancora":"No replies from the RSVP link yet","No":"No","Nome *":"First name *","Nome del colore (facoltativo)":"Colour name (optional)","Normale":"Standard","Note":"Notes","Note operative":"Operational notes","+ nota operativa":"+ operational note",
 "OSPITI PRESENTI":"GUESTS PRESENT","Oggi!":"Today!","Orario":"Time","Ospiti":"Guests","Ospiti confermati":"Confirmed guests","PANORAMICA":"OVERVIEW","PDF":"PDF","Pagato finora":"Paid so far","Palette colori":"Colour palettes",
 "Partecipazione":"Invitation","Per":"For","Pesce":"Fish","Piano A — Principale":"Plan A — Main","Piano B — Alternativo":"Plan B — Alternative","Piantina tavoli":"Seating chart","Planimetria & tavoli":"Floor plan & tables","⇪ Carica sfondo (immagine o PDF)":"⇪ Upload background (image or PDF)","Rimuovi sfondo":"Remove background","Planimetria della sala":"Room floor plan","PDF tavoli (posti)":"Tables PDF (seats)","Sala (m)":"Room (m)","Tavoli tondi Ø":"Round tables Ø","Griglia":"Grid","Elemento":"Element","Tondo":"Round","Rettangolare":"Rectangular","Imperiale":"Imperial","Forma":"Shape","Lunghezza":"Length","Larghezza":"Width","Profondità":"Depth","Rotazione":"Rotation","Reimposta":"Reset","libera":"free","◈ Vista 3D":"◈ 3D view","⤢ Ingrandisci":"⤢ Enlarge","⤡ Riduci":"⤡ Shrink","oppure incolla un link":"or paste a link","Trascina per ruotare · scorri per ingrandire · due dita per spostare":"Drag to rotate · scroll to zoom · two fingers to pan",
 "Posti liberi":"Seats free","Posti totali":"Total seats","Previsto":"Planned","Prossime":"Upcoming","Prova abito":"Dress fitting","Questa settimana":"This week","RSVP":"RSVP","Saldato":"Paid in full","Salva":"Save","Scadute":"Overdue",
@@ -2177,73 +2175,87 @@ window.tavoloLabel=function(t){
 window.exportSeatingChartPDF=function(){
   if(!CW_ID)return;
   const w=CW_DATA||{};
-  const numT=seatingCfg.tables||10;
-  const showSposi=document.getElementById('seat-sposi')?document.getElementById('seat-sposi').checked:!!seatingCfg.sposi;
-  const customTables=seatingCfg.customTables||[];
   const so=g=>(typeof g.posto==='number')?g.posto:9999;
-  // Elenco tavoli da disegnare nell'ordine corretto
-  const tableIds=[];
-  if(showSposi)tableIds.push('sposi');
-  customTables.forEach(ct=>tableIds.push(ct.id));
-  for(let i=1;i<=numT;i++)tableIds.push(String(i));
-  // Disegna un tavolo tondo come SVG: cerchio centrale + posti numerati attorno
-  function drawTable(tId){
-    const occupanti=Object.entries(guests)
-      .filter(([,g])=>g.tavolo===tId)
-      .sort((a,b)=>so(a[1])-so(b[1])||(a[1].cognome||'').localeCompare(b[1].cognome||''));
-    if(!occupanti.length)return '';
-    const label=(tId==='sposi')?'Sposi':isCustomTable(tId)?(window.customTableNames[tId]||'Staff'):tId;
-    const n=occupanti.length;
-    const cx=150,cy=150,rTable=70,rSeat=14,rOrbit=rTable+30;
-    let seats='';
-    if(tId==='sposi'&&n>=2){
-      // Sposi (posti 1 e 2) affiancati in alto; gli altri distribuiti sull'arco inferiore
-      const posList=[];
-      // posto 1: leggermente a sinistra del centro-alto; posto 2: a destra
-      const spread=22; // distanza orizzontale tra i due sposi
-      posList.push({x:cx-spread,y:cy-rOrbit});
-      posList.push({x:cx+spread,y:cy-rOrbit});
-      // restanti ospiti lungo l'arco inferiore (da destra-alto a sinistra-alto passando dal basso)
-      const rest=n-2;
-      if(rest>0){
-        const startA=-40, endA=220; // archi in gradi (esclude la zona alta degli sposi)
-        for(let k=0;k<rest;k++){
-          const a=(startA+(endA-startA)*(rest===1?0.5:k/(rest-1)))*Math.PI/180;
-          posList.push({x:cx+rOrbit*Math.cos(a), y:cy-rOrbit*Math.sin(a)});
-        }
+  const ctNames={};(seatingCfg.customTables||[]).forEach(ct=>{ctNames[ct.id]=ct.nome;});
+  const menuShort=m=>({'Normale':'','Carne':'','Pesce':'pesce','Vegetariano':'veg.','Vegano':'vegano','Bambino':'bimbo','Neonato':'neonato'}[m]??m);
+  // Posizioni dei posti (px) numerate in senso orario dall'alto
+  function seatPos(t,n,tId){
+    const out=[];
+    if(t.shape==='round'){
+      const R=100;
+      if(tId==='sposi'&&n>=2){
+        out.push({x:-22,y:-R},{x:22,y:-R});
+        const rest=n-2;
+        for(let k=0;k<rest;k++){const a=(-40+(260)*(rest===1?0.5:k/(rest-1)))*Math.PI/180;out.push({x:R*Math.cos(a),y:-R*Math.sin(a)});}
+      }else{
+        for(let i=0;i<n;i++){const a=(-90+360/n*i)*Math.PI/180;out.push({x:R*Math.cos(a),y:R*Math.sin(a)});}
       }
-      occupanti.forEach((o,idx)=>{
-        const p=posList[idx];
-        seats+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${rSeat}" fill="#fff" stroke="#b08d57" stroke-width="1"/>`
-          +`<text x="${p.x.toFixed(1)}" y="${(p.y+3.5).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:bold;fill:#1a1a1a">${idx+1}</text>`;
-      });
     }else{
-      // posti in cerchio, partendo dall'alto (ore 12) in senso orario
-      occupanti.forEach((o,idx)=>{
-        const ang=(-90+(360/n)*idx)*Math.PI/180;
-        const sx=cx+rOrbit*Math.cos(ang);
-        const sy=cy+rOrbit*Math.sin(ang);
-        seats+=`<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${rSeat}" fill="#fff" stroke="#b08d57" stroke-width="1"/>`
-          +`<text x="${sx.toFixed(1)}" y="${(sy+3.5).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:bold;fill:#1a1a1a">${idx+1}</text>`;
-      });
+      const lPx=t.lPx,off=t.wPx/2+27;
+      const ends=(t.shape==='imp'&&n>=2)?2:0,rest=n-ends,top=Math.ceil(rest/2),bot=rest-top;
+      for(let i=0;i<top;i++)out.push({x:-lPx/2+(i+0.5)*lPx/top,y:-off});
+      if(ends)out.push({x:lPx/2+27,y:0});
+      for(let i=bot-1;i>=0;i--)out.push({x:-lPx/2+(i+0.5)*lPx/bot,y:off});
+      if(ends)out.push({x:-(lPx/2+27),y:0});
     }
-    return `<div style="display:inline-block;width:300px;text-align:center;vertical-align:top;margin-bottom:10px;page-break-inside:avoid">
-      <svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="${cx}" cy="${cy}" r="${rTable}" fill="#faf7f2" stroke="#b08d57" stroke-width="1.5"/>
-        <text x="${cx}" y="${cy-4}" text-anchor="middle" style="font-size:15px;font-weight:bold;fill:#1a1a1a">${(tId==='sposi'||isCustomTable(tId))?label:'Tavolo '+label}</text>
-        <text x="${cx}" y="${cy+16}" text-anchor="middle" style="font-size:11px;fill:#888">${n} ospiti</text>
-        ${seats}
-      </svg></div>`;
+    return out;
   }
-  const charts=tableIds.map(drawTable).filter(Boolean).join('');
+  const ids=[];
+  if(seatingCfg.sposi)ids.push('sposi');
+  (seatingCfg.customTables||[]).forEach(ct=>ids.push(ct.id));
+  for(let i=1;i<=(seatingCfg.tables||10);i++)ids.push(String(i));
+  function card(tId){
+    const occ=Object.values(guests)
+      .filter(g=>g.rsvp!=='Assente'&&(g.tavolo===tId||(ctNames[tId]&&g.tavolo&&g.tavolo.toLowerCase()===ctNames[tId].toLowerCase())))
+      .sort((a,b)=>so(a)-so(b)||(a.cognome||'').localeCompare(b.cognome||''));
+    if(!occ.length)return '';
+    const n=occ.length;
+    const label=tId==='sposi'?'Tavolo Sposi':isCustomTable(tId)?(window.customTableNames[tId]||'Staff'):'Tavolo '+tId;
+    const L=tLayout(tId);
+    const t={...L};
+    if(t.shape!=='round'){t.lPx=Math.min(180,Math.max(110,Math.round(n>8?180:140)));t.wPx=Math.max(50,Math.min(80,Math.round(t.lPx*L.w/L.l)));}
+    const pos=seatPos(t,n,tId);
+    let seats='';
+    pos.forEach((p,i)=>{
+      seats+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="13" fill="#fff" stroke="#b08d57" stroke-width="1"/><text x="${p.x.toFixed(1)}" y="${(p.y+4).toFixed(1)}" text-anchor="middle" style="font-size:12px;font-weight:bold;fill:#1a1a1a">${i+1}</text>`;
+    });
+    const body=t.shape==='round'
+      ?`<circle r="70" fill="#faf7f2" stroke="#b08d57" stroke-width="1.5"/>`
+      :`<rect x="${-t.lPx/2}" y="${-t.wPx/2}" width="${t.lPx}" height="${t.wPx}" rx="3" fill="#faf7f2" stroke="#b08d57" stroke-width="1.5"/>`;
+    const rows=occ.map((g,i)=>{
+      const al=[g.allergeni,g.intolleranze].filter(Boolean).join(', ');
+      const mn=menuShort(g.menu||'Normale');
+      return `<tr><td class="n">${i+1}</td><td>${ciEsc(g.cognome)} ${ciEsc(g.nome)}${mn?` <span class="m">${ciEsc(mn)}</span>`:''}${al?` <span class="a">⚠ ${ciEsc(al)}</span>`:''}</td></tr>`;
+    }).join('');
+    return `<div class="card">
+      <svg viewBox="-150 -140 300 280" width="100%" xmlns="http://www.w3.org/2000/svg">${body}
+        <text y="-4" text-anchor="middle" style="font-size:14px;font-weight:bold;fill:#1a1a1a">${ciEsc(label)}</text>
+        <text y="14" text-anchor="middle" style="font-size:11px;fill:#888">${n} ospiti</text>${seats}</svg>
+      <table>${rows}</table></div>`;
+  }
+  const cards=ids.map(card).filter(Boolean).join('');
   const win=window.open('','_blank');
-  win.document.write(`<html><head><title>Piantina Tavoli — ${w.nome1||''} & ${w.nome2||''}</title></head>
-    <body style="font-family:Arial,sans-serif;padding:24px;color:#1a1a1a;text-align:center">
-      <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:64px"><br>
-      <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin:8px 0 20px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)} · Piantina Tavoli</div>
-      <div>${charts}</div>
-      <script>window.onload=function(){window.print();}<\/script>
-    </body></html>`);
+  win.document.write(`<html><head><title>Disposizione tavoli — ${ciEsc(w.nome1)} & ${ciEsc(w.nome2)}</title>
+    <style>
+      @page{size:A4 portrait;margin:12mm}
+      body{font-family:Arial,sans-serif;margin:0;color:#1a1a1a}
+      .head{text-align:center;margin-bottom:10px}
+      .head div{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin-top:6px}
+      .grid{display:grid;grid-template-columns:1fr 1fr;gap:6mm 8mm}
+      .card{break-inside:avoid;page-break-inside:avoid;border:1px solid #e6e0d4;border-radius:4px;padding:6px 10px 8px;min-width:0;box-sizing:border-box;overflow:hidden}
+      *{box-sizing:border-box}
+      .card svg{max-height:60mm;display:block;margin:0 auto}
+      table{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
+      td{padding:2px 4px;border-top:1px solid #f0ebe0;vertical-align:top}
+      td.n{width:18px;font-weight:bold;color:#b08d57;text-align:right}
+      .m{color:#6b6b6b;font-size:10px;border:1px solid #ddd;border-radius:8px;padding:0 5px}
+      .a{color:#c0392b;font-size:10px}
+    </style></head><body>
+    <div class="head"><img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:52px">
+      <div>${ciEsc(w.nome1)} & ${ciEsc(w.nome2)} — ${formatDate(w.data)} · Disposizione tavoli e posti</div></div>
+    <div class="grid" style="width:calc(100% - 3px)">${cards}</div>
+    <script>window.onload=function(){setTimeout(function(){window.print();},400);}<\/script>
+  </body></html>`);
   win.document.close();
 };
 
@@ -4094,7 +4106,6 @@ window.addTimelineItem=async function(){
   tlTimeRefresh();
   document.getElementById('tl-note').value='';
   resetTlCatPills();
-  document.getElementById('tl-details').classList.remove('open');
 };
 window.toggleTimeline=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timeline/${id}`),{done:!done});};
 window.deleteTimelineItem=async function(id){if(!confirm('Eliminare questo evento?'))return;await remove(ref(db,`matrimoni/${CW_ID}/timeline/${id}`));};
@@ -4187,7 +4198,9 @@ function resetTlCatPills(){
 }
 
 let tlEditingId=null;
+let tlFocusNote=false;
 window.editTimelineItem=function(id){tlEditingId=id;renderTimeline();};
+window.editTimelineNote=function(id){tlFocusNote=true;tlEditingId=id;renderTimeline();};
 window.cancelTimelineEdit=function(){tlEditingId=null;renderTimeline();};
 window.saveTimelineItem=async function(id){
   const txt=document.getElementById('tl-edit-txt-'+id).value.trim();
@@ -4224,7 +4237,7 @@ window.renderTimeline=function(){
     const div=document.createElement('div');
     div.className='tl-item'+(item.done?' done':'')+(tlEditingId===id?' editing':'');
     const safeTxt=(item.txt||'').replace(/"/g,'&quot;');
-    const safeNote=(item.note||'').replace(/"/g,'&quot;');
+    const safeNote=ciEsc(item.note||'');
     const itemCats=tlCats(item);
     // Badge categorie (visibile su "Tutte", mostra solo quelle diverse dal filtro)
     const catBadge=(filter==='__all__')?itemCats.map(c=>`<span class="tl-cat-badge">${c}</span>`).join(''):'';
@@ -4239,7 +4252,7 @@ window.renderTimeline=function(){
         ${catBadge}
         <button class="btn-icon" onclick="deleteTimelineItem('${id}')" style="margin-left:auto">✕</button>
       </div>
-      ${item.note?`<div style="font-size:15px;color:var(--gray);margin:4px 0 0 22px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}
+      ${item.note?`<div class="tl-note" onclick="editTimelineNote('${id}')" title="Clicca per modificare"><span class="tl-note-l">Note operative</span>${ciEsc(item.note)}</div>`:`<div class="tl-note-add" onclick="editTimelineNote('${id}')">+ nota operativa</div>`}
       ${tlEditingId===id?`<div class="tl-edit-row" style="flex-direction:column;align-items:flex-start;gap:8px">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tl-edit-ora-${id}" value="${item.ora||''}" style="width:90px">
@@ -4253,7 +4266,11 @@ window.renderTimeline=function(){
       </div>`:''}`; 
     list.appendChild(div);
   });
-  if(tlEditingId){const inp=document.getElementById('tl-edit-txt-'+tlEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+  if(tlEditingId){
+    const nt=tlFocusNote&&document.getElementById('tl-edit-note-'+tlEditingId);
+    if(nt){nt.focus();nt.setSelectionRange(nt.value.length,nt.value.length);tlFocusNote=false;}
+    else{const inp=document.getElementById('tl-edit-txt-'+tlEditingId);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+  }
 }
 
 // Campi orario: testo con "--:--" e formattazione automatica (uguale in tutti i browser)
@@ -4322,12 +4339,14 @@ window.addTimelineItemB=async function(){
   tlTimeRefresh();
   document.getElementById('tlb-note').value='';
   resetTlCatPillsB();
-  document.getElementById('tlb-details').classList.remove('open');
+  
 };
 window.toggleTimelineB=async function(id,done){await update(ref(db,`matrimoni/${CW_ID}/timelineB/${id}`),{done:!done});};
 window.deleteTimelineItemB=async function(id){if(!confirm('Eliminare questo evento?'))return;await remove(ref(db,`matrimoni/${CW_ID}/timelineB/${id}`));};
 let tlEditingIdB=null;
+let tlFocusNoteB=false;
 window.editTimelineItemB=function(id){tlEditingIdB=id;renderTimelineB();};
+window.editTimelineNoteB=function(id){tlFocusNoteB=true;tlEditingIdB=id;renderTimelineB();};
 window.cancelTimelineEditB=function(){tlEditingIdB=null;renderTimelineB();};
 window.saveTimelineItemB=async function(id){
   const txt=document.getElementById('tlb-edit-txt-'+id).value.trim();
@@ -4361,7 +4380,7 @@ window.renderTimelineB=function(){
     const div=document.createElement('div');
     div.className='tl-item'+(item.done?' done':'')+(tlEditingIdB===id?' editing':'');
     const safeTxt=(item.txt||'').replace(/"/g,'&quot;');
-    const safeNote=(item.note||'').replace(/"/g,'&quot;');
+    const safeNote=ciEsc(item.note||'');
     const itemCats=tlCats(item);
     const catBadge=(filter==='__all__')?itemCats.map(c=>`<span class="tl-cat-badge">${c}</span>`).join(''):'';
     const editPillsHtml=TL_CATS.map(c=>`<span class="tl-pill${itemCats.includes(c)?' active':''}" data-cat="${c}" onclick="tlPillToggle(this)">${c}</span>`).join('');
@@ -4374,7 +4393,7 @@ window.renderTimelineB=function(){
         ${catBadge}
         <button class="btn-icon" onclick="deleteTimelineItemB('${id}')" style="margin-left:auto">✕</button>
       </div>
-      ${item.note?`<div style="font-size:15px;color:var(--gray);margin:4px 0 0 22px;white-space:pre-line;line-height:1.5">${item.note}</div>`:''}
+      ${item.note?`<div class="tl-note" onclick="editTimelineNoteB('${id}')" title="Clicca per modificare"><span class="tl-note-l">Note operative</span>${ciEsc(item.note)}</div>`:`<div class="tl-note-add" onclick="editTimelineNoteB('${id}')">+ nota operativa</div>`}
       ${tlEditingIdB===id?`<div class="tl-edit-row" style="flex-direction:column;align-items:flex-start;gap:8px">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <input type="text" class="time-in" inputmode="numeric" maxlength="5" placeholder="--:--" autocomplete="off" id="tlb-edit-ora-${id}" value="${item.ora||''}" style="width:90px">
@@ -4388,7 +4407,11 @@ window.renderTimelineB=function(){
       </div>`:''}`;
     list.appendChild(div);
   });
-  if(tlEditingIdB){const inp=document.getElementById('tlb-edit-txt-'+tlEditingIdB);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+  if(tlEditingIdB){
+    const nt=tlFocusNoteB&&document.getElementById('tlb-edit-note-'+tlEditingIdB);
+    if(nt){nt.focus();nt.setSelectionRange(nt.value.length,nt.value.length);tlFocusNoteB=false;}
+    else{const inp=document.getElementById('tlb-edit-txt-'+tlEditingIdB);if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}}
+  }
 };
 
 // Copia tutti gli eventi dal Piano A al Piano B (sovrascrive il B)
