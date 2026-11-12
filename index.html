@@ -33,6 +33,9 @@ input,select,textarea,button{font-variant-numeric:lining-nums;font-feature-setti
 .login-logo{text-align:center;margin-bottom:20px}
 .login-logo img{width:200px;max-width:75%}
 .login-sub{text-align:center;color:var(--gray);font-size:15px;letter-spacing:3px;text-transform:uppercase;margin-bottom:36px}
+.login-lang{display:flex;justify-content:center;gap:10px;margin-bottom:18px;font-size:15px;letter-spacing:2px;color:var(--gray-l)}
+.login-lang button{background:none;border:none;font-family:inherit;font-size:15px;letter-spacing:2px;color:var(--gray);cursor:pointer;padding:2px 4px}
+.login-lang button.on{color:var(--gold);border-bottom:1px solid var(--gold)}
 .login-quote{text-align:center;font-family:'Playfair Display',serif;font-style:italic;font-size:19px;line-height:1.5;color:var(--black);margin:0 auto 32px;max-width:340px}
 .role-card{display:block;width:100%;text-align:left;background:transparent;border:1px solid var(--gray-l);padding:18px 22px;margin-bottom:12px;cursor:pointer;font-family:'Cormorant Garamond',serif;transition:all .3s}
 .role-card:hover{border-color:var(--gold);background:var(--gold-pale)}
@@ -671,6 +674,7 @@ tr.b-vendor{cursor:pointer}
 <div id="s-login" class="active">
   <div class="login-box">
     <div class="login-logo"><img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" alt="Gisa Haute Couture"></div>
+    <div class="login-lang"><button id="ll-it" onclick="setLang('it')">IT</button><span>|</span><button id="ll-en" onclick="setLang('en')">EN</button></div>
     <p class="login-quote" id="login-quote">Il vostro matrimonio è un abito cucito su misura.</p>
     <!-- step 1: scelta ruolo -->
     <div id="login-step-role">
@@ -1526,6 +1530,7 @@ let LS=[],BL=[],VL=[],CL=[],TL=[];
 let moodboard={};
 let dragGuest=null;
 let LANG='it';
+let LOGIN_ROLE=null; // 'planner' | 'sposi' (scelto nella schermata iniziale)
 
 // ── TRANSLATIONS ──
 const T={
@@ -1796,8 +1801,27 @@ window.showView=function(name){
   origShowView(name);
 };
 
+function loginLang(){
+  const en=LANG==='en',$=id=>document.getElementById(id);
+  const set=(id,it,e)=>{const el=$(id);if(el)el.textContent=en?e:it;};
+  set('login-quote','Il vostro matrimonio è un abito cucito su misura.','Your wedding is a tailor-made gown.');
+  set('login-sub','Accedi come','Sign in as');
+  set('role-planner-t','Wedding Planner','Wedding Planner');
+  set('role-planner-d','Gestisci i tuoi matrimoni','Manage your weddings');
+  set('role-sposi-t','Sposi','Couple');
+  set('role-sposi-d','Il vostro matrimonio, passo dopo passo','Your wedding, step by step');
+  set('login-back','← Indietro','← Back');
+  set('l-email','Email','Email');
+  set('l-pwd','Password','Password');
+  set('l-btn','Accedi','Sign in');
+  const em=$('login-email');if(em)em.placeholder=en?'your email':'la tua email';
+  const lab=$('login-role-label');if(lab&&LOGIN_ROLE)lab.textContent=LOGIN_ROLE==='planner'?'Wedding Planner':(en?'Couple':'Sposi');
+  const a=$('ll-it'),b=$('ll-en');if(a)a.classList.toggle('on',!en);if(b)b.classList.toggle('on',en);
+}
 window.setLang=function(l){
   LANG=l;
+  try{localStorage.setItem('wm-lang',l);}catch(_){}
+  loginLang();
   document.querySelectorAll('[data-t]').forEach(el=>{
     const k=el.getAttribute('data-t');
     if(el.tagName==='OPTION')el.textContent=t(k);
@@ -1844,6 +1868,10 @@ window.setLang=function(l){
   if(CW_ID)renderAll();
   applyI18nDom();
 }
+
+// Lingua iniziale: quella scelta l'ultima volta
+;(function(){let l=null;try{l=localStorage.getItem('wm-lang');}catch(_){}
+  setTimeout(()=>{try{if(l==='en'||l==='it')setLang(l);else loginLang();}catch(_){}},0);})();
 
 // ── URL PARAMS ──
 const urlP=new URLSearchParams(location.search);
@@ -2328,7 +2356,6 @@ window.exportKitchenPDF=async function(){
 };
 
 // ── AUTH ──
-let LOGIN_ROLE=null; // 'planner' | 'sposi' (scelto nella schermata iniziale)
 window.pickRole=function(r){
   LOGIN_ROLE=r;
   document.getElementById('login-step-role').style.display=r?'none':'block';
