@@ -674,7 +674,7 @@ tr.b-vendor{cursor:pointer}
 <div id="s-login" class="active">
   <div class="login-box">
     <div class="login-logo"><img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" alt="Gisa Haute Couture"></div>
-    <div class="login-lang"><button id="ll-it" onclick="setLang('it')">IT</button><span>|</span><button id="ll-en" onclick="setLang('en')">EN</button></div>
+    <div class="login-lang"><button id="ll-it" onclick="setLang('it')">IT</button><span>|</span><button id="ll-en" onclick="setLang('en')">EN</button><span>|</span><button id="ll-fr" onclick="setLang('fr')">FR</button></div>
     <p class="login-quote" id="login-quote">Il vostro matrimonio è un abito cucito su misura.</p>
     <!-- step 1: scelta ruolo -->
     <div id="login-step-role">
@@ -757,6 +757,7 @@ tr.b-vendor{cursor:pointer}
       <div class="cucina-lang-toggle">
         <button class="lang-btn active" onclick="setCucinaLang('it',this)">🇮🇹 IT</button>
         <button class="lang-btn" onclick="setCucinaLang('en',this)">🇬🇧 EN</button>
+        <button class="lang-btn" onclick="setCucinaLang('fr',this)">🇫🇷 FR</button>
       </div>
       <button id="cucina-pdf-btn" onclick="exportKitchenPDF()" style="background:var(--gold);color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-size:15px;letter-spacing:1px;text-transform:uppercase">⤓ <span id="cucina-pdf-label">Scarica PDF</span></button>
       <span id="cucina-couple" style="color:var(--gold);font-size:15px;letter-spacing:2px;text-transform:uppercase"></span>
@@ -807,6 +808,7 @@ tr.b-vendor{cursor:pointer}
       <select class="lang-sel" onchange="setLang(this.value)" id="lang-sel">
         <option value="it">🇮🇹 IT</option>
         <option value="en">🇬🇧 EN</option>
+        <option value="fr">🇫🇷 FR</option>
       </select>
       <span class="admin-badge" id="role-badge" style="display:none">ADMIN</span>
       <span class="user-chip" id="user-chip"></span>
@@ -1574,6 +1576,46 @@ const T={
     rsvp_thanks_yes:'Grazie! Non vediamo l ora di festeggiare con te.',
     rsvp_thanks_no:'Grazie per la risposta. Ci dispiace non potrai esserci.',
   },
+  fr:{
+    nav_dash:'Tableau de bord',nav_guests:'Invités',nav_seating:'Tables',nav_budget:'Budget',
+    nav_vendors:'Prestataires',nav_mood:'Concept & Moodboard',nav_timeline:'Programme',nav_checklist:'Parcours',
+    nav_weddings:'Mariages',nav_archive:'Archives',
+    dash_title:'Tableau de bord',countdown_label:'Jusqu\'au mariage',
+    rsvp_status:'Statut RSVP',payment_alerts:'Paiements à venir',
+    rsvp_link_title:'Lien RSVP invités',copy_link:'Copier le lien',copy_kitchen:'Lien cuisine',copy_checkin:'Lien check-in équipe',
+    add_guest:'Ajouter un invité',fname:'Prénom',lname:'Nom',table_n:'Table N°',
+    phone:'Téléphone',hotel:'Hôtel',transfer:'Transfert',rsvp_stat:'RSVP',menu:'Menu',
+    allergens:'Allergènes rapides',intolerances:'Intolérances / Notes',
+    private_note:'★ Note admin',add_btn:'+ Ajouter',no_guests:'Aucun invité ajouté',
+    rsvp_waiting:'En attente',rsvp_yes:'Confirmé',rsvp_no:'Absent',
+    num_tables:'N° de tables',seats_per_table:'Places par table',
+    save_config:'Enregistrer',auto_assign:'Placement auto',unassigned:'Non placés',table_sposi:'Table des mariés',table_staff:'Table équipe',seating_chart_pdf:'PDF du plan',custom_tables:'Tables personnalisées',add_custom_table:'+ Ajouter',floorplan:'Plan du lieu',load_floorplan:'Charger',remove_floorplan:'Retirer',export_floorplan:'⤓ PDF',scenario_main:'Principal',scenario_b:'Plan B',
+    total_budget:'Budget total :',expense_item:'Dépense',planned:'Prévu',
+    actual:'Réel',diff:'Écart',due_date:'Échéance',no_budget:'Aucun poste',
+    add_vendor:'Ajouter un prestataire',category:'Catégorie',vendor_name:'Nom',
+    contact:'Contact',contract_amount:'Montant',deposit_paid:'Acompte',deposits:'Acomptes versés',add_deposit:'+ Acompte',
+    status:'Statut',notes:'Notes',no_vendors:'Aucun prestataire',
+    st_contact:'À contacter',st_confirmed:'Confirmé',st_deposit:'Acompte versé',st_paid:'Soldé',
+    timeline_title:'Programme du jour',time:'Heure',event:'Événement',no_timeline:'Aucun événement',
+    add_task:'Ajouter une tâche',task:'Tâche',no_tasks:'Aucune tâche',
+    new_wedding:'Nouveau mariage',spouse1:'Marié(e) 1',spouse2:'Marié(e) 2',
+    wedding_date:'Date du mariage',email_spouses:'E-mail des mariés',
+    wedding_location:'Lieu',pwd_spouses:'Mot de passe des mariés',create_wedding:'Créer le mariage',
+    nav_archive:'Archives',no_archive:'Aucun mariage archivé',
+    pdf_table:'PDF par table',pdf_alpha:'PDF alphabétique',export_csv:'Exporter CSV',backup_xls:'Sauvegarde XLS',checkin_btn:'✓ Check-in',tl_pdf:'PDF',tl_xls:'Excel',tl_csv:'CSV',tl_cat:'Catégorie',tl_view_cat:'Programme',
+    edit_guest:'Modifier l\'invité',edit_vendor:'Modifier le prestataire',save:'Enregistrer les modifications',cancel:'Annuler',
+    al_gluten:'Gluten',al_lactose:'Lactose',al_nuts:'Fruits à coque',al_shellfish:'Crustacés',
+    al_eggs:'Œufs',al_soy:'Soja',al_fish:'Poisson',al_sesame:'Sésame',al_other:'Autre',
+    menu_normal:'Standard',menu_meat:'Viande',menu_veg:'Végétarien',menu_vegan:'Végan',menu_fish:'Poisson',
+    menu_staff:'Équipe',menu_child:'Enfant',menu_baby:'Bébé',menu_other:'Autre',
+    days:'Jours',hours:'Heures',mins:'Minutes',secs:'Secondes',
+    confirmed:'Confirmés',waiting:'En attente',absent:'Absents',
+    kitchen_title:'Liste cuisine — Pour le traiteur',
+    table:'Table',guests_total:'Total des invités',
+    rsvp_invite:'Vous êtes invité(e) à leur mariage. Merci de confirmer votre présence.',
+    rsvp_thanks_yes:'Merci ! Nous avons hâte de célébrer avec vous.',
+    rsvp_thanks_no:'Merci pour votre réponse. Nous sommes désolés que vous ne puissiez pas venir.',
+  },
   en:{
     nav_dash:'Dashboard',nav_guests:'Guests',nav_seating:'Seating',nav_budget:'Budget',
     nav_vendors:'Vendors',nav_mood:'Concept & Moodboard',nav_timeline:'Timeline',nav_checklist:'Journey',
@@ -1616,10 +1658,14 @@ const T={
   }
 };
 
+const PICK_FR={'Marco':'Marc','Smith':'Martin','+44 333...':'+33 6 ...','e.g. gluten free...':'ex. sans gluten...','Only you can read this':'Vous seul(e) pouvez lire ceci','Search name, last name, table...':'Rechercher par prénom, nom, table...','e.g. Florist, Venue...':'ex. Fleuriste, Lieu...','e.g. Studio Smith':'ex. Studio Martin','phone / email':'tél. / e-mail','Additional notes...':'Notes supplémentaires...','e.g. Confirm florist':'ex. Confirmer le fleuriste','e.g. Church ceremony':'ex. Cérémonie à l\'église','Sofia':'Sophie','couple@email.com':'couple@email.com','e.g. Villa Borghese, Rome':'ex. Château de Versailles, Paris','your email':'votre e-mail','All RSVP':'Tous les RSVP','Confirmed':'Confirmés','Pending':'En attente','Absent':'Absents','All menus':'Tous les menus','Confirm attendance':'Je confirme ma présence',"I won't be able to attend":'Je ne pourrai pas être présent(e)','Send confirmation':'Envoyer la confirmation','Unassigned':'Non placés','guests':'invités','Last name':'Nom','First name':'Prénom','Allergens':'Allergènes','Notes':'Notes','Kitchen List':'Liste cuisine','Download PDF':'Télécharger le PDF','Couple table':'Table des mariés','Table ':'Table ','Invalid email or password.':'E-mail ou mot de passe incorrect.','This account is not a Wedding Planner account.':"Ce compte n'est pas un compte Wedding Planner.",'This is a Wedding Planner account: choose "Wedding Planner".':'Ceci est un compte Wedding Planner : choisissez « Wedding Planner ».','day':'jour','All tables':'Toutes les tables','No table':'Sans table','RSVP not matched to your guest list — review and merge if needed':'RSVP ne correspondant pas à la liste — à vérifier et fusionner si besoin','Mark as verified':'Marquer comme vérifié','Couple':'Mariés'};
+function pick(l,it,en){return l==='en'?en:l==='fr'?(PICK_FR[en]!==undefined?PICK_FR[en]:it):it;}
 function t(key){return T[LANG][key]||T['it'][key]||key}
 
 // ── TRADUZIONE AUTOMATICA IT → EN (testi non coperti da data-t e testi dinamici) ──
 const EN_MAP={
+"Trascina tavoli ed elementi per posizionarli (misure in metri). Clicca un elemento per cambiare forma, misure e rotazione.":"Drag tables and elements to place them (sizes in metres). Click an element to change shape, size and rotation.",
+"arrivano in automatico dalla pagina Fornitori (importo e acconti). Qui aggiungi le altre spese, oppure collegale a un fornitore (menu, open bar…) con ⚙. Gli importi mostrati sono IVA inclusa.":"come automatically from the Vendors page (amount and deposits). Here you add the other expenses, or link them to a vendor (menu, open bar…) with ⚙. Amounts shown include VAT.",
 "+ Aggiungi":"+ Add","+ Altri dettagli (contatti, hotel, allergeni, note)":"+ More details (contacts, hotel, allergens, notes)","− Altri dettagli (contatti, hotel, allergeni, note)":"− More details (contacts, hotel, allergens, notes)",
 "ADMIN":"ADMIN","Accedi":"Sign in","Accedi come":"Sign in as","Acconto pagato":"Deposit paid","Affianca":"Side by side","Allergeni":"Allergens","Altre voci":"Other items","Altro":"Other",
 "Ancora da pagare":"Still to pay","Animazione Bambini":"Children's entertainment","Apri Tavoli e Piantina":"Open Tables & Floor plan","Apri il Percorso →":"Open the Journey →","Archivia":"Archive",
@@ -1689,6 +1735,79 @@ const EN_FRAG=[
 [/Lista per Tavolo/g,'List by table'],[/Lista Alfabetica/g,'Alphabetical list'],[/Lista Ospiti/g,'Guest list'],[/\bTavolo Sposi\b/g,'Couple table'],[/\bTavolo (\d+)\b/g,'Table $1'],[/Timeline del Giorno/gi,'Day timeline'],[/Timeline Piano B — Alternativo/g,'Timeline Plan B — Alternative']
 ];
 const EN_MON={gen:'Jan',feb:'Feb',mar:'Mar',apr:'Apr',mag:'May',giu:'Jun',lug:'Jul',ago:'Aug',set:'Sep',ott:'Oct',nov:'Nov',dic:'Dec'};
+const FR_MAP={
+"Trascina tavoli ed elementi per posizionarli (misure in metri). Clicca un elemento per cambiare forma, misure e rotazione.":"Faites glisser les tables et les éléments pour les placer (mesures en mètres). Cliquez sur un élément pour modifier forme, dimensions et rotation.",
+"arrivano in automatico dalla pagina Fornitori (importo e acconti). Qui aggiungi le altre spese, oppure collegale a un fornitore (menu, open bar…) con ⚙. Gli importi mostrati sono IVA inclusa.":"proviennent automatiquement de la page Prestataires (montant et acomptes). Ajoutez ici les autres dépenses, ou liez-les à un prestataire (menu, open bar…) avec ⚙. Les montants affichés incluent la TVA.",
+"+ Aggiungi":"+ Ajouter","+ Altri dettagli (contatti, hotel, allergeni, note)":"+ Plus de détails (contacts, hôtel, allergènes, notes)","− Altri dettagli (contatti, hotel, allergeni, note)":"− Plus de détails (contacts, hôtel, allergènes, notes)",
+"ADMIN":"ADMIN","Accedi":"Se connecter","Accedi come":"Se connecter en tant que","Acconto pagato":"Acompte versé","Affianca":"Côte à côte","Allergeni":"Allergènes","Altre voci":"Autres postes","Altro":"Autre",
+"Ancora da pagare":"Reste à payer","Animazione Bambini":"Animation enfants","Apri Tavoli e Piantina":"Ouvrir Tables et plan","Apri il Percorso →":"Ouvrir le Parcours →","Archivia":"Archiver",
+"Arrivati":"Arrivés","Assegnati":"Placés","Assente":"Absent","Assenti":"Absents","Assistente WP":"Assistant WP","Attività da fare":"Tâches à faire","Auto Sposi":"Voiture des mariés","Bambini":"Enfants","Bambino":"Enfant",
+"Bomboniere":"Cadeaux invités","Budget":"Budget","Budget speso":"Budget dépensé","Carne":"Viande","Categoria":"Catégorie","Categorie ▾":"Catégories et notes ▾","Categorie evento":"Catégories de l'événement","Catering":"Traiteur",
+"Cena":"Dîner","Cerimonia":"Cérémonie","Check-in":"Check-in","Chiave check-in":"Clé check-in","Chiesa":"Église","Chiesa / Celebrante":"Église / Officiant","Codice":"Code","Cognome *":"Nom *","Colore":"Couleur",
+"Completate":"Terminées","Con allergeni":"Avec allergènes","Con transfer":"Avec transfert","Concept":"Concept","Concept & Moodboard":"Concept & Moodboard","Condivisione e link":"Partage et liens","Confermati":"Confirmés","Confermato":"Confirmé",
+"Da arrivare":"À arriver","Da contattare":"À contacter","Da fare":"À faire","Da fare ora":"À faire maintenant","Didascalia":"Légende","Documenti":"Documents","Elementi sala":"Éléments de la salle","Elimina":"Supprimer","Email":"E-mail",
+"Entro 7 giorni":"Sous 7 jours","Esci":"Se déconnecter","Esporta ▾":"Exporter ▾","Estetica":"Esthétique","Evento":"Événement","Filtra per categoria":"Filtrer par catégorie","Fine (facoltativa)":"Fin (facultatif)","Fornitori":"Prestataires",
+"Foto/Video":"Photo/Vidéo","Fotografo":"Photographe","GESTIONE":"GESTION","Generale":"Général","Gestisci":"Gérer","Gestisci i tuoi matrimoni":"Gérez vos mariages","Glutine":"Gluten","Grazie!":"Merci !","Hotel":"Hôtel",
+"Il vostro matrimonio è un abito cucito su misura":"Votre mariage est une robe de haute couture, faite sur mesure","Il vostro matrimonio è un abito cucito su misura.":"Votre mariage est une robe de haute couture, faite sur mesure.","Il vostro matrimonio, passo dopo passo":"Votre mariage, étape par étape",
+"Immagine non caricata.":"Image non chargée.","Impostazioni tavoli":"Paramètres des tables","In attesa":"En attente","Intrattenimento":"Animation","Invia conferma":"Envoyer la confirmation",
+"La pianta della location e la disposizione dei tavoli si gestiscono nella pagina Tavoli.":"Le plan du lieu et la disposition des tables se gèrent dans la page Tables.","La tua risposta è stata registrata.":"Votre réponse a bien été enregistrée.",
+"Le modifiche si salvano automaticamente.":"Les modifications sont enregistrées automatiquement.","Le voci con l'etichetta":"Les postes portant l'étiquette","Link dell'immagine":"Lien de l'image","Lista Cucina":"Liste cuisine","Location":"Lieu","Logistica":"Logistique",
+"Make-up":"Maquillage","Makeup & Hair Stylist":"Maquilleuse & coiffeuse","Menu":"Menu","Moodboard":"Moodboard","Musica":"Musique","Musica Cena":"Musique du dîner","Musica Chiesa":"Musique de l'église","Musica Cocktail":"Musique du cocktail","Musica Generale":"Musique générale",
+"Nascondi tavoli vuoti":"Masquer les tables vides","Neonato":"Nourrisson","Nessun evento":"Aucun événement","Nessun ospite in questa categoria":"Aucun invité dans cette catégorie","Nessuna piantina caricata.":"Aucun plan chargé.",
+"Nessuna risposta dal link RSVP ancora":"Aucune réponse via le lien RSVP pour l'instant","No":"Non","Nome *":"Prénom *","Nome del colore (facoltativo)":"Nom de la couleur (facultatif)","Normale":"Standard","Note":"Notes","Note operative":"Notes opérationnelles","+ nota operativa":"+ note opérationnelle",
+"OSPITI PRESENTI":"INVITÉS PRÉSENTS","Oggi!":"Aujourd'hui !","Orario":"Heure","Ospiti":"Invités","Ospiti confermati":"Invités confirmés","PANORAMICA":"APERÇU","PDF":"PDF","Pagato finora":"Payé à ce jour","Palette colori":"Palettes de couleurs",
+"Partecipazione":"Faire-part","Per":"Pour","Pesce":"Poisson","Piano A — Principale":"Plan A — Principal","Piano B — Alternativo":"Plan B — Alternatif","Piantina tavoli":"Plan de table","Planimetria & tavoli":"Plan de salle & tables","⇪ Carica sfondo (immagine o PDF)":"⇪ Charger un fond (image ou PDF)","Rimuovi sfondo":"Retirer le fond","Planimetria della sala":"Plan de la salle","PDF tavoli (posti)":"PDF tables (places)","Sala (m)":"Salle (m)","Tavoli tondi Ø":"Tables rondes Ø","Griglia":"Grille","Elemento":"Élément","Tondo":"Rond","Rettangolare":"Rectangulaire","Imperiale":"Impériale","Forma":"Forme","Lunghezza":"Longueur","Larghezza":"Largeur","Profondità":"Profondeur","Rotazione":"Rotation","Reimposta":"Réinitialiser","libera":"libre","◈ Vista 3D":"◈ Vue 3D","⤢ Ingrandisci":"⤢ Agrandir","⤡ Riduci":"⤡ Réduire","oppure incolla un link":"ou collez un lien","Trascina per ruotare · scorri per ingrandire · due dita per spostare":"Glissez pour pivoter · faites défiler pour zoomer · deux doigts pour déplacer",
+"Posti liberi":"Places libres","Posti totali":"Places au total","Previsto":"Prévu","Prossime":"À venir","Prova abito":"Essayage de la robe","Questa settimana":"Cette semaine","RSVP":"RSVP","Saldato":"Soldé","Salva":"Enregistrer","Scadute":"En retard",
+"Scarica PDF":"Télécharger le PDF","Scheda Tecnica":"Fiche technique","Sei invitato al loro matrimonio. Conferma la tua presenza.":"Vous êtes invité(e) à leur mariage. Merci de confirmer votre présence.","Senza cipolla":"Sans oignon","Senza data":"Sans date",
+"Senza tavolo":"Sans table","Sotto il budget":"Sous le budget","Sposa":"Mariée","Sposi":"Mariés","Sposo":"Marié","Staff":"Équipe","Stationery":"Papeterie","Sì":"Oui","Tavoli":"Tables","Tavolo Sposi":"Table des mariés","Telefono":"Téléphone",
+"Timeline":"Programme","Totale":"Total","Transfer":"Transfert","Transfer Ospiti":"Transferts des invités","Trascina i tavoli sulla piantina per posizionarli come nella sala reale.":"Faites glisser les tables sur le plan pour les placer comme dans la salle réelle.",
+"Tutte":"Toutes","Tutti":"Tous","Tutti RSVP":"Tous les RSVP","Tutti gli ospiti":"Tous les invités","Tutti i tavoli":"Toutes les tables","Tutti menu":"Tous les menus","Tutti sistemati ✧":"Tous placés ✧","Uova":"Œufs","Vecchia attività senza data":"Ancienne tâche sans date",
+"Vecchia voce senza categoria":"Ancien poste sans catégorie","Vegani":"Végans","Vegano":"Végan","Vegetariani":"Végétariens","Vegetariano":"Végétarien","Verifica che il link punti direttamente al file (non alla pagina di anteprima) e che sia condiviso pubblicamente.":"Vérifiez que le lien pointe directement vers le fichier (et non vers la page d'aperçu) et qu'il est partagé publiquement.",
+"Videomaker":"Vidéaste","Wedding Planner":"Wedding Planner","arrivano in automatico dalla pagina Fornitori (importo e acconti). Qui aggiungi solo le spese senza fornitore.":"proviennent automatiquement de la page Prestataires (montant et acomptes). Ajoutez ici uniquement les dépenses sans prestataire.",
+"confermati":"confirmés","scaduto":"en retard","← Indietro":"← Retour","← Lista ospiti":"← Liste des invités","⎘ Copia da Piano A":"⎘ Copier du Plan A","✓ Confermo la presenza":"✓ Je confirme ma présence","✓ Salvata":"✓ Enregistré","✕ Non potrò essere presente":"✕ Je ne pourrai pas être présent(e)",
+"✦ Carica il percorso standard":"✦ Charger le parcours standard","✦ Carica il percorso standard del matrimonio":"✦ Charger le parcours standard du mariage","Carica il percorso standard":"Charger le parcours standard",
+"Percorso":"Parcours","Dashboard":"Tableau de bord","Sposi · ":"Mariés · ","Totale ospiti":"Total des invités","Calendario":"Calendrier","Nuovo":"Nouveau","Aggiungi":"Ajouter","Modifica":"Modifier","Annulla":"Annuler","Chiudi":"Fermer","Salva modifiche":"Enregistrer les modifications",
+"Password":"Mot de passe","Archivio":"Archives","Matrimoni":"Mariages","Stato":"Statut","Importo":"Montant","Scadenza":"Échéance","Contatto":"Contact","Valore":"Valeur","Nome":"Prénom","Cognome":"Nom","Tavolo":"Table","Elimina evento":"Supprimer l'événement",
+"Nessun evento in questa fascia":"Aucun événement sur ce créneau","Principale":"Principal","Piano B":"Plan B","Piano A":"Plan A","Palette":"Palette","Elenco":"Liste","Tutti gli eventi":"Tous les événements","Condividi":"Partager","Copiato":"Copié",
+"Compila tutti i campi obbligatori":"Veuillez remplir tous les champs obligatoires","Il nome è obbligatorio":"Le nom est obligatoire","Nome e cognome obbligatori":"Prénom et nom obligatoires","Password minimo 6 caratteri":"Mot de passe : 6 caractères minimum","Seleziona una risposta":"Veuillez sélectionner une réponse",
+"Codice colore non valido (es. #8B3A4A)":"Code couleur invalide (ex. #8B3A4A)","Formato non valido. Usa AAAA-MM-GG, es. 2026-10-10":"Format invalide. Utilisez AAAA-MM-JJ, ex. 2026-10-10","Il Piano A è vuoto, nulla da copiare.":"Le Plan A est vide, rien à copier.",
+"Il percorso standard è già presente.":"Le parcours standard est déjà présent.","Imposta prima la data del matrimonio (Dashboard).":"Définissez d'abord la date du mariage (Tableau de bord).","Imposta prima una chiave check-in e salvala.":"Définissez d'abord une clé check-in et enregistrez-la.",
+"Incolla il link di un'immagine":"Collez le lien d'une image","Inserisci un importo valido":"Saisissez un montant valide","Inserisci un'attività":"Saisissez une tâche","Inserisci una chiave":"Saisissez une clé","Inserisci una voce":"Saisissez un poste","Link RSVP copiato!":"Lien RSVP copié !",
+"Link cucina copiato!":"Lien cuisine copié !","Nessuna piantina caricata":"Aucun plan chargé","Nome obbligatorio":"Le nom est obligatoire","Orario e evento obbligatori":"L'heure et l'événement sont obligatoires",
+"Archiviare questo matrimonio?":"Archiver ce mariage ?","Eliminare questo evento?":"Supprimer cet événement ?","Eliminare?":"Supprimer ?","Nuova data del matrimonio (formato AAAA-MM-GG):":"Nouvelle date du mariage (format AAAA-MM-JJ) :",
+"Link check-in staff copiato!":"Lien check-in équipe copié !","Link check-in staff":"Lien check-in équipe","Link cucina":"Lien cuisine","Copia link RSVP":"Copier le lien RSVP",
+"Concept in una frase":"Le concept en une phrase","Nessun pagamento in scadenza":"Aucun paiement à venir","Nessun ospite ancora":"Aucun invité pour l'instant","Nulla di urgente: tutto in ordine ✧":"Rien d'urgent : tout est en ordre ✧","Nessuna attività nel Percorso":"Aucune tâche dans le Parcours",
+"Nessuna risposta RSVP ancora":"Aucune réponse RSVP pour l'instant","Non ancora definito":"Pas encore défini","Nessuna palette":"Aucune palette","Nessun momento inserito":"Aucun moment ajouté","Nessun'attività":"Aucune tâche","nessuna scaduta":"aucune en retard","Tutti sistemati":"Tous placés",
+"Cliccare per mostrare l'anteprima":"Cliquez pour afficher l'aperçu","Clicca per mostrare l'anteprima":"Cliquez pour afficher l'aperçu","Si apre solo quando serve, per tenere l'app veloce":"S'ouvre uniquement au besoin, pour garder l'application rapide","Apri su Canva ↗":"Ouvrir sur Canva ↗","Apri immagine ↗":"Ouvrir l'image ↗","Design Canva":"Design Canva",
+"Nessuna immagine":"Aucune image","Nessun colore in palette":"Aucune couleur dans la palette","Rimuovi":"Retirer","Carica":"Charger","Esporta":"Exporter","Aggiungi attività":"Ajouter une tâche","Wedding Planner · Accedi":"Wedding Planner · Connexion",
+"Mostra i due piani affiancati":"Afficher les deux plans côte à côte","Sovrascrive il Piano B con tutti gli eventi del Piano A":"Remplace le Plan B par tous les événements du Plan A","Clicca per copiare il codice":"Cliquez pour copier le code","Clicca per modificare":"Cliquez pour modifier","Modifica data":"Modifier la date",
+"Apri la scheda del fornitore":"Ouvrir la fiche du prestataire","Preleva un colore da qualsiasi punto dello schermo":"Prélever une couleur n'importe où à l'écran","Su":"Haut","Giù":"Bas",
+"Lista per Tavolo":"Liste par table","Lista Alfabetica":"Liste alphabétique","Lista Ospiti":"Liste des invités","Non assegnato":"Non placé","Menù":"Menu","Totale versato: € ":"Total versé : € ",
+"es. Fotografi":"ex. Photographes","es. staff2026":"ex. equipe2026","facoltativa":"facultatif","minimo 6 caratteri":"6 caractères minimum","la tua email":"votre e-mail","Cerca ospite...":"Rechercher un invité...","Cerca per nome, cognome, tavolo...":"Rechercher par prénom, nom, table...",
+"Il concept in una frase":"Le concept en une phrase","Racconta l'idea del matrimonio: atmosfera, riferimenti, scelte di stile...":"Racontez l'idée du mariage : ambiance, références, choix de style...","Incolla il link dell'immagine (.jpg/.png)":"Collez le lien de l'image (.jpg/.png)",
+"Incolla il link (Canva, Google Drive, Dropbox, .jpg/.png)":"Collez le lien (Canva, Google Drive, Dropbox, .jpg/.png)","es. Ingresso, Buffet, Palco...":"ex. Entrée, Buffet, Scène...","es. Verde Uliveto":"ex. Vert olivier","es. Partecipazione, Menù":"ex. Faire-part, Menu",
+"es. Bomboniere, Confetti...":"ex. Cadeaux invités, Dragées...","es. PLANNER: coordinamento sposa...":"ex. PLANNER : coordination de la mariée...","Nome campo (es. Attrezzatura)":"Nom du champ (ex. Matériel)","Importo €":"Montant €","Specifica (es. melanzane, nichel...)":"Précisez (ex. aubergine, nickel...)",
+"Solo tu puoi leggere questo":"Vous seul(e) pouvez lire ceci","Note aggiuntive...":"Notes supplémentaires...","tel / email":"tél. / e-mail","es. Villa Borghese, Roma":"ex. Villa Borghese, Rome","es. Villa Paradiso":"ex. Villa Paradiso","es. senza glutine...":"ex. sans gluten...",
+"es. Cerimonia in chiesa":"ex. Cérémonie à l'église","es. Confermare fiorista":"ex. Confirmer le fleuriste","es. Studio Rossi":"ex. Studio Martin",
+"Definire concept e budget con gli sposi":"Définir le concept et le budget avec les mariés","Scegliere e bloccare la location":"Choisir et réserver le lieu","Definire data, rito e ufficiante":"Fixer la date, le rite et l'officiant","Prima lista ospiti":"Première liste d'invités","Save the date":"Save the date","Confermare fotografo e videomaker":"Confirmer photographe et vidéaste","Scegliere catering e menu":"Choisir le traiteur et le menu","Scegliere l'abito della sposa":"Choisir la robe de la mariée","Confermare fiorista e allestimenti":"Confirmer le fleuriste et la décoration","Confermare musica (band / DJ)":"Confirmer la musique (groupe / DJ)","Definire stationery e grafica coordinata":"Définir la papeterie et la charte graphique","Scegliere l'abito dello sposo":"Choisir la tenue du marié","Confermare hair & make-up":"Confirmer coiffure et maquillage","Organizzare transfer e alloggi ospiti":"Organiser les transferts et l'hébergement des invités","Inviare le partecipazioni":"Envoyer les faire-part","Documenti per il rito (civile / religioso)":"Documents pour la cérémonie (civile / religieuse)","Scegliere le fedi":"Choisir les alliances","Prova menu con il catering":"Dégustation du menu avec le traiteur","Sopralluogo tecnico in location":"Repérage technique sur le lieu","Prova trucco e capelli":"Essai maquillage et coiffure","Chiudere gli RSVP":"Clôturer les RSVP","Prova finale abito e ritocchi":"Dernier essayage de la robe et retouches","Piantina tavoli e tableau":"Plan de table et tableau","Timeline definitiva (Piano A e B) condivisa con i fornitori":"Programme définitif (Plan A et B) partagé avec les prestataires","Saldare i fornitori":"Solder les prestataires","Comunicare i numeri definitivi al catering":"Communiquer les chiffres définitifs au traiteur","Briefing finale con tutti i fornitori":"Briefing final avec tous les prestataires","Consegnare stationery e materiali in location":"Livrer la papeterie et le matériel sur le lieu","Preparare valigia e documenti viaggio di nozze":"Préparer valise et documents du voyage de noces","Preparare buste e mance":"Préparer les enveloppes et les pourboires","Controllare meteo e piano B":"Vérifier la météo et le plan B","Prova generale della cerimonia":"Répétition de la cérémonie","Ringraziare i fornitori":"Remercier les prestataires","Saldo finale e chiusura budget":"Solde final et clôture du budget",
+"Nota privata (admin)":"Note privée (admin)","★ Nota privata (admin)":"★ Note privée (admin)","CSV":"CSV","Backup Excel":"Sauvegarde Excel","Allergeni / Note":"Allergènes / Notes","Auto-assegna non assegnati":"Placer automatiquement les non placés","Previsto (€)":"Prévu (€)","Effettivo (€)":"Réel (€)","Scadenza pagamento":"Échéance de paiement","Voce":"Poste","Pagato":"Payé","Da pagare":"À payer","Nessuna voce aggiunta":"Aucun poste ajouté","Nome Fornitore":"Nom du prestataire","Importo (€)":"Montant (€)","Acconto pagato (€)":"Acompte versé (€)","Scadenza saldo":"Échéance du solde","Cat.":"Cat.","Nessun fornitore aggiunto":"Aucun prestataire ajouté","I Matrimoni":"Mariages",
+"Lattosio":"Lactose","Frutta secca":"Fruits à coque","Crostacei":"Crustacés","Soia":"Soja","Sesamo":"Sésame","Timeline del giorno":"Programme du jour","TIMELINE DEL GIORNO":"PROGRAMME DU JOUR","Timeline Piano B — Alternativo":"Programme Plan B — Alternatif",
+"Prezzo unitario (€)":"Prix unitaire (€)","Moltiplica per":"Multiplier par","Ospiti (non assenti)":"Invités (hors absents)","N° tavoli":"N° de tables","Quantità fissa":"Quantité fixe","Quantità":"Quantité","IVA":"TVA","Nessuna":"Aucune","IVA esclusa":"TVA exclue","IVA inclusa":"TVA incluse","Importo inserito":"Montant saisi","IVA predefinita":"TVA par défaut","Previsto (IVA incl.)":"Prévu (TVA incl.)","Collega a fornitore":"Lier à un prestataire","Fornitore":"Prestataire","— nessuno —":"— aucun —","Calcolato: apri ⚙ per modificare":"Calculé : ouvrez ⚙ pour modifier","Prezzo unitario e IVA":"Prix unitaire et TVA","es. 180":"ex. 180","es. 12":"ex. 12","calcolato":"calculé","Timeline Piano A — Principale":"Programme Plan A — Principal","Completa":"Terminer","Nessun matrimonio in archivio":"Aucun mariage archivé"
+};
+const FR_FRAG=[
+[/Tra (\d+) giorni/g,'Dans $1 jours'],[/(\d+) confermati/g,'$1 confirmés'],[/Percorso (\d+)\/(\d+)/g,'Parcours $1/$2'],[/^Concluso$/,'Terminé'],[/ · Concluso/g,' · Terminé'],[/Archivia ✓/g,'Archiver ✓'],
+[/\+ (\d+) (?:voci collegate|voce collegata) · totale/g,'+ $1 postes liés · total'],
+[/\b(\d+) ospiti confermati\b/g,'$1 invités confirmés'],[/\b(\d+) tavoli\b/g,'$1 tables'],[/\b(\d+) pezzi\b/g,'$1 pièces'],[/IVA (\d+)% inclusa/g,'TVA $1% incluse'],[/\bIVA (\d+)%/g,'TVA $1%'],[/\bdi cui IVA\b/g,'dont TVA'],
+[/\btra (\d+) giorni\b/g,'dans $1 jours'],[/\btra 1 giorno\b/g,'dans 1 jour'],[/\b(\d+) giorni fa\b/g,'il y a $1 jours'],[/\boggi\b/g,"aujourd'hui"],[/\bdomani\b/g,'demain'],[/\bieri\b/g,'hier'],
+[/\b(\d+) scadute\b/g,'$1 en retard'],[/\bscaduto\b/g,'en retard'],[/\b(\d+) in attesa\b/g,'$1 en attente'],[/\b(\d+) assenti\b/g,'$1 absents'],[/\b(\d+) confermati\b/g,'$1 confirmés'],
+[/\b(\d+) ospiti assegnati\b/g,'$1 invités placés'],[/\b(\d+) assegnati\b/g,'$1 placés'],[/\b(\d+) ancora senza tavolo\b/g,'$1 encore sans table'],[/\b(\d+) ospiti\b/g,'$1 invités'],
+[/\b(\d+) momenti nel Piano A\b/g,'$1 moments dans le Plan A'],[/\b(\d+) nel Piano B\b/g,'$1 dans le Plan B'],[/\b(\d+) arrivati\b/g,'$1 arrivés'],[/\b(\d+) attesi\b/g,'$1 attendus'],
+[/^su €/,'sur €'],[/\bsu (€[\d.,\s]+)/g,'sur $1'],[/(\d+)% del budget/g,'$1% du budget'],[/\(saldo: /g,'(solde : '],[/\be altre (\d+)…/g,'et $1 autres…'],
+[/(\d+)\/(\d+) completate \((\d+)%\)/g,'$1/$2 terminées ($3%)'],[/\bcompletate\b/g,'terminées'],[/\bAttività\b/g,'Tâches'],
+[/Lista per Tavolo/g,'Liste par table'],[/Lista Alfabetica/g,'Liste alphabétique'],[/Lista Ospiti/g,'Liste des invités'],[/\bTavolo Sposi\b/g,'Table des mariés'],[/\bTavolo (\d+)\b/g,'Table $1'],[/Timeline del Giorno/gi,'Programme du jour'],[/Timeline Piano B — Alternativo/g,'Programme Plan B — Alternatif']
+];
+const FR_MON={gen:'janv.',feb:'févr.',mar:'mars',apr:'avr.',mag:'mai',giu:'juin',lug:'juil.',ago:'août',set:'sept.',ott:'oct.',nov:'nov.',dic:'déc.'};
+function _maps(){return LANG==='fr'?{M:FR_MAP,F:FR_FRAG,N:FR_MON,tab:'Table '}:{M:EN_MAP,F:EN_FRAG,N:EN_MON,tab:'Table '};}
 function trStr(s){
   const raw=String(s);const tr=raw.trim();if(!tr)return raw;
   const lead=raw.match(/^\s*/)[0],trail=raw.match(/\s*$/)[0];
@@ -1696,17 +1815,18 @@ function trStr(s){
   return core===tr?raw:lead+core+trail;
 }
 function trCore(tr){
-  if(EN_MAP[tr]!==undefined)return EN_MAP[tr];
+  const MP=_maps();
+  if(MP.M[tr]!==undefined)return MP.M[tr];
   let m=tr.match(/^(\d{1,2}) (gen|feb|mar|apr|mag|giu|lug|ago|set|ott|nov|dic)( \d{4})?$/);
-  if(m)return EN_MON[m[2]]+' '+m[1]+(m[3]||'');
+  if(m)return LANG==='fr'?m[1]+' '+MP.N[m[2]]+(m[3]||''):MP.N[m[2]]+' '+m[1]+(m[3]||'');
   m=tr.match(/^Tavolo (\d+)$/);if(m)return 'Table '+m[1];
   if(tr.includes(', ')){const ps=tr.split(', ').map(trCore);const j=ps.join(', ');if(j!==tr)return j;}
   if(tr.startsWith('— '))return '— '+trCore(tr.slice(2));
   if(tr.startsWith('● ')||tr.startsWith('♡ ')||tr.startsWith('→ '))return tr.slice(0,2)+trCore(tr.slice(2));
   let out=tr;
   // data breve + resto (es. "11 nov · tra 3 giorni")
-  out=out.replace(/(\d{1,2}) (gen|feb|mar|apr|mag|giu|lug|ago|set|ott|nov|dic)\b/g,(x,d,mo)=>EN_MON[mo]+' '+d);
-  EN_FRAG.forEach(([re,rep])=>{out=out.replace(re,rep);});
+  out=out.replace(/(\d{1,2}) (gen|feb|mar|apr|mag|giu|lug|ago|set|ott|nov|dic)\b/g,(x,d,mo)=>LANG==='fr'?d+' '+MP.N[mo]:MP.N[mo]+' '+d);
+  MP.F.forEach(([re,rep])=>{out=out.replace(re,rep);});
   if(out===tr&&tr.includes(' · ')){const parts=tr.split(' · ').map(trCore);const j=parts.join(' · ');if(j!==tr)return j;}
   return out;
 }
@@ -1749,7 +1869,8 @@ function trRevert(root){
 }
 let _trObs=null,_trQueue=new Set(),_trTimer=null;
 function applyI18nDom(){
-  if(LANG==='en'){
+  if(LANG!=='it'){
+    trRevert(document.body);
     trElement(document.body);
     if(!_trObs){
       _trObs=new MutationObserver(muts=>{
@@ -1767,13 +1888,13 @@ function applyI18nDom(){
 // alert / confirm / prompt e finestre PDF nella lingua corrente
 (function(){
   const oa=window.alert.bind(window),oc=window.confirm.bind(window),op=window.prompt.bind(window);
-  window.alert=m=>oa(LANG==='en'?trStr(m):m);
-  window.confirm=m=>oc(LANG==='en'?trStr(m):m);
-  window.prompt=(m,d)=>op(LANG==='en'?trStr(m):m,d);
+  window.alert=m=>oa(LANG!=='it'?trStr(m):m);
+  window.confirm=m=>oc(LANG!=='it'?trStr(m):m);
+  window.prompt=(m,d)=>op(LANG!=='it'?trStr(m):m,d);
   const ow=window.open.bind(window);
   window.open=function(...a){
     const w=ow(...a);
-    if(w&&LANG==='en'){try{const d=w.document,wr=d.write.bind(d);d.write=h=>{try{const doc=new DOMParser().parseFromString(h,'text/html');trElement(doc.body);trElement(doc.head);wr('<!DOCTYPE html>'+doc.documentElement.outerHTML);}catch(e){wr(h);}};}catch(e){}}
+    if(w&&LANG!=='it'){try{const d=w.document,wr=d.write.bind(d);d.write=h=>{try{const doc=new DOMParser().parseFromString(h,'text/html');trElement(doc.body);trElement(doc.head);wr('<!DOCTYPE html>'+doc.documentElement.outerHTML);}catch(e){wr(h);}};}catch(e){}}
     return w;
   };
 })();
@@ -1802,21 +1923,21 @@ window.showView=function(name){
 };
 
 function loginLang(){
-  const en=LANG==='en',$=id=>document.getElementById(id);
-  const set=(id,it,e)=>{const el=$(id);if(el)el.textContent=en?e:it;};
-  set('login-quote','Il vostro matrimonio è un abito cucito su misura.','Your wedding is a tailor-made gown.');
-  set('login-sub','Accedi come','Sign in as');
+  const $=id=>document.getElementById(id);
+  const set=(id,it,e,f)=>{const el=$(id);if(el)el.textContent=LANG==='en'?e:LANG==='fr'?(f||e):it;};
+  set('login-quote','Il vostro matrimonio è un abito cucito su misura.','Your wedding is a tailor-made gown.','Votre mariage est une robe de haute couture, faite sur mesure.');
+  set('login-sub','Accedi come','Sign in as','Se connecter en tant que');
   set('role-planner-t','Wedding Planner','Wedding Planner');
-  set('role-planner-d','Gestisci i tuoi matrimoni','Manage your weddings');
-  set('role-sposi-t','Sposi','Couple');
-  set('role-sposi-d','Il vostro matrimonio, passo dopo passo','Your wedding, step by step');
-  set('login-back','← Indietro','← Back');
-  set('l-email','Email','Email');
-  set('l-pwd','Password','Password');
-  set('l-btn','Accedi','Sign in');
-  const em=$('login-email');if(em)em.placeholder=en?'your email':'la tua email';
-  const lab=$('login-role-label');if(lab&&LOGIN_ROLE)lab.textContent=LOGIN_ROLE==='planner'?'Wedding Planner':(en?'Couple':'Sposi');
-  const a=$('ll-it'),b=$('ll-en');if(a)a.classList.toggle('on',!en);if(b)b.classList.toggle('on',en);
+  set('role-planner-d','Gestisci i tuoi matrimoni','Manage your weddings','Gérez vos mariages');
+  set('role-sposi-t','Sposi','Couple','Mariés');
+  set('role-sposi-d','Il vostro matrimonio, passo dopo passo','Your wedding, step by step','Votre mariage, étape par étape');
+  set('login-back','← Indietro','← Back','← Retour');
+  set('l-email','Email','Email','E-mail');
+  set('l-pwd','Password','Password','Mot de passe');
+  set('l-btn','Accedi','Sign in','Se connecter');
+  const em=$('login-email');if(em)em.placeholder=pick(LANG,'la tua email','your email');
+  const lab=$('login-role-label');if(lab&&LOGIN_ROLE)lab.textContent=LOGIN_ROLE==='planner'?'Wedding Planner':pick(LANG,'Sposi','Couple');
+  ['it','en','fr'].forEach(k=>{const x=$('ll-'+k);if(x)x.classList.toggle('on',LANG===k);});
 }
 window.setLang=function(l){
   LANG=l;
@@ -1830,23 +1951,23 @@ window.setLang=function(l){
   });
   // Update placeholders
   const placeholders={
-    'g-nome': l==='en'?'Marco':'Marco',
-    'g-cognome': l==='en'?'Smith':'Rossi',
-    'g-tel': l==='en'?'+44 333...':'+39 333...',
-    'g-intoll': l==='en'?'e.g. gluten free...':'es. senza glutine...',
-    'g-nota-admin': l==='en'?'Only you can read this':'Solo tu puoi leggere questo',
-    'g-search': l==='en'?'Search name, last name, table...':'Cerca per nome, cognome, tavolo...',
-    'b-desc': l==='en'?'e.g. Florist, Venue...':'es. Fiorista, Location...',
-    'f-nome': l==='en'?'e.g. Studio Smith':'es. Studio Rossi',
-    'f-cont': l==='en'?'phone / email':'tel / email',
-    'f-note': l==='en'?'Additional notes...':'Note aggiuntive...',
-    'cl-text': l==='en'?'e.g. Confirm florist':'es. Confermare fiorista',
-    'tl-txt': l==='en'?'e.g. Church ceremony':'es. Cerimonia in chiesa',
-    'm-n1': l==='en'?'Sofia':'Sofia',
-    'm-n2': l==='en'?'Marco':'Marco',
-    'm-email': l==='en'?'couple@email.com':'sposi@email.com',
-    'm-location': l==='en'?'e.g. Villa Borghese, Rome':'es. Villa Borghese, Roma',
-    'login-email': l==='en'?'your email':'la tua email',
+    'g-nome': pick(l,'Marco','Marco'),
+    'g-cognome': pick(l,'Rossi','Smith'),
+    'g-tel': pick(l,'+39 333...','+44 333...'),
+    'g-intoll': pick(l,'es. senza glutine...','e.g. gluten free...'),
+    'g-nota-admin': pick(l,'Solo tu puoi leggere questo','Only you can read this'),
+    'g-search': pick(l,'Cerca per nome, cognome, tavolo...','Search name, last name, table...'),
+    'b-desc': pick(l,'es. Fiorista, Location...','e.g. Florist, Venue...'),
+    'f-nome': pick(l,'es. Studio Rossi','e.g. Studio Smith'),
+    'f-cont': pick(l,'tel / email','phone / email'),
+    'f-note': pick(l,'Note aggiuntive...','Additional notes...'),
+    'cl-text': pick(l,'es. Confermare fiorista','e.g. Confirm florist'),
+    'tl-txt': pick(l,'es. Cerimonia in chiesa','e.g. Church ceremony'),
+    'm-n1': pick(l,'Sofia','Sofia'),
+    'm-n2': pick(l,'Marco','Marco'),
+    'm-email': pick(l,'sposi@email.com','couple@email.com'),
+    'm-location': pick(l,'es. Villa Borghese, Roma','e.g. Villa Borghese, Rome'),
+    'login-email': pick(l,'la tua email','your email'),
   };
   Object.entries(placeholders).forEach(([id,ph])=>{
     const el=document.getElementById(id);
@@ -1855,14 +1976,14 @@ window.setLang=function(l){
   // Update filter selects
   const rsvpSel=document.getElementById('g-filter-rsvp');
   if(rsvpSel){
-    rsvpSel.options[0].text=l==='en'?'All RSVP':'Tutti RSVP';
-    rsvpSel.options[1].text=l==='en'?'Confirmed':'Confermati';
-    rsvpSel.options[2].text=l==='en'?'Pending':'In attesa';
-    rsvpSel.options[3].text=l==='en'?'Absent':'Assenti';
+    rsvpSel.options[0].text=pick(l,'Tutti RSVP','All RSVP');
+    rsvpSel.options[1].text=pick(l,'Confermati','Confirmed');
+    rsvpSel.options[2].text=pick(l,'In attesa','Pending');
+    rsvpSel.options[3].text=pick(l,'Assenti','Absent');
   }
   const menuSel=document.getElementById('g-filter-menu');
   if(menuSel){
-    menuSel.options[0].text=l==='en'?'All menus':'Tutti menu';
+    menuSel.options[0].text=pick(l,'Tutti menu','All menus');
   }
   document.getElementById('lang-sel').value=l;
   if(CW_ID)renderAll();
@@ -1871,7 +1992,7 @@ window.setLang=function(l){
 
 // Lingua iniziale: quella scelta l'ultima volta
 ;(function(){let l=null;try{l=localStorage.getItem('wm-lang');}catch(_){}
-  setTimeout(()=>{try{if(l==='en'||l==='it')setLang(l);else loginLang();}catch(_){}},0);})();
+  setTimeout(()=>{try{if(l==='en'||l==='it'||l==='fr')setLang(l);else loginLang();}catch(_){}},0);})();
 
 // ── URL PARAMS ──
 const urlP=new URLSearchParams(location.search);
@@ -1926,19 +2047,20 @@ async function loadRsvpPage(wid){
   const w=snap.val();
   document.getElementById('rsvp-couple').textContent=`${w.nome1} & ${w.nome2}`;
   document.getElementById('rsvp-date').textContent=formatDate(w.data);
-  const lang=w.lang||'it';
+  const lang=(['it','en','fr'].includes(urlP.get('lang'))?urlP.get('lang'):w.lang)||'it';
   LANG=lang;
   document.getElementById('rsvp-invite-text').textContent=t('rsvp_invite');
-  document.getElementById('rsvp-yes-btn').textContent='✓ '+( lang==='en'?'Confirm attendance':'Confermo la presenza');
-  document.getElementById('rsvp-no-btn').textContent='✕ '+(lang==='en'?"I won't be able to attend":'Non potrò essere presente');
-  document.getElementById('r-send').textContent=lang==='en'?'Send confirmation':'Invia conferma';
+  document.getElementById('rsvp-yes-btn').textContent='✓ '+( pick(lang,'Confermo la presenza','Confirm attendance'));
+  document.getElementById('rsvp-no-btn').textContent='✕ '+(pick(lang,'Non potrò essere presente',"I won't be able to attend"));
+  document.getElementById('r-send').textContent=pick(lang,'Invia conferma','Send confirmation');
+  if(lang!=='it'){document.querySelectorAll('[data-t]').forEach(el=>{el.textContent=t(el.getAttribute('data-t'));});applyI18nDom();}
 }
 
 window.submitRsvp=async function(){
-  if(!rsvpSelection){document.getElementById('rsvp-err').textContent='Seleziona una risposta';return;}
+  if(!rsvpSelection){document.getElementById('rsvp-err').textContent=(LANG!=='it'?trStr('Seleziona una risposta'):'Seleziona una risposta');return;}
   const nome=document.getElementById('rsvp-nome').value.trim();
   const cognome=document.getElementById('rsvp-cognome').value.trim();
-  if(!nome||!cognome){document.getElementById('rsvp-err').textContent='Nome e cognome obbligatori';return;}
+  if(!nome||!cognome){document.getElementById('rsvp-err').textContent=(LANG!=='it'?trStr('Nome e cognome obbligatori'):'Nome e cognome obbligatori');return;}
   const allergeni=Array.from(document.querySelectorAll('.rsvp-allerg-cb:checked')).map(c=>c.value);
   const guest={
     nome,cognome,
@@ -2102,9 +2224,9 @@ function renderKitchen(gs,lang){
   // Dettaglio menu per ciascun tavolo (totale + ripartizione menu)
   const byTableAll={};
   confirmed.forEach(g=>{const t=g.tavolo||'—';if(!byTableAll[t])byTableAll[t]=[];byTableAll[t].push(g);});
-  const menuBreakdown=(arr)=>{const c={};arr.forEach(g=>{const m=g.menu||'Normale';c[m]=(c[m]||0)+1;});return Object.entries(c).map(([m,n])=>`${n} ${m.toLowerCase()}`).join(', ');};
+  const menuBreakdown=(arr)=>{const c={};arr.forEach(g=>{const m=g.menu||'Normale';c[m]=(c[m]||0)+1;});return Object.entries(c).map(([m,n])=>`${n} ${(LANG!=='it'?trStr(m):m).toLowerCase()}`).join(', ');};
   const tableKeys=Object.keys(byTableAll).sort((a,b)=>tableSortKey(a)-tableSortKey(b));
-  const T=lang==='en'?{menu:'Menu',allerg:'Allergies / Intolerances',tables:'Tables',total:'Total'}:{menu:'Menu',allerg:'Allergie / Intolleranze',tables:'Tavoli',total:'Totale'};
+  const T=lang==='fr'?{menu:'Menu',allerg:'Allergies / Intolérances',tables:'Tables',total:'Total'}:lang==='en'?{menu:'Menu',allerg:'Allergies / Intolerances',tables:'Tables',total:'Total'}:{menu:'Menu',allerg:'Allergie / Intolleranze',tables:'Tavoli',total:'Totale'};
   const sectionTitle=(txt)=>`<div style="grid-column:1/-1;font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin:14px 0 4px;font-weight:600">${txt}</div>`;
   const stat=(n,l)=>`<div class="c-stat"><div class="n">${n}</div><div class="l">${l}</div></div>`;
   let html=stat(confirmed.length,T.total);
@@ -2120,7 +2242,7 @@ function renderKitchen(gs,lang){
   html+=sectionTitle(T.tables);
   html+=tableKeys.map(t=>{
     const arr=byTableAll[t];
-    const label=(t==='—')?(lang==='en'?'Unassigned':'Non assegnati'):tableLabel(t,lang);
+    const label=(t==='—')?(pick(lang,'Non assegnati','Unassigned')):tableLabel(t,lang);
     return `<div class="c-stat" style="text-align:left"><div class="n" style="font-size:21px">${label}: ${arr.length}</div><div class="l" style="text-transform:none;letter-spacing:0;font-size:14px">${menuBreakdown(arr)}</div></div>`;
   }).join('');
   statsEl.innerHTML=html;
@@ -2139,14 +2261,14 @@ function renderKitchen(gs,lang){
     const gs=byTable[table];
     const sec=document.createElement('div');
     sec.className='cucina-table-section';
-    sec.innerHTML=`<div class="cucina-table-title">${tableLabel(table,lang)} <span style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gray);font-weight:400">(${gs.length} ${lang==='en'?'guests':'ospiti'})</span></div>
+    sec.innerHTML=`<div class="cucina-table-title">${tableLabel(table,lang)} <span style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gray);font-weight:400">(${gs.length} ${pick(lang,'ospiti','guests')})</span></div>
     <table><thead><tr>
       <th style="width:32px">#</th>
-      <th>${lang==='en'?'Last name':'Cognome'}</th>
-      <th>${lang==='en'?'First name':'Nome'}</th>
+      <th>${pick(lang,'Cognome','Last name')}</th>
+      <th>${pick(lang,'Nome','First name')}</th>
       <th>Menu</th>
-      <th>${lang==='en'?'Allergens':'Allergeni'}</th>
-      <th>${lang==='en'?'Notes':'Note'}</th>
+      <th>${pick(lang,'Allergeni','Allergens')}</th>
+      <th>${pick(lang,'Note','Notes')}</th>
     </tr></thead><tbody>${
       gs.sort((a,b)=>((typeof a.posto==='number')?a.posto:9999)-((typeof b.posto==='number')?b.posto:9999)||(a.cognome||'').localeCompare(b.cognome||''))
         .map((g,i)=>`<tr><td style="text-align:center;font-weight:600">${i+1}</td><td>${g.cognome}</td><td>${g.nome}</td>
@@ -2156,9 +2278,10 @@ function renderKitchen(gs,lang){
     }</tbody></table>`;
     bodyEl.appendChild(sec);
   });
-  document.getElementById('cucina-title').textContent=lang==='en'?'Kitchen List':'Lista Cucina';
+  document.getElementById('cucina-title').textContent=pick(lang,'Lista Cucina','Kitchen List');
   const pdfLbl=document.getElementById('cucina-pdf-label');
-  if(pdfLbl)pdfLbl.textContent=lang==='en'?'Download PDF':'Scarica PDF';
+  if(pdfLbl)pdfLbl.textContent=pick(lang,'Scarica PDF','Download PDF');
+  if(lang!=='it'){LANG=lang;trElement(statsEl);trElement(bodyEl);}
 }
 
 function menuBadge(m){
@@ -2188,9 +2311,9 @@ function tableSortKey(t){
   const n=parseInt(t);return isNaN(n)?99998:n;
 }
 function tableLabel(t,lang){
-  if(t==='sposi')return lang==='en'?'Couple table':'Tavolo Sposi';
+  if(t==='sposi')return pick(lang,'Tavolo Sposi','Couple table');
   if(isCustomTable(t))return window.customTableNames[t]||(t==='staff'?'Staff':t);
-  return (lang==='en'?'Table ':'Tavolo ')+t;
+  return (pick(lang,'Tavolo ','Table '))+t;
 }
 // Etichetta leggibile del tavolo per export/liste (numero o nome, mai l'id interno)
 window.tavoloLabel=function(t){
@@ -2311,19 +2434,21 @@ window.exportKitchenPDF=async function(){
   const tot=confirmed.length;
   const neonati=confirmed.filter(g=>(g.menu||'')==='Neonato').length;
   const porzioni=tot-neonati;
-  const L=lang==='en'
+  const L=lang==='fr'
+    ?{title:'Liste cuisine',table:'Table',guests:'invités',ln:'Nom',fn:'Prénom',menu:'Menu',al:'Allergènes',no:'Notes',total:'Total',portions:'portions',babies:'nourrissons, sans portion'}
+    :lang==='en'
     ?{title:'Kitchen List',table:'Table',guests:'guests',ln:'Last name',fn:'First name',menu:'Menu',al:'Allergens',no:'Notes',total:'Total',portions:'portions',babies:'babies, no portion'}
     :{title:'Lista Cucina',table:'Tavolo',guests:'ospiti',ln:'Cognome',fn:'Nome',menu:'Menu',al:'Allergeni',no:'Note',total:'Totale',portions:'porzioni',babies:'neonati, no porzione'};
   const cell=(n,label)=>`<div style="border:1px solid #ddd;border-radius:4px;padding:8px 10px;text-align:center;min-width:64px;background:#fff"><div style="font-size:20px;font-weight:bold;color:#1a1a1a">${n}</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-top:2px">${label}</div></div>`;
-  const T=lang==='en'?{menu:'Menu',allerg:'Allergies / Intolerances',tables:'Tables'}:{menu:'Menu',allerg:'Allergie / Intolleranze',tables:'Tavoli'};
+  const T=lang==='fr'?{menu:'Menu',allerg:'Allergies / Intolérances',tables:'Tables'}:lang==='en'?{menu:'Menu',allerg:'Allergies / Intolerances',tables:'Tables'}:{menu:'Menu',allerg:'Allergie / Intolleranze',tables:'Tavoli'};
   const secT=(txt)=>`<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;font-weight:bold;margin:14px 0 6px">${txt}</div>`;
   // ripartizione menu per tavolo
-  const menuBreakdown=(arr)=>{const c={};arr.forEach(g=>{const m=g.menu||'Normale';c[m]=(c[m]||0)+1;});return Object.entries(c).map(([m,n])=>`${n} ${m.toLowerCase()}`).join(', ');};
+  const menuBreakdown=(arr)=>{const c={};arr.forEach(g=>{const m=g.menu||'Normale';c[m]=(c[m]||0)+1;});return Object.entries(c).map(([m,n])=>`${n} ${(LANG!=='it'?trStr(m):m).toLowerCase()}`).join(', ');};
   let menuCells=Object.entries(menuCounts).map(([m,n])=>cell(n,m)).join('');
   let allergCells=Object.entries(allergenCounts).map(([a,n])=>cell(n,a)).join('');
   let tableCells=sorted.map(t=>{
     const arr=byTable[t];
-    const label=(t==='—')?(lang==='en'?'Unassigned':'Non assegnati'):tableLabel(t,lang);
+    const label=(t==='—')?(pick(lang,'Non assegnati','Unassigned')):tableLabel(t,lang);
     return `<div style="border:1px solid #ddd;border-radius:4px;padding:8px 10px;min-width:120px;background:#fff"><div style="font-size:14px;font-weight:bold;color:#1a1a1a">${label}: ${arr.length}</div><div style="font-size:10px;color:#888;margin-top:2px">${menuBreakdown(arr)}</div></div>`;
   }).join('');
   const babyNote=neonati>0?`<div style="font-size:11px;color:#888;margin-top:8px">${porzioni} ${L.portions} · ${neonati} ${L.babies}</div>`:'';
@@ -2362,8 +2487,7 @@ window.pickRole=function(r){
   document.getElementById('login-step-cred').style.display=r?'block':'none';
   document.getElementById('login-err').textContent='';
   if(r){
-    const en=LANG==='en';
-    document.getElementById('login-role-label').textContent=r==='planner'?(en?'Wedding Planner':'Wedding Planner'):(en?'Couple':'Sposi');
+    document.getElementById('login-role-label').textContent=r==='planner'?'Wedding Planner':pick(LANG,'Sposi','Couple');
     setTimeout(()=>document.getElementById('login-email').focus(),50);
   }
 };
@@ -2372,7 +2496,7 @@ window.doLogin=async function(){
   const pwd=document.getElementById('login-pwd').value;
   document.getElementById('login-err').textContent='';
   try{await signInWithEmailAndPassword(auth,email,pwd);}
-  catch(e){document.getElementById('login-err').textContent=LANG==='en'?'Invalid email or password.':'Email o password errati.';}
+  catch(e){document.getElementById('login-err').textContent=pick(LANG,'Email o password errati.','Invalid email or password.');}
 };
 window.doLogout=async function(){pickRole(null);await signOut(auth);};
 
@@ -2388,8 +2512,8 @@ onAuthStateChanged(auth,async(user)=>{
       showScreen('s-login');
       pickRole(wrongRole);
       document.getElementById('login-err').textContent=wrongRole==='planner'
-        ?(LANG==='en'?'This account is not a Wedding Planner account.':'Questo account non è di tipo Wedding Planner.')
-        :(LANG==='en'?'This is a Wedding Planner account: choose "Wedding Planner".':'Questo è un account Wedding Planner: scegli "Wedding Planner".');
+        ?(pick(LANG,'Questo account non è di tipo Wedding Planner.','This account is not a Wedding Planner account.'))
+        :(pick(LANG,'Questo è un account Wedding Planner: scegli "Wedding Planner".','This is a Wedding Planner account: choose "Wedding Planner".'));
       return;
     }
     LOGIN_ROLE=null;
@@ -2569,7 +2693,7 @@ function startCountdown(dateStr){
     const h=Math.floor((diff%86400000)/3600000);
     const m=Math.floor((diff%3600000)/60000);
     document.getElementById('countdown-units').innerHTML=
-      `<div class="cd-unit" style="text-align:left"><div class="cd-num" style="font-size:44px">${d}</div><div class="cd-label">${d===1?(LANG==='en'?'day':'giorno'):t('days')}</div></div>`+
+      `<div class="cd-unit" style="text-align:left"><div class="cd-num" style="font-size:44px">${d}</div><div class="cd-label">${d===1?(pick(LANG,'giorno','day')):t('days')}</div></div>`+
       `<div class="cd-sub">${h} ${String(t('hours')).toLowerCase()} · ${m} ${String(t('mins')).toLowerCase()}</div>`;
   }
   update();
@@ -2700,11 +2824,11 @@ window.renderGuests=function(){
   const tSel=document.getElementById('g-filter-tavolo');
   const usedT=[...new Set(Object.values(guests).map(g=>g.tavolo).filter(v=>v!==undefined&&v!==null&&String(v).trim()!==''))]
     .sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true}));
-  const tLab=v=>(v==='sposi'||isCustomTable(v))?tableLabel(v,LANG):(LANG==='en'?'Table ':'Tavolo ')+v;
+  const tLab=v=>(v==='sposi'||isCustomTable(v))?tableLabel(v,LANG):(pick(LANG,'Tavolo ','Table '))+v;
   const curT=tSel.value;
   const sig=usedT.join('|')+'|'+LANG;
   if(tSel.dataset.sig!==sig){
-    tSel.innerHTML=`<option value="">${LANG==='en'?'All tables':'Tutti i tavoli'}</option>`+usedT.map(v=>`<option value="${String(v).replace(/"/g,'&quot;')}">${tLab(v)}</option>`).join('');
+    tSel.innerHTML=`<option value="">${pick(LANG,'Tutti i tavoli','All tables')}</option>`+usedT.map(v=>`<option value="${String(v).replace(/"/g,'&quot;')}">${tLab(v)}</option>`).join('');
     tSel.dataset.sig=sig;
     tSel.value=usedT.map(String).includes(curT)?curT:'';
   }
@@ -2739,7 +2863,7 @@ window.renderGuests=function(){
     <div class="stat-i green"><div class="sn">${conf}</div><div class="sl">${t('confirmed')}</div></div>
     <div class="stat-i gold"><div class="sn">${wait}</div><div class="sl">${t('waiting')}</div></div>
     <div class="stat-i red"><div class="sn">${abs}</div><div class="sl">${t('absent')}</div></div>`;
-  const sub=[[carne,t('menu_meat')],[veg,'Vegetariani'],[vegan,'Vegani'],[bambini,'Bambini'],[neonati,t('menu_baby')],[altro,t('menu_other')],[allerg,'Allergeni'],[transfer,'Transfer'],[notab,LANG==='en'?'No table':'Senza tavolo']].filter(x=>x[0]>0);
+  const sub=[[carne,t('menu_meat')],[veg,'Vegetariani'],[vegan,'Vegani'],[bambini,'Bambini'],[neonati,t('menu_baby')],[altro,t('menu_other')],[allerg,'Allergeni'],[transfer,'Transfer'],[notab,pick(LANG,'Senza tavolo','No table')]].filter(x=>x[0]>0);
   document.getElementById('ospiti-substats').innerHTML=sub.map(x=>`<span><b>${x[0]}</b>${x[1]}</span>`).join('');
 
   const tbody=document.getElementById('tbody-guests');
@@ -2748,7 +2872,7 @@ window.renderGuests=function(){
   arr.forEach(([id,g])=>{
     const rsvpB=g.rsvp==='Confermato'?'b-green':g.rsvp==='Assente'?'b-red':'b-gray';
     const isUnmatched=g.source==='rsvp';
-    const rsvpFlag=isUnmatched?`<span class="rsvp-flag">RSVP<span class="rsvp-tip">${LANG==='en'?'RSVP not matched to your guest list — review and merge if needed':'RSVP non corrispondente alla lista — verifica ed eventualmente unisci'}</span></span><button class="rsvp-ok" onclick="event.stopPropagation();clearRsvpFlag('${id}')" title="${LANG==='en'?'Mark as verified':'Segna come verificato'}">✓</button>`:'';
+    const rsvpFlag=isUnmatched?`<span class="rsvp-flag">RSVP<span class="rsvp-tip">${pick(LANG,'RSVP non corrispondente alla lista — verifica ed eventualmente unisci','RSVP not matched to your guest list — review and merge if needed')}</span></span><button class="rsvp-ok" onclick="event.stopPropagation();clearRsvpFlag('${id}')" title="${pick(LANG,'Segna come verificato','Mark as verified')}">✓</button>`:'';
     const tr=document.createElement('tr');
     if(isUnmatched&&IS_ADMIN)tr.className='rsvp-unmatched';
     tr.style.cursor='pointer';
@@ -3431,10 +3555,10 @@ window.renderSeating=function(){
   }
   // Tavoli speciali (capacita libera) prima dei numerici
   const customTables=seatingCfg.customTables||[];
-  if(showSposi)buildCard('sposi',LANG==='en'?'Couple table':'Tavolo Sposi',null);
+  if(showSposi)buildCard('sposi',pick(LANG,'Tavolo Sposi','Couple table'),null);
   customTables.forEach(ct=>buildCard(ct.id,ct.nome,null,[ct.nome]));
   for(let i=1;i<=numT;i++){
-    buildCard(String(i),(LANG==='en'?'Table ':'Tavolo ')+i,cap);
+    buildCard(String(i),(pick(LANG,'Tavolo ','Table '))+i,cap);
   }
   // Pool
   const unassigned=allGuests.filter(([,g])=>(!g.tavolo||g.tavolo==='')&&g.rsvp!=='Assente');
