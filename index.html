@@ -837,6 +837,7 @@ tr.b-vendor{cursor:pointer}
       </nav>
     </div>
     <div class="main-panel">
+      <div id="day-bar" style="display:none;margin:0 0 18px;padding:10px 0;border-bottom:1px solid var(--gray-l);align-items:center;gap:8px;flex-wrap:wrap"></div>
       <!-- DASHBOARD -->
       <div id="view-dashboard" class="view-panel fade-in" style="display:none">
         <div class="dash-header">
@@ -1102,6 +1103,7 @@ tr.b-vendor{cursor:pointer}
 
       <!-- BUDGET (admin only) -->
       <div id="view-budget" class="view-panel admin-only fade-in" style="display:none">
+        <div id="budget-recap"></div>
         <div class="stats-bar wide" id="budget-stats"></div>
         <div class="form-card">
           <div class="budget-total-row">
@@ -1148,7 +1150,7 @@ tr.b-vendor{cursor:pointer}
                 <option>Auto Sposi</option><option>Hotel</option><option>Stationery</option>
                 <option>Musica</option><option>Animazione Bambini</option>
                 <option>Transfer Ospiti</option><option>Light Designer</option>
-                <option>Flower Designer</option><option>Allestitore</option><option>Catering</option><option>Noleggio arredi</option><option>Service audio/luci</option><option>Altro</option>
+                <option>Flower Designer</option><option>Allestitore</option><option>Atelier sposa</option><option>Atelier sposo</option><option>Content creator</option><option>Fuochi d'artificio</option><option>Catering</option><option>Noleggio arredi</option><option>Service audio/luci</option><option>Altro</option>
               </select></div>
             <div class="ig"><label>Nome Fornitore</label><input id="f-nome" placeholder="es. Studio Rossi"></div>
             <div class="ig"><label data-t="contact">Contatto</label><input id="f-cont" placeholder="tel / email"></div>
@@ -1430,7 +1432,7 @@ tr.b-vendor{cursor:pointer}
           <option>Auto Sposi</option><option>Hotel</option><option>Stationery</option>
           <option>Musica</option><option>Animazione Bambini</option>
           <option>Transfer Ospiti</option><option>Light Designer</option>
-          <option>Flower Designer</option><option>Allestitore</option><option>Catering</option><option>Noleggio arredi</option><option>Service audio/luci</option><option>Altro</option>
+          <option>Flower Designer</option><option>Allestitore</option><option>Atelier sposa</option><option>Atelier sposo</option><option>Content creator</option><option>Fuochi d'artificio</option><option>Catering</option><option>Noleggio arredi</option><option>Service audio/luci</option><option>Altro</option>
         </select></div>
       <div class="ig"><label>Nome Fornitore</label><input id="ev-nome"></div>
       <div class="ig"><label data-t="contact">Contatto</label><input id="ev-cont" placeholder="tel / email"></div>
@@ -1672,6 +1674,26 @@ function t(key){
 
 // ── TRADUZIONE AUTOMATICA IT → EN (testi non coperti da data-t e testi dinamici) ──
 const EN_MAP={
+"Fuochi d'artificio":"Fireworks",
+"Recap budget — tutte le giornate":"Budget recap — all days",
+"Giornata":"Day",
+"Sopra il budget":"Over budget",
+"Farewell Brunch":"Farewell Brunch",
+"Giornate":"Days",
+"+ Aggiungi giornata":"+ Add day",
+"✎ Rinomina giornata":"✎ Rename day",
+"⇄ Importa ospiti da un'altra giornata":"⇄ Import guests from another day",
+"Elimina giornata":"Delete day",
+"Matrimonio":"Wedding",
+"Modelle":"Female models",
+"Modelli":"Male models",
+"Artisti":"Artists",
+"Atelier Sposa":"Bridal atelier",
+"Atelier Sposo":"Groom atelier",
+"Content Creator":"Content creator",
+"Atelier sposa":"Bridal atelier",
+"Atelier sposo":"Groom atelier",
+"Content creator":"Content creator",
 "Definire concept, format e obiettivi dell'evento":"Define concept, format and goals of the event",
 "Definire budget con il cliente":"Agree the budget with the client",
 "Scegliere e bloccare la location":"Choose and book the venue",
@@ -1783,6 +1805,7 @@ const EN_MAP={
 "Prezzo unitario (€)":"Unit price (€)","Moltiplica per":"Multiply by","Ospiti (non assenti)":"Guests (not absent)","N° tavoli":"No. of tables","Quantità fissa":"Fixed quantity","Quantità":"Quantity","IVA":"VAT","Nessuna":"None","IVA esclusa":"VAT excluded","IVA inclusa":"VAT included","Importo inserito":"Amount entered","IVA predefinita":"Default VAT","Previsto (IVA incl.)":"Planned (VAT incl.)","Collega a fornitore":"Link to vendor","Fornitore":"Vendor","— nessuno —":"— none —","Calcolato: apri ⚙ per modificare":"Calculated: open ⚙ to edit","Prezzo unitario e IVA":"Unit price and VAT","es. 180":"e.g. 180","es. 12":"e.g. 12","calcolato":"calculated","Timeline Piano A — Principale":"Timeline Plan A — Main","Completa":"Complete","Nessun matrimonio in archivio":"No weddings in archive"
 };
 const EN_FRAG=[
+[/◈ (\d+) giornate/g,'◈ $1 days'],
 [/Tra (\d+) giorni/g,'In $1 days'],[/(\d+) confermati/g,'$1 confirmed'],[/Percorso (\d+)\/(\d+)/g,'Journey $1/$2'],[/^Concluso$/,'Completed'],[/ · Concluso/g,' · Completed'],[/Archivia ✓/g,'Archive ✓'],
 [/\+ (\d+) (?:voci collegate|voce collegata) · totale/g,'+ $1 linked items · total'],
 [/\b(\d+) ospiti confermati\b/g,'$1 confirmed guests'],[/\b(\d+) tavoli\b/g,'$1 tables'],[/\b(\d+) pezzi\b/g,'$1 pieces'],[/IVA (\d+)% inclusa/g,'VAT $1% included'],[/\bIVA (\d+)%/g,'VAT $1%'],[/\bdi cui IVA\b/g,'of which VAT'],
@@ -1796,6 +1819,26 @@ const EN_FRAG=[
 ];
 const EN_MON={gen:'Jan',feb:'Feb',mar:'Mar',apr:'Apr',mag:'May',giu:'Jun',lug:'Jul',ago:'Aug',set:'Sep',ott:'Oct',nov:'Nov',dic:'Dec'};
 const FR_MAP={
+"Fuochi d'artificio":"Feux d'artifice",
+"Recap budget — tutte le giornate":"Récapitulatif du budget — toutes les journées",
+"Giornata":"Journée",
+"Sopra il budget":"Au-dessus du budget",
+"Giornate":"Journées",
+"+ Aggiungi giornata":"+ Ajouter une journée",
+"✎ Rinomina giornata":"✎ Renommer la journée",
+"⇄ Importa ospiti da un'altra giornata":"⇄ Importer les invités d'une autre journée",
+"Elimina giornata":"Supprimer la journée",
+"Welcome Party":"Welcome Party",
+"Farewell Brunch":"Brunch d'adieu",
+"Modelle":"Mannequins femmes",
+"Modelli":"Mannequins hommes",
+"Artisti":"Artistes",
+"Atelier Sposa":"Atelier de la mariée",
+"Atelier Sposo":"Atelier du marié",
+"Content Creator":"Créateur de contenu",
+"Atelier sposa":"Atelier de la mariée",
+"Atelier sposo":"Atelier du marié",
+"Content creator":"Créateur de contenu",
 "Definire concept, format e obiettivi dell'evento":"Définir le concept, le format et les objectifs de l'événement",
 "Definire budget con il cliente":"Définir le budget avec le client",
 "Scegliere e bloccare la location":"Choisir et réserver le lieu",
@@ -1907,6 +1950,7 @@ const FR_MAP={
 "Prezzo unitario (€)":"Prix unitaire (€)","Moltiplica per":"Multiplier par","Ospiti (non assenti)":"Invités (hors absents)","N° tavoli":"N° de tables","Quantità fissa":"Quantité fixe","Quantità":"Quantité","IVA":"TVA","Nessuna":"Aucune","IVA esclusa":"TVA exclue","IVA inclusa":"TVA incluse","Importo inserito":"Montant saisi","IVA predefinita":"TVA par défaut","Previsto (IVA incl.)":"Prévu (TVA incl.)","Collega a fornitore":"Lier à un prestataire","Fornitore":"Prestataire","— nessuno —":"— aucun —","Calcolato: apri ⚙ per modificare":"Calculé : ouvrez ⚙ pour modifier","Prezzo unitario e IVA":"Prix unitaire et TVA","es. 180":"ex. 180","es. 12":"ex. 12","calcolato":"calculé","Timeline Piano A — Principale":"Programme Plan A — Principal","Completa":"Terminer","Nessun matrimonio in archivio":"Aucun mariage archivé"
 };
 const FR_FRAG=[
+[/◈ (\d+) giornate/g,'◈ $1 journées'],
 [/Tra (\d+) giorni/g,'Dans $1 jours'],[/(\d+) confermati/g,'$1 confirmés'],[/Percorso (\d+)\/(\d+)/g,'Parcours $1/$2'],[/^Concluso$/,'Terminé'],[/ · Concluso/g,' · Terminé'],[/Archivia ✓/g,'Archiver ✓'],
 [/\+ (\d+) (?:voci collegate|voce collegata) · totale/g,'+ $1 postes liés · total'],
 [/\b(\d+) ospiti confermati\b/g,'$1 invités confirmés'],[/\b(\d+) tavoli\b/g,'$1 tables'],[/\b(\d+) pezzi\b/g,'$1 pièces'],[/IVA (\d+)% inclusa/g,'TVA $1% incluse'],[/\bIVA (\d+)%/g,'TVA $1%'],[/\bdi cui IVA\b/g,'dont TVA'],
@@ -2158,7 +2202,7 @@ async function loadRsvpPage(wid){
   if(!snap.exists())return;
   const w=snap.val();
   window._tipoEv=isEvT(w);document.getElementById('rsvp-couple').textContent=`${wName(w,null)}`;
-  document.getElementById('rsvp-date').textContent=formatDate(w.data);
+  document.getElementById('rsvp-date').textContent=(w.giornata?w.giornata+' · ':'')+formatDate(w.data);
   const lang=(['it','en','fr'].includes(urlP.get('lang'))?urlP.get('lang'):w.lang)||'it';
   LANG=lang;
   document.getElementById('rsvp-invite-text').textContent=t('rsvp_invite');
@@ -2249,7 +2293,7 @@ async function loadCheckinPage(wid,key){
     return;
   }
   window.customTableNames=w.tavoliNomi||{};
-  document.getElementById('ci-couple-title').textContent=`${wName(w,null)} — ${formatDate(w.data)}`;
+  document.getElementById('ci-couple-title').textContent=`${wName(w,null)}${w.giornata?' · '+w.giornata:''} — ${formatDate(w.data)}`;
   // Ascolta ospiti in tempo reale
   onValue(ref(db,`matrimoni/${wid}/ospiti`),(s)=>{
     ciStaffGuests=s.exists()?s.val():{};
@@ -2306,7 +2350,7 @@ async function loadKitchenPage(wid){
   const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
   if(!snap.exists())return;
   const w=snap.val();
-  document.getElementById('cucina-couple').textContent=`${wName(w,null)} — ${formatDate(w.data)}`;
+  document.getElementById('cucina-couple').textContent=`${wName(w,null)}${w.giornata?' · '+w.giornata:''} — ${formatDate(w.data)}`;
   window.customTableNames=w.tavoliNomi||{};
   onValue(ref(db,`matrimoni/${wid}/ospiti`),(snap)=>{
     const gs=snap.exists()?snap.val():{};
@@ -2638,8 +2682,9 @@ onAuthStateChanged(auth,async(user)=>{
     else{
       const wSnap=await get(ref(db,'matrimoni'));
       if(wSnap.exists()){
+        Object.entries(wSnap.val()).forEach(([k,v])=>{window._weddingCache[k]=v;});
         for(const [wid,w] of Object.entries(wSnap.val())){
-          if(w.uid===user.uid&&!w.archived){loadWedding(wid,w);return;}
+          if(w.uid===user.uid&&!w.archived&&!w.parent){loadWedding(wid,w);return;}
         }
       }
     }
@@ -2671,8 +2716,9 @@ function loadAdminWeddings(){
       for(const [wid,w] of Object.entries(snap.val()).sort(wSort)){
         window._weddingCache[wid]=w;
         if(!w.pubblico&&w.nome1){update(ref(db,`matrimoni/${wid}/pubblico`),{nome1:w.nome1,nome2:w.nome2,data:w.data});}
-        if(w.archived)continue;
+        if(w.archived||w.parent)continue;
         const st=wStats(w),dd=wDays(w.data);
+        const kids=Object.entries(snap.val()).filter(([k,v])=>v.parent===wid&&!v.archived);
         const when=dd===null?'':dd>0?`Tra ${dd} giorni`:dd===0?'Oggi!':'Concluso';
         const card=document.createElement('div');
         card.style.cssText='background:white;border:1px solid var(--gray-l);padding:24px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden';
@@ -2683,6 +2729,7 @@ function loadAdminWeddings(){
           ${w.location?`<div style="font-size:16px;color:var(--gray);margin-bottom:8px">${wEsc(w.location)}</div>`:'<div style="margin-bottom:8px"></div>'}
           <div style="font-size:16px;color:var(--gray);margin-bottom:4px">♡ ${st.tot} ospiti · ${st.conf} confermati</div>
           ${st.cl?`<div style="font-size:16px;color:var(--gray)">✧ Percorso ${st.done}/${st.cl}</div>`:''}
+          ${kids.length?`<div style="font-size:15px;color:var(--gold);margin-top:4px">◈ ${kids.length+1} giornate</div>`:''}
           <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
             <button class="btn-sm" onclick="event.stopPropagation();loadWeddingById('${wid}')">Gestisci</button>
             <button class="btn-sm" onclick="event.stopPropagation();archiveWedding('${wid}')" style="color:var(--gray)">${dd!==null&&dd<0?'Archivia ✓':'Archivia'}</button>
@@ -2707,7 +2754,7 @@ function loadAdminWeddings(){
     let hasArchive=false;
     if(snap.exists()){
       for(const [wid,w] of Object.entries(snap.val()).sort((a,b)=>wSort(b,a))){
-        if(!w.archived)continue;
+        if(!w.archived||w.parent)continue;
         window._weddingCache[wid]=w;
         hasArchive=true;
         const card=document.createElement('div');
@@ -2727,6 +2774,140 @@ function loadAdminWeddings(){
 
 window._weddingCache={};
 
+
+// ── RECAP BUDGET TOTALE (più giornate) ──
+let _recapTimer=null,_recapSeq=0;
+function budgetTotalsFor(d){
+  const sv=[guests,budget,vendors,seatingCfg,budgetIvaDefault];
+  try{
+    guests=d.ospiti||{};budget=(d.budget&&d.budget.voci)||{};vendors=d.fornitori||{};
+    seatingCfg=d.seating||{tables:10,capacity:10};
+    budgetIvaDefault=(d.budget&&d.budget.ivaDefault!==undefined)?d.budget.ivaDefault:22;
+    const T=budgetTotals();
+    return {prev:T.prev,paid:T.paid,max:parseFloat(d.budget&&d.budget.max)||0};
+  }finally{[guests,budget,vendors,seatingCfg,budgetIvaDefault]=sv;}
+}
+function renderBudgetRecap(){
+  const box=document.getElementById('budget-recap');if(!box)return;
+  const grp=CW_ID?dayGroup(CW_ID):[];
+  if(grp.length<2){box.innerHTML='';return;}
+  clearTimeout(_recapTimer);
+  _recapTimer=setTimeout(async()=>{
+    const seq=++_recapSeq,cur=CW_ID;
+    const rows=[];
+    for(const [id,w] of grp){
+      let tot;
+      if(id===cur){const T=budgetTotals();tot={prev:T.prev,paid:T.paid,max:T.max};}
+      else{
+        const sn=await get(ref(db,`matrimoni/${id}`));
+        tot=sn.exists()?budgetTotalsFor(sn.val()):{prev:0,paid:0,max:0};
+      }
+      rows.push({id,name:dayName(w),...tot});
+    }
+    if(seq!==_recapSeq||cur!==CW_ID)return;
+    const sum=k=>rows.reduce((a,r)=>a+r[k],0);
+    const P=sum('prev'),Pd=sum('paid'),M=sum('max');
+    box.innerHTML=`<div class="form-card" style="margin-bottom:18px"><h4 style="margin-bottom:12px">Recap budget — tutte le giornate</h4>
+      <table class="tbl" style="width:100%"><thead><tr><th>Giornata</th><th class="num" style="text-align:right">Previsto</th><th class="num" style="text-align:right">Pagato</th><th class="num" style="text-align:right">Da pagare</th><th class="num" style="text-align:right">Budget</th></tr></thead><tbody>
+      ${rows.map(r=>`<tr${r.id===cur?' style="font-weight:600"':''}><td>${wEsc(r.name)}</td><td class="num" style="text-align:right">${eur(r.prev)}</td><td class="num" style="text-align:right">${eur(r.paid)}</td><td class="num" style="text-align:right">${eur(r.prev-r.paid)}</td><td class="num" style="text-align:right">${eur(r.max)}</td></tr>`).join('')}
+      <tr style="border-top:2px solid var(--gold);font-weight:700"><td>Totale</td><td class="num" style="text-align:right">${eur(P)}</td><td class="num" style="text-align:right">${eur(Pd)}</td><td class="num" style="text-align:right">${eur(P-Pd)}</td><td class="num" style="text-align:right">${eur(M)}</td></tr>
+      </tbody></table>
+      <div style="margin-top:8px;font-size:15px;color:${M-P>=0?'var(--green)':'var(--red)'}"><span>${M-P>=0?'Sotto il budget':'Sopra il budget'}</span>: ${eur(Math.abs(M-P))}</div></div>`;
+    if(LANG!=='it')applyI18nDom();
+  },700);
+}
+
+// ── GIORNATE (più giornate dello stesso matrimonio) ──
+function dayRoot(wid){const w=window._weddingCache[wid]||(wid===CW_ID?CW_DATA:null)||{};return w.parent||wid;}
+function dayKids(rootId){return Object.entries(window._weddingCache).filter(([k,v])=>v&&v.parent===rootId).map(([k])=>k);}
+function dayGroup(wid){
+  const root=dayRoot(wid);
+  const list=[[root,window._weddingCache[root]||(root===CW_ID?CW_DATA:null)]].concat(dayKids(root).map(k=>[k,window._weddingCache[k]])).filter(x=>x[1]);
+  return list.sort((a,b)=>(a[1].data||'9999').localeCompare(b[1].data||'9999'));
+}
+function dayName(w){return w.giornata||'Matrimonio';}
+function dayLabel(wid,w){return dayGroup(wid).length>1?' · '+dayName(w):'';}
+function renderDayBar(){
+  const bar=document.getElementById('day-bar');if(!bar||!CW_ID)return;
+  window._weddingCache[CW_ID]=CW_DATA;
+  const grp=dayGroup(CW_ID);
+  if(grp.length<2&&!IS_ADMIN){bar.style.display='none';return;}
+  bar.style.display='flex';
+  const multi=grp.length>1;
+  let h=multi?`<span style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-right:4px">Giornate</span>`:'';
+  grp.forEach(([id,w])=>{
+    const on=id===CW_ID;
+    h+=`<span class="tl-pill${on?' active':''}" style="font-size:15px;padding:6px 14px" onclick="loadWeddingById('${id}')">${wEsc(dayName(w))}${w.data?' · '+formatDate(w.data).replace(/\/\d{4}$/,''):''}</span>`;
+  });
+  if(IS_ADMIN){
+    h+=`<button class="btn-sm" onclick="addGiornata()">+ Aggiungi giornata</button>`;
+    if(multi){
+      h+=`<button class="btn-sm" onclick="renameGiornata()" style="color:var(--gray)">✎ Rinomina giornata</button>`;
+      h+=`<button class="btn-sm" onclick="importGuestsFromDay()" style="color:var(--gray)">⇄ Importa ospiti da un'altra giornata</button>`;
+      if(CW_DATA.parent)h+=`<button class="btn-sm" onclick="deleteGiornata()" style="color:var(--red)">Elimina giornata</button>`;
+    }
+  }
+  bar.innerHTML=h;
+  if(LANG!=='it')applyI18nDom();
+}
+const GUEST_COPY=['nome','cognome','tel','email','hotel','transfer','menu','allergeni','intolleranze','notaAdmin'];
+function guestCopy(g){const o={};GUEST_COPY.forEach(k=>{if(g[k]!==undefined&&g[k]!=='')o[k]=g[k];});o.rsvp='In attesa';return o;}
+window.addGiornata=async function(){
+  if(!IS_ADMIN||!CW_ID)return;
+  const root=dayRoot(CW_ID);const rw=window._weddingCache[root]||CW_DATA;
+  const grp=dayGroup(CW_ID);
+  const sug=['Welcome Party','Farewell Brunch','Giornata '+(grp.length+1)][Math.min(grp.length-1,2)]||'Giornata';
+  const nome=prompt('Nome della giornata (es. Welcome Party, Farewell Brunch):',sug);
+  if(nome===null||!nome.trim())return;
+  const d=prompt('Data della giornata (formato AAAA-MM-GG):',CW_DATA.data||'');
+  if(d===null)return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d.trim())){alert('Formato non valido. Usa AAAA-MM-GG, es. 2026-10-10');return;}
+  const copy=Object.keys(guests||{}).length&&confirm('Copiare nella nuova giornata gli ospiti di questa giornata (RSVP riportato "In attesa", senza tavoli)? Poi potrai togliere chi non è invitato.');
+  if(!rw.giornata){await update(ref(db,`matrimoni/${root}`),{giornata:'Matrimonio'});await update(ref(db,`matrimoni/${root}/pubblico`),{giornata:'Matrimonio'});rw.giornata='Matrimonio';}
+  const rec={nome1:rw.nome1,nome2:rw.nome2||'',data:d.trim(),tipo:rw.tipo||'matrimonio',uid:rw.uid,email:rw.email||'',location:'',archived:false,parent:root,giornata:nome.trim(),
+    pubblico:{nome1:rw.nome1,nome2:rw.nome2||'',data:d.trim(),tipo:rw.tipo||'matrimonio',giornata:nome.trim()}};
+  if(copy){const o={};Object.entries(guests).forEach(([k,g])=>{o[k]=guestCopy(g);});rec.ospiti=o;}
+  const nr=push(ref(db,'matrimoni'));
+  await set(nr,rec);
+  window._weddingCache[nr.key]=rec;
+  loadWeddingById(nr.key);
+};
+window.renameGiornata=async function(){
+  if(!IS_ADMIN||!CW_ID)return;
+  const n=prompt('Nome della giornata:',dayName(CW_DATA));
+  if(n===null||!n.trim())return;
+  await update(ref(db,`matrimoni/${CW_ID}`),{giornata:n.trim()});
+  await update(ref(db,`matrimoni/${CW_ID}/pubblico`),{giornata:n.trim()});
+  CW_DATA.giornata=n.trim();
+  document.getElementById('dash-couple-name').textContent=wName(CW_DATA,null)+dayLabel(CW_ID,CW_DATA);
+  renderDayBar();
+};
+window.deleteGiornata=async function(){
+  if(!IS_ADMIN||!CW_DATA||!CW_DATA.parent)return;
+  const t=prompt(`Eliminare definitivamente la giornata "${dayName(CW_DATA)}"? Ospiti, timeline, tavoli e budget di questa giornata andranno persi.\n\nPer confermare scrivi ELIMINA`);
+  if(!t||t.trim().toUpperCase()!=='ELIMINA')return;
+  const root=CW_DATA.parent,id=CW_ID;
+  await remove(ref(db,`matrimoni/${id}`));
+  delete window._weddingCache[id];
+  loadWeddingById(root);
+};
+window.importGuestsFromDay=async function(){
+  if(!IS_ADMIN||!CW_ID)return;
+  const others=dayGroup(CW_ID).filter(([id])=>id!==CW_ID);
+  if(!others.length)return;
+  const txt=others.map(([id,w],i)=>`${i+1} = ${dayName(w)}`).join('\n');
+  const r=prompt(`Da quale giornata importare gli ospiti?\n${txt}`,'1');
+  if(r===null)return;
+  const o=others[parseInt(r,10)-1];if(!o){return;}
+  const snap=await get(ref(db,`matrimoni/${o[0]}/ospiti`));
+  if(!snap.exists()){alert('Nessun ospite in quella giornata.');return;}
+  const have=new Set(Object.values(guests||{}).map(g=>((g.cognome||'')+'|'+(g.nome||'')).toLowerCase()));
+  const add=Object.values(snap.val()).filter(g=>!have.has(((g.cognome||'')+'|'+(g.nome||'')).toLowerCase()));
+  if(!add.length){alert('Tutti gli ospiti sono già presenti.');return;}
+  if(!confirm(`Importo ${add.length} ospiti da "${dayName(o[1])}" (RSVP "In attesa", senza tavolo). OK?`))return;
+  for(const g of add)await push(ref(db,`matrimoni/${CW_ID}/ospiti`),guestCopy(g));
+};
+
 window.loadWeddingById=function(wid){
   const w=window._weddingCache[wid];
   if(w){loadWedding(wid,w);}
@@ -2734,14 +2915,14 @@ window.loadWeddingById=function(wid){
 };
 
 window.archiveWedding=async function(wid){
-  if(confirm('Archiviare questo matrimonio?')){await update(ref(db,`matrimoni/${wid}`),{archived:true});}
+  if(confirm('Archiviare questo matrimonio?')){await update(ref(db,`matrimoni/${wid}`),{archived:true});for(const k of dayKids(wid))await update(ref(db,`matrimoni/${k}`),{archived:true});}
 };
-window.unarchiveWedding=async function(wid){await update(ref(db,`matrimoni/${wid}`),{archived:false});};
+window.unarchiveWedding=async function(wid){await update(ref(db,`matrimoni/${wid}`),{archived:false});for(const k of dayKids(wid))await update(ref(db,`matrimoni/${k}`),{archived:false});};
 window.deleteWeddingConfirm=async function(wid){
   const w=window._weddingCache[wid]||{};
   const name=`${wName(w,null)}`;
   const t=prompt(`Eliminare definitivamente ${name}? Tutti i dati (ospiti, budget, fornitori, timeline) andranno persi e non si può annullare.\n\nPer confermare scrivi ELIMINA`);
-  if(t&&t.trim().toUpperCase()==='ELIMINA'){await remove(ref(db,`matrimoni/${wid}`));}
+  if(t&&t.trim().toUpperCase()==='ELIMINA'){for(const k of dayKids(wid))await remove(ref(db,`matrimoni/${k}`));await remove(ref(db,`matrimoni/${wid}`));}
 };
 
 // ── LOAD WEDDING ──
@@ -2750,7 +2931,7 @@ function loadWedding(wid,w){
   if(LS)LS.forEach(u=>u&&u());
   [LS,BL,VL,CL,TL]=[],[],[],[],[];
   guests={};budget={};vendors={};checklist={};timeline={};timelineB={};moodboard={};
-  window._tipoEv=isEvT(w);document.getElementById('dash-couple-name').textContent=`${wName(w,null)}`;{const ts=document.getElementById('dash-tipo');if(ts)ts.value=w.tipo||'matrimonio';const cl=document.querySelector('[data-t="countdown_label"]');if(cl)cl.textContent=t('countdown_label');}
+  window._tipoEv=isEvT(w);applyTlCats();document.getElementById('dash-couple-name').textContent=`${wName(w,null)}`+dayLabel(wid,w);{const ts=document.getElementById('dash-tipo');if(ts)ts.value=w.tipo||'matrimonio';const cl=document.querySelector('[data-t="countdown_label"]');if(cl)cl.textContent=t('countdown_label');}
   document.getElementById('dash-wedding-date').textContent=formatDate(w.data);
   const rsvpUrl=`${location.origin}${location.pathname}?mode=rsvp&w=${wid}`;
   const kitchenUrl=`${location.origin}${location.pathname}?mode=cucina&w=${wid}`;
@@ -2759,6 +2940,7 @@ function loadWedding(wid,w){
   // Popola la chiave check-in se già impostata
   if(w.checkinKey){const inp=document.getElementById('checkin-key-input');if(inp)inp.value=w.checkinKey;}
   startCountdown(w.data);
+  renderDayBar();
   const L1=onValue(ref(db,`matrimoni/${wid}/ospiti`),(s)=>{guests=s.exists()?s.val():{};renderGuests();renderSeating();renderDashboard();if(typeof renderPiantina==='function'&&!salaDrag)renderPiantina();if(document.getElementById('view-checkin')?.style.display!=='none')renderCheckin();});
   const L2=onValue(ref(db,`matrimoni/${wid}/budget`),(s)=>{const d=s.exists()?s.val():{};budget=d.voci||{};document.getElementById('budget-max').value=d.max||20000;budgetIvaDefault=d.ivaDefault!==undefined?d.ivaDefault:22;const bid=document.getElementById('budget-iva-default');if(bid)bid.value=String(budgetIvaDefault);renderBudget();});
   const L3=onValue(ref(db,`matrimoni/${wid}/fornitori`),(s)=>{vendors=s.exists()?s.val():{};renderVendors();renderBudget();});
@@ -3913,6 +4095,7 @@ function budgetTotals(){
 }
 
 function renderBudget(){
+  renderBudgetRecap();
   const sel=document.getElementById('b-cat');
   if(sel&&!sel.options.length){
     sel.innerHTML=[...budgetCats().filter(c=>c!==BUDGET_OTHER),BUDGET_OTHER].map(c=>`<option>${c}</option>`).join('');
@@ -4408,6 +4591,19 @@ window.toggleTimeline=async function(id,done){await update(ref(db,`matrimoni/${C
 window.deleteTimelineItem=async function(id){if(!confirm('Eliminare questo evento?'))return;await remove(ref(db,`matrimoni/${CW_ID}/timeline/${id}`));};
 
 const TL_CATS=['Generale','Chiesa','Musica Generale','Musica Chiesa','Musica Cocktail','Musica Cena','Flower Designer','Make-up','Hair Stylist','Sposa','Sposo','Auto Sposi','Foto/Video','Light Designer','Animazione Bambini','Intrattenimento','Catering','Location','Wedding Planner','Assistente WP'];
+const TL_BASE=TL_CATS.slice();
+function applyTlCats(){
+  let l=TL_BASE.slice();
+  const add=['Allestitore','Atelier Sposa','Atelier Sposo','Content Creator',"Fuochi d'artificio"];
+  if(isEvT(CW_DATA)){l=l.filter(c=>!['Sposa','Sposo','Auto Sposi'].includes(c));l.splice(l.indexOf('Hair Stylist')+1,0,'Modelle','Modelli','Artisti');}
+  l=l.concat(add);
+  const used=new Set();[timeline,timelineB].forEach(t=>Object.values(t||{}).forEach(it=>tlCats(it).forEach(c=>used.add(c))));
+  used.forEach(c=>{if(!l.includes(c))l.push(c);});
+  TL_CATS.length=0;l.forEach(c=>TL_CATS.push(c));
+  const w=document.getElementById('tl-filter-pills');if(w)w.dataset.sig='';
+  ['tl-cat-pills','tlb-cat-pills'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='';});
+  try{if(typeof renderTimeline==='function'&&CW_ID){renderTimeline();renderTimelineB();}}catch(e){console.error('tl',e)}
+}
 
 // Normalizza le categorie di un evento: ritorna sempre un array
 function tlCats(item){
@@ -4726,7 +4922,7 @@ window.changeTipo=async function(v){
   if(!IS_ADMIN||!CW_ID)return;
   await update(ref(db,`matrimoni/${CW_ID}`),{tipo:v});
   await update(ref(db,`matrimoni/${CW_ID}/pubblico`),{tipo:v});
-  CW_DATA.tipo=v;window._tipoEv=isEvT(CW_DATA);
+  CW_DATA.tipo=v;window._tipoEv=isEvT(CW_DATA);applyTlCats();
   document.getElementById('dash-couple-name').textContent=wName(CW_DATA,null);
   const cl=document.querySelector('[data-t="countdown_label"]');if(cl)cl.textContent=t('countdown_label');
   if(LANG!=='it')applyI18nDom();
