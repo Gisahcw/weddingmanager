@@ -842,6 +842,7 @@ tr.b-vendor{cursor:pointer}
         <div class="dash-header">
           <h1 data-t="dash_title">Dashboard</h1>
           <div class="dash-couple" id="dash-couple-name"></div>
+          <div class="admin-only" style="margin-top:6px"><select id="dash-tipo" onchange="changeTipo(this.value)" title="Cambia tipo" style="font-size:14px;padding:4px 8px;border:1px solid var(--gray-l);background:transparent;color:var(--gray)"><option value="matrimonio">Matrimonio</option><option value="evento">Evento / Festival</option><option value="aziendale">Evento aziendale</option><option value="privato">Evento privato</option></select></div>
         </div>
         <div class="countdown-banner">
           <div>
@@ -1147,7 +1148,7 @@ tr.b-vendor{cursor:pointer}
                 <option>Auto Sposi</option><option>Hotel</option><option>Stationery</option>
                 <option>Musica</option><option>Animazione Bambini</option>
                 <option>Transfer Ospiti</option><option>Light Designer</option>
-                <option>Flower Designer</option><option>Altro</option>
+                <option>Flower Designer</option><option>Allestitore</option><option>Catering</option><option>Noleggio arredi</option><option>Service audio/luci</option><option>Altro</option>
               </select></div>
             <div class="ig"><label>Nome Fornitore</label><input id="f-nome" placeholder="es. Studio Rossi"></div>
             <div class="ig"><label data-t="contact">Contatto</label><input id="f-cont" placeholder="tel / email"></div>
@@ -1429,7 +1430,7 @@ tr.b-vendor{cursor:pointer}
           <option>Auto Sposi</option><option>Hotel</option><option>Stationery</option>
           <option>Musica</option><option>Animazione Bambini</option>
           <option>Transfer Ospiti</option><option>Light Designer</option>
-          <option>Flower Designer</option><option>Altro</option>
+          <option>Flower Designer</option><option>Allestitore</option><option>Catering</option><option>Noleggio arredi</option><option>Service audio/luci</option><option>Altro</option>
         </select></div>
       <div class="ig"><label>Nome Fornitore</label><input id="ev-nome"></div>
       <div class="ig"><label data-t="contact">Contatto</label><input id="ev-cont" placeholder="tel / email"></div>
@@ -1492,16 +1493,18 @@ tr.b-vendor{cursor:pointer}
 <div class="modal-overlay" id="modal-wedding">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-wedding')">✕</button>
-    <h3 class="modal-title" data-t="new_wedding">Nuovo Matrimonio</h3>
+    <h3 class="modal-title" id="m-title" data-t="new_wedding">Nuovo Matrimonio</h3>
+    <div class="ig" style="margin-bottom:16px"><label>Tipo evento</label>
+      <select id="m-tipo" onchange="modalTipoChange()"><option value="matrimonio">Matrimonio</option><option value="evento">Evento / Festival</option><option value="aziendale">Evento aziendale</option><option value="privato">Evento privato</option></select></div>
     <div class="form-grid" style="margin-bottom:20px">
-      <div class="ig"><label data-t="spouse1">Sposo/a 1</label><input id="m-n1" placeholder="Sofia"></div>
-      <div class="ig"><label data-t="spouse2">Sposo/a 2</label><input id="m-n2" placeholder="Marco"></div>
+      <div class="ig"><label id="m-l1" data-t="spouse1">Sposo/a 1</label><input id="m-n1" placeholder="Sofia"></div>
+      <div class="ig"><label id="m-l2" data-t="spouse2">Sposo/a 2</label><input id="m-n2" placeholder="Marco"></div>
     </div>
-    <div class="ig" style="margin-bottom:16px"><label data-t="wedding_date">Data Matrimonio</label><input type="date" id="m-date"></div>
-    <div class="ig" style="margin-bottom:16px"><label data-t="email_spouses">Email Sposi</label><input type="email" id="m-email" placeholder="sposi@email.com"></div>
+    <div class="ig" style="margin-bottom:16px"><label id="m-ldate" data-t="wedding_date">Data Matrimonio</label><input type="date" id="m-date"></div>
+    <div class="ig" style="margin-bottom:16px"><label id="m-lemail" data-t="email_spouses">Email Sposi</label><input type="email" id="m-email" placeholder="sposi@email.com"></div>
     <div class="ig" style="margin-bottom:16px"><label data-t="wedding_location">Location</label><input id="m-location" placeholder="es. Villa Borghese, Roma"></div>
-    <div class="ig" style="margin-bottom:28px"><label data-t="pwd_spouses">Password Sposi</label><input type="password" id="m-pwd" placeholder="minimo 6 caratteri"></div>
-    <button class="btn-primary" onclick="createWedding()" data-t="create_wedding">Crea Matrimonio</button>
+    <div class="ig" style="margin-bottom:28px"><label id="m-lpwd" data-t="pwd_spouses">Password Sposi</label><input type="password" id="m-pwd" placeholder="minimo 6 caratteri"></div>
+    <button class="btn-primary" onclick="createWedding()" id="m-btn" data-t="create_wedding">Crea Matrimonio</button>
     <div class="err" id="modal-err"></div>
   </div>
 </div>
@@ -1660,10 +1663,67 @@ const T={
 
 const PICK_FR={'Marco':'Marc','Smith':'Martin','+44 333...':'+33 6 ...','e.g. gluten free...':'ex. sans gluten...','Only you can read this':'Vous seul(e) pouvez lire ceci','Search name, last name, table...':'Rechercher par prénom, nom, table...','e.g. Florist, Venue...':'ex. Fleuriste, Lieu...','e.g. Studio Smith':'ex. Studio Martin','phone / email':'tél. / e-mail','Additional notes...':'Notes supplémentaires...','e.g. Confirm florist':'ex. Confirmer le fleuriste','e.g. Church ceremony':'ex. Cérémonie à l\'église','Sofia':'Sophie','couple@email.com':'couple@email.com','e.g. Villa Borghese, Rome':'ex. Château de Versailles, Paris','your email':'votre e-mail','All RSVP':'Tous les RSVP','Confirmed':'Confirmés','Pending':'En attente','Absent':'Absents','All menus':'Tous les menus','Confirm attendance':'Je confirme ma présence',"I won't be able to attend":'Je ne pourrai pas être présent(e)','Send confirmation':'Envoyer la confirmation','Unassigned':'Non placés','guests':'invités','Last name':'Nom','First name':'Prénom','Allergens':'Allergènes','Notes':'Notes','Kitchen List':'Liste cuisine','Download PDF':'Télécharger le PDF','Couple table':'Table des mariés','Table ':'Table ','Invalid email or password.':'E-mail ou mot de passe incorrect.','This account is not a Wedding Planner account.':"Ce compte n'est pas un compte Wedding Planner.",'This is a Wedding Planner account: choose "Wedding Planner".':'Ceci est un compte Wedding Planner : choisissez « Wedding Planner ».','day':'jour','All tables':'Toutes les tables','No table':'Sans table','RSVP not matched to your guest list — review and merge if needed':'RSVP ne correspondant pas à la liste — à vérifier et fusionner si besoin','Mark as verified':'Marquer comme vérifié','Couple':'Mariés'};
 function pick(l,it,en){return l==='en'?en:l==='fr'?(PICK_FR[en]!==undefined?PICK_FR[en]:it):it;}
-function t(key){return T[LANG][key]||T['it'][key]||key}
+function t(key){
+  if(window._tipoEv){
+    if(key==='countdown_label')return LANG==='fr'?"Jusqu'à l'événement":LANG==='en'?'To the event':"All'evento";
+    if(key==='rsvp_invite')return LANG==='fr'?"Vous êtes invité(e) à notre événement. Merci de confirmer votre présence.":LANG==='en'?'You are invited to our event. Please confirm your attendance.':"Sei invitato all'evento. Conferma la tua presenza.";
+  }
+  return T[LANG][key]||T['it'][key]||key}
 
 // ── TRADUZIONE AUTOMATICA IT → EN (testi non coperti da data-t e testi dinamici) ──
 const EN_MAP={
+"Definire concept, format e obiettivi dell'evento":"Define concept, format and goals of the event",
+"Definire budget con il cliente":"Agree the budget with the client",
+"Scegliere e bloccare la location":"Choose and book the venue",
+"Richiedere permessi e autorizzazioni (SIAE, suolo pubblico, sicurezza)":"Request permits and authorisations (music rights, public land, safety)",
+"Confermare allestitore e scenografia":"Confirm set designer and scenography",
+"Scegliere catering e bar":"Choose catering and bar",
+"Confermare artisti, musica e intrattenimento":"Confirm artists, music and entertainment",
+"Confermare service audio, luci e video":"Confirm audio, lighting and video service",
+"Confermare fotografo e videomaker":"Confirm photographer and videographer",
+"Definire lista invitati e ospiti speciali":"Define guest list and VIP guests",
+"Inviare gli inviti":"Send the invitations",
+"Definire noleggio arredi e tecnico":"Arrange furniture and technical rental",
+"Pianificare transfer, parcheggi e logistica ospiti":"Plan transfers, parking and guest logistics",
+"Definire piano di ingresso, accrediti e badge":"Define entrance plan, accreditation and badges",
+"Definire menu e piano allergeni con il catering":"Define menu and allergen plan with the caterer",
+"Sopralluogo tecnico in location":"Technical site visit at the venue",
+"Chiudere gli RSVP":"Close RSVPs",
+"Piantina sala, tavoli e layout allestimento":"Room plan, tables and set layout",
+"Definire timeline di produzione e scaletta (Piano A e B)":"Define production timeline and run of show (Plan A and B)",
+"Comunicare i numeri definitivi al catering":"Communicate final numbers to the caterer",
+"Piano sicurezza, staff e personale di sala":"Safety plan, staff and floor team",
+"Saldare i fornitori":"Pay the suppliers",
+"Briefing finale con tutti i fornitori e lo staff":"Final briefing with all suppliers and staff",
+"Controllare meteo e piano B":"Check weather and plan B",
+"Montaggio e prove tecniche (soundcheck, luci)":"Set-up and technical rehearsals (soundcheck, lighting)",
+"Smontaggio e restituzione noleggi":"Dismantling and return of rentals",
+"Ringraziare fornitori, artisti e ospiti":"Thank suppliers, artists and guests",
+"Saldo finale e chiusura budget":"Final balance and budget close",
+"Imposta prima la data dell'evento (Dashboard).":"Set the event date first (Dashboard).",
+"Cambia tipo":"Change type",
+"Nuovo Matrimonio":"New Wedding",
+"Sposo/a 1":"Spouse 1",
+"Sposo/a 2":"Spouse 2",
+"Data Matrimonio":"Wedding date",
+"Email Sposi":"Couple's email",
+"Password Sposi":"Couple's password",
+"Crea Matrimonio":"Create Wedding",
+"Allestitore":"Set designer",
+"Noleggio arredi":"Furniture rental",
+"Service audio/luci":"Audio/lighting service",
+"Tipo evento":"Event type",
+"Matrimonio":"Wedding",
+"Evento / Festival":"Event / Festival",
+"Evento aziendale":"Corporate event",
+"Evento privato":"Private event",
+"Nuovo Evento":"New Event",
+"Nome evento / Cliente":"Event name / Client",
+"Referente (facoltativo)":"Contact person (optional)",
+"Data evento":"Event date",
+"Email cliente":"Client email",
+"Password cliente":"Client password",
+"Crea Evento":"Create Event",
 "Trascina tavoli ed elementi per posizionarli (misure in metri). Clicca un elemento per cambiare forma, misure e rotazione.":"Drag tables and elements to place them (sizes in metres). Click an element to change shape, size and rotation.",
 "arrivano in automatico dalla pagina Fornitori (importo e acconti). Qui aggiungi le altre spese, oppure collegale a un fornitore (menu, open bar…) con ⚙. Gli importi mostrati sono IVA inclusa.":"come automatically from the Vendors page (amount and deposits). Here you add the other expenses, or link them to a vendor (menu, open bar…) with ⚙. Amounts shown include VAT.",
 "+ Aggiungi":"+ Add","+ Altri dettagli (contatti, hotel, allergeni, note)":"+ More details (contacts, hotel, allergens, notes)","− Altri dettagli (contatti, hotel, allergeni, note)":"− More details (contacts, hotel, allergens, notes)",
@@ -1736,6 +1796,58 @@ const EN_FRAG=[
 ];
 const EN_MON={gen:'Jan',feb:'Feb',mar:'Mar',apr:'Apr',mag:'May',giu:'Jun',lug:'Jul',ago:'Aug',set:'Sep',ott:'Oct',nov:'Nov',dic:'Dec'};
 const FR_MAP={
+"Definire concept, format e obiettivi dell'evento":"Définir le concept, le format et les objectifs de l'événement",
+"Definire budget con il cliente":"Définir le budget avec le client",
+"Scegliere e bloccare la location":"Choisir et réserver le lieu",
+"Richiedere permessi e autorizzazioni (SIAE, suolo pubblico, sicurezza)":"Demander permis et autorisations (droits musicaux, domaine public, sécurité)",
+"Confermare allestitore e scenografia":"Confirmer le décorateur et la scénographie",
+"Scegliere catering e bar":"Choisir le traiteur et le bar",
+"Confermare artisti, musica e intrattenimento":"Confirmer artistes, musique et animation",
+"Confermare service audio, luci e video":"Confirmer sonorisation, éclairage et vidéo",
+"Confermare fotografo e videomaker":"Confirmer photographe et vidéaste",
+"Definire lista invitati e ospiti speciali":"Définir la liste des invités et des invités VIP",
+"Inviare gli inviti":"Envoyer les invitations",
+"Definire noleggio arredi e tecnico":"Organiser la location de mobilier et de matériel technique",
+"Pianificare transfer, parcheggi e logistica ospiti":"Planifier transferts, parkings et logistique des invités",
+"Definire piano di ingresso, accrediti e badge":"Définir le plan d'accueil, les accréditations et les badges",
+"Definire menu e piano allergeni con il catering":"Définir le menu et le plan allergènes avec le traiteur",
+"Sopralluogo tecnico in location":"Repérage technique sur le lieu",
+"Chiudere gli RSVP":"Clôturer les RSVP",
+"Piantina sala, tavoli e layout allestimento":"Plan de salle, tables et implantation de la décoration",
+"Definire timeline di produzione e scaletta (Piano A e B)":"Définir le programme de production et le déroulé (Plan A et B)",
+"Comunicare i numeri definitivi al catering":"Communiquer les chiffres définitifs au traiteur",
+"Piano sicurezza, staff e personale di sala":"Plan de sécurité, équipe et personnel de salle",
+"Saldare i fornitori":"Solder les prestataires",
+"Briefing finale con tutti i fornitori e lo staff":"Briefing final avec tous les prestataires et l'équipe",
+"Controllare meteo e piano B":"Vérifier la météo et le plan B",
+"Montaggio e prove tecniche (soundcheck, luci)":"Montage et répétitions techniques (balances, lumières)",
+"Smontaggio e restituzione noleggi":"Démontage et restitution des locations",
+"Ringraziare fornitori, artisti e ospiti":"Remercier prestataires, artistes et invités",
+"Saldo finale e chiusura budget":"Solde final et clôture du budget",
+"Imposta prima la data dell'evento (Dashboard).":"Définissez d'abord la date de l'événement (Tableau de bord).",
+"Cambia tipo":"Changer le type",
+"Nuovo Matrimonio":"Nouveau mariage",
+"Sposo/a 1":"Marié(e) 1",
+"Sposo/a 2":"Marié(e) 2",
+"Data Matrimonio":"Date du mariage",
+"Email Sposi":"E-mail des mariés",
+"Password Sposi":"Mot de passe des mariés",
+"Crea Matrimonio":"Créer le mariage",
+"Allestitore":"Décorateur / scénographe",
+"Noleggio arredi":"Location de mobilier",
+"Service audio/luci":"Sonorisation / éclairage",
+"Tipo evento":"Type d'événement",
+"Matrimonio":"Mariage",
+"Evento / Festival":"Événement / Festival",
+"Evento aziendale":"Événement d'entreprise",
+"Evento privato":"Événement privé",
+"Nuovo Evento":"Nouvel événement",
+"Nome evento / Cliente":"Nom de l'événement / Client",
+"Referente (facoltativo)":"Interlocuteur (facultatif)",
+"Data evento":"Date de l'événement",
+"Email cliente":"E-mail du client",
+"Password cliente":"Mot de passe du client",
+"Crea Evento":"Créer l'événement",
 "Trascina tavoli ed elementi per posizionarli (misure in metri). Clicca un elemento per cambiare forma, misure e rotazione.":"Faites glisser les tables et les éléments pour les placer (mesures en mètres). Cliquez sur un élément pour modifier forme, dimensions et rotation.",
 "arrivano in automatico dalla pagina Fornitori (importo e acconti). Qui aggiungi le altre spese, oppure collegale a un fornitore (menu, open bar…) con ⚙. Gli importi mostrati sono IVA inclusa.":"proviennent automatiquement de la page Prestataires (montant et acomptes). Ajoutez ici les autres dépenses, ou liez-les à un prestataire (menu, open bar…) avec ⚙. Les montants affichés incluent la TVA.",
 "+ Aggiungi":"+ Ajouter","+ Altri dettagli (contatti, hotel, allergeni, note)":"+ Plus de détails (contacts, hôtel, allergènes, notes)","− Altri dettagli (contatti, hotel, allergeni, note)":"− Plus de détails (contacts, hôtel, allergènes, notes)",
@@ -2045,7 +2157,7 @@ async function loadRsvpPage(wid){
   const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
   if(!snap.exists())return;
   const w=snap.val();
-  document.getElementById('rsvp-couple').textContent=`${w.nome1} & ${w.nome2}`;
+  window._tipoEv=isEvT(w);document.getElementById('rsvp-couple').textContent=`${wName(w,null)}`;
   document.getElementById('rsvp-date').textContent=formatDate(w.data);
   const lang=(['it','en','fr'].includes(urlP.get('lang'))?urlP.get('lang'):w.lang)||'it';
   LANG=lang;
@@ -2137,7 +2249,7 @@ async function loadCheckinPage(wid,key){
     return;
   }
   window.customTableNames=w.tavoliNomi||{};
-  document.getElementById('ci-couple-title').textContent=`${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)}`;
+  document.getElementById('ci-couple-title').textContent=`${wName(w,null)} — ${formatDate(w.data)}`;
   // Ascolta ospiti in tempo reale
   onValue(ref(db,`matrimoni/${wid}/ospiti`),(s)=>{
     ciStaffGuests=s.exists()?s.val():{};
@@ -2194,7 +2306,7 @@ async function loadKitchenPage(wid){
   const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
   if(!snap.exists())return;
   const w=snap.val();
-  document.getElementById('cucina-couple').textContent=`${w.nome1} & ${w.nome2} — ${formatDate(w.data)}`;
+  document.getElementById('cucina-couple').textContent=`${wName(w,null)} — ${formatDate(w.data)}`;
   window.customTableNames=w.tavoliNomi||{};
   onValue(ref(db,`matrimoni/${wid}/ospiti`),(snap)=>{
     const gs=snap.exists()?snap.val():{};
@@ -2386,7 +2498,7 @@ window.exportSeatingChartPDF=function(){
   }
   const cards=ids.map(card).filter(Boolean).join('');
   const win=window.open('','_blank');
-  win.document.write(`<html><head><title>Disposizione tavoli — ${ciEsc(w.nome1)} & ${ciEsc(w.nome2)}</title>
+  win.document.write(`<html><head><title>Disposizione tavoli — ${wName(w,ciEsc)}</title>
     <style>
       @page{size:A4 portrait;margin:12mm}
       body{font-family:Arial,sans-serif;margin:0;color:#1a1a1a}
@@ -2403,7 +2515,7 @@ window.exportSeatingChartPDF=function(){
       .a{color:#c0392b;font-size:10px}
     </style></head><body>
     <div class="head"><img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:52px">
-      <div>${ciEsc(w.nome1)} & ${ciEsc(w.nome2)} — ${formatDate(w.data)} · Disposizione tavoli e posti</div></div>
+      <div>${wName(w,ciEsc)} — ${formatDate(w.data)} · Disposizione tavoli e posti</div></div>
     <div class="grid" style="width:calc(100% - 3px)">${cards}</div>
     <script>window.onload=function(){setTimeout(function(){window.print();},400);}<\/script>
   </body></html>`);
@@ -2467,11 +2579,11 @@ window.exportKitchenPDF=async function(){
       ${byTable[table].sort((a,b)=>so(a)-so(b)||(a.cognome||'').localeCompare(b.cognome||'')).map((g,i)=>`<tr><td style="text-align:center;font-weight:bold;border:1px solid #ccc;padding:5px">${i+1}</td><td style="border:1px solid #ccc;padding:5px">${g.cognome||''}</td><td style="border:1px solid #ccc;padding:5px">${g.nome||''}</td><td style="border:1px solid #ccc;padding:5px">${g.menu||'Normale'}</td><td style="border:1px solid #ccc;padding:5px">${g.allergeni||'—'}</td><td style="border:1px solid #ccc;padding:5px">${g.intolleranze||'—'}</td></tr>`).join('')}
     </table>`).join('');
   const win=window.open('','_blank');
-  win.document.write(`<html><head><title>${L.title} — ${w.nome1||''} & ${w.nome2||''}</title></head>
+  win.document.write(`<html><head><title>${L.title} — ${wName(w,null)}</title></head>
     <body style="font-family:Arial,sans-serif;padding:30px;color:#1a1a1a">
       <div style="text-align:center;margin-bottom:20px">
         <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:70px"><br>
-        <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin-top:8px">${w.nome1||''} & ${w.nome2||''} — ${formatDate(w.data)}</div>
+        <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin-top:8px">${wName(w,null)} — ${formatDate(w.data)}</div>
       </div>
       ${summaryBlock}
       ${body}
@@ -2538,6 +2650,8 @@ onAuthStateChanged(auth,async(user)=>{
 });
 
 // ── ADMIN: WEDDINGS ──
+function isEvT(w){return !!(w&&w.tipo&&w.tipo!=='matrimonio');}
+function wName(w,f){f=f||(x=>x==null?'':x);if(!w)return '';return isEvT(w)?(w.nome2?`${f(w.nome1)} — ${f(w.nome2)}`:`${f(w.nome1)}`):`${f(w.nome1)} & ${f(w.nome2)}`;}
 const wEsc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 function wDays(d){if(!d)return null;const t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(d+'T00:00:00')-t)/86400000);}
 function wStats(w){
@@ -2563,7 +2677,8 @@ function loadAdminWeddings(){
         const card=document.createElement('div');
         card.style.cssText='background:white;border:1px solid var(--gray-l);padding:24px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden';
         card.innerHTML=`<div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .3s" class="card-line"></div>
-          <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin-bottom:6px">${wEsc(w.nome1)} & ${wEsc(w.nome2)}</h3>
+          <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin-bottom:6px">${wName(w,wEsc)}</h3>
+          ${isEvT(w)?`<div style="display:inline-block;background:var(--gold);color:#fff;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:2px 8px;margin-bottom:6px">${({evento:'Evento / Festival',aziendale:'Evento aziendale',privato:'Evento privato'})[w.tipo]||'Evento'}</div>`:''}
           <div style="color:var(--gold);font-size:15px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">${formatDate(w.data)}${when?' · '+when:''}</div>
           ${w.location?`<div style="font-size:16px;color:var(--gray);margin-bottom:8px">${wEsc(w.location)}</div>`:'<div style="margin-bottom:8px"></div>'}
           <div style="font-size:16px;color:var(--gray);margin-bottom:4px">♡ ${st.tot} ospiti · ${st.conf} confermati</div>
@@ -2597,7 +2712,7 @@ function loadAdminWeddings(){
         hasArchive=true;
         const card=document.createElement('div');
         card.className='archive-card';
-        card.innerHTML=`<h3>${wEsc(w.nome1)} & ${wEsc(w.nome2)}</h3>
+        card.innerHTML=`<h3>${wName(w,wEsc)}</h3>
           <div class="arc-date">${formatDate(w.data)}</div>
           <div style="font-size:16px;color:var(--gray);margin-bottom:12px">♡ ${w.ospiti?Object.keys(w.ospiti).length:0} ospiti</div>
           <button class="btn-sm" onclick="loadWeddingById('${wid}')">Apri</button>
@@ -2624,7 +2739,7 @@ window.archiveWedding=async function(wid){
 window.unarchiveWedding=async function(wid){await update(ref(db,`matrimoni/${wid}`),{archived:false});};
 window.deleteWeddingConfirm=async function(wid){
   const w=window._weddingCache[wid]||{};
-  const name=`${w.nome1||''} & ${w.nome2||''}`;
+  const name=`${wName(w,null)}`;
   const t=prompt(`Eliminare definitivamente ${name}? Tutti i dati (ospiti, budget, fornitori, timeline) andranno persi e non si può annullare.\n\nPer confermare scrivi ELIMINA`);
   if(t&&t.trim().toUpperCase()==='ELIMINA'){await remove(ref(db,`matrimoni/${wid}`));}
 };
@@ -2635,7 +2750,7 @@ function loadWedding(wid,w){
   if(LS)LS.forEach(u=>u&&u());
   [LS,BL,VL,CL,TL]=[],[],[],[],[];
   guests={};budget={};vendors={};checklist={};timeline={};timelineB={};moodboard={};
-  document.getElementById('dash-couple-name').textContent=`${w.nome1} & ${w.nome2}`;
+  window._tipoEv=isEvT(w);document.getElementById('dash-couple-name').textContent=`${wName(w,null)}`;{const ts=document.getElementById('dash-tipo');if(ts)ts.value=w.tipo||'matrimonio';const cl=document.querySelector('[data-t="countdown_label"]');if(cl)cl.textContent=t('countdown_label');}
   document.getElementById('dash-wedding-date').textContent=formatDate(w.data);
   const rsvpUrl=`${location.origin}${location.pathname}?mode=rsvp&w=${wid}`;
   const kitchenUrl=`${location.origin}${location.pathname}?mode=cucina&w=${wid}`;
@@ -3494,10 +3609,10 @@ window.exportPiantinaPDF=function(){
   const land=S.w>=S.h*0.9;
   const list=r.tabs.map(t=>`<span style="display:inline-block;margin:2px 10px 2px 0">${ciEsc(t.label)} <b>${t.count}</b></span>`).join('');
   const win=window.open('','_blank');
-  win.document.write(`<html><head><title>Planimetria — ${ciEsc(w.nome1)} & ${ciEsc(w.nome2)}</title>
+  win.document.write(`<html><head><title>Planimetria — ${wName(w,ciEsc)}</title>
     <style>@page{size:${land?'A4 landscape':'A4 portrait'};margin:10mm}body{font-family:Arial,sans-serif;margin:0;padding:12px;color:#1a1a1a;text-align:center}svg{width:100%;max-height:${land?'150mm':'210mm'}}</style></head><body>
     <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png" style="height:50px"><br>
-    <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin:6px 0 10px">${ciEsc(w.nome1)} & ${ciEsc(w.nome2)} — ${formatDate(w.data)} · Planimetria ${piantinaScenario==='planB'?'(Piano B)':''} · Sala ${salaR(S.w,100)} × ${salaR(S.h,100)} m</div>
+    <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b08d57;margin:6px 0 10px">${wName(w,ciEsc)} — ${formatDate(w.data)} · Planimetria ${piantinaScenario==='planB'?'(Piano B)':''} · Sala ${salaR(S.w,100)} × ${salaR(S.h,100)} m</div>
     <svg viewBox="-1.2 -1.2 ${S.w+2.4} ${S.h+2.4}" xmlns="http://www.w3.org/2000/svg">${r.inner}</svg>
     <div style="font-size:12px;margin-top:8px;color:#444;text-align:left">${list}</div>
     <script>setTimeout(function(){window.print();},500)<\/script></body></html>`);
@@ -4077,6 +4192,36 @@ function renderMoodboard(){
 const CL_CATS=['Fornitori','Ospiti','Budget','Cerimonia','Estetica','Concept','Logistica','Documenti','Altro'];
 const CL_COLORS={'Fornitori':'b-gold','Ospiti':'b-green','Budget':'b-teal','Cerimonia':'b-purple','Estetica':'b-orange','Concept':'b-gold','Logistica':'b-blue','Documenti':'b-purple','Altro':'b-gray'};
 // [giorni prima delle nozze, attività, categoria, per chi]
+const CL_TEMPLATE_EV=[
+ [120,'Definire concept, format e obiettivi dell\'evento','Concept','planner'],
+ [120,'Definire budget con il cliente','Budget','planner'],
+ [110,'Scegliere e bloccare la location','Fornitori','planner'],
+ [100,'Richiedere permessi e autorizzazioni (SIAE, suolo pubblico, sicurezza)','Documenti','planner'],
+ [90,'Confermare allestitore e scenografia','Fornitori','planner'],
+ [90,'Scegliere catering e bar','Fornitori','planner'],
+ [80,'Confermare artisti, musica e intrattenimento','Fornitori','planner'],
+ [80,'Confermare service audio, luci e video','Fornitori','planner'],
+ [75,'Confermare fotografo e videomaker','Fornitori','planner'],
+ [70,'Definire lista invitati e ospiti speciali','Ospiti','planner'],
+ [60,'Inviare gli inviti','Ospiti','planner'],
+ [60,'Definire noleggio arredi e tecnico','Fornitori','planner'],
+ [50,'Pianificare transfer, parcheggi e logistica ospiti','Logistica','planner'],
+ [45,'Definire piano di ingresso, accrediti e badge','Logistica','planner'],
+ [40,'Definire menu e piano allergeni con il catering','Fornitori','planner'],
+ [35,'Sopralluogo tecnico in location','Logistica','planner'],
+ [30,'Chiudere gli RSVP','Ospiti','planner'],
+ [28,'Piantina sala, tavoli e layout allestimento','Logistica','planner'],
+ [21,'Definire timeline di produzione e scaletta (Piano A e B)','Logistica','planner'],
+ [14,'Comunicare i numeri definitivi al catering','Fornitori','planner'],
+ [14,'Piano sicurezza, staff e personale di sala','Logistica','planner'],
+ [10,'Saldare i fornitori','Budget','planner'],
+ [7,'Briefing finale con tutti i fornitori e lo staff','Fornitori','planner'],
+ [3,'Controllare meteo e piano B','Logistica','planner'],
+ [2,'Montaggio e prove tecniche (soundcheck, luci)','Logistica','planner'],
+ [-1,'Smontaggio e restituzione noleggi','Logistica','planner'],
+ [-7,'Ringraziare fornitori, artisti e ospiti','Altro','planner'],
+ [-14,'Saldo finale e chiusura budget','Budget','planner']
+];
 const CL_TEMPLATE=[
  [365,'Definire concept e budget con gli sposi','Concept','planner'],
  [350,'Scegliere e bloccare la location','Fornitori','planner'],
@@ -4155,9 +4300,10 @@ window.loadChecklistTemplate=async function(){
   if(!IS_ADMIN||!CW_ID)return;
   const w=CW_DATA&&CW_DATA.data;
   const wd=clParse(w);
-  if(!wd){alert('Imposta prima la data del matrimonio (Dashboard).');return;}
+  if(!wd){alert(isEvT(CW_DATA)?'Imposta prima la data dell\'evento (Dashboard).':'Imposta prima la data del matrimonio (Dashboard).');return;}
   const have=new Set(Object.values(checklist).map(c=>(c.text||'').trim().toLowerCase()));
-  let items=CL_TEMPLATE.filter(t=>!have.has(t[1].toLowerCase()));
+  const TPL=isEvT(CW_DATA)?CL_TEMPLATE_EV:CL_TEMPLATE;
+   let items=TPL.filter(t=>!have.has(t[1].toLowerCase()));
   if(!items.length){alert('Il percorso standard è già presente.');return;}
   const today=clToday();
   const calc=t=>{const d=new Date(wd);d.setDate(d.getDate()-t[0]);return d;};
@@ -4576,6 +4722,15 @@ window.copyTimelineAtoB=async function(){
 
 // ── CREATE WEDDING ──
 // Modifica la data di un matrimonio gia creato (solo admin)
+window.changeTipo=async function(v){
+  if(!IS_ADMIN||!CW_ID)return;
+  await update(ref(db,`matrimoni/${CW_ID}`),{tipo:v});
+  await update(ref(db,`matrimoni/${CW_ID}/pubblico`),{tipo:v});
+  CW_DATA.tipo=v;window._tipoEv=isEvT(CW_DATA);
+  document.getElementById('dash-couple-name').textContent=wName(CW_DATA,null);
+  const cl=document.querySelector('[data-t="countdown_label"]');if(cl)cl.textContent=t('countdown_label');
+  if(LANG!=='it')applyI18nDom();
+};
 window.editWeddingDate=async function(){
   if(!IS_ADMIN||!CW_ID)return;
   const current=(CW_DATA&&CW_DATA.data)?CW_DATA.data:'';
@@ -4590,6 +4745,14 @@ window.editWeddingDate=async function(){
   startCountdown(v);
 };
 
+window.modalTipoChange=function(){
+  const ev=document.getElementById('m-tipo').value!=='matrimonio';
+  const set=(id,a,b)=>{const e=document.getElementById(id);if(e){e.removeAttribute('data-t');e.replaceChildren(document.createTextNode(ev?a:b));}};
+  set('m-title','Nuovo Evento','Nuovo Matrimonio');set('m-l1','Nome evento / Cliente','Sposo/a 1');set('m-l2','Referente (facoltativo)','Sposo/a 2');
+  set('m-ldate','Data evento','Data Matrimonio');set('m-lemail','Email cliente','Email Sposi');set('m-lpwd','Password cliente','Password Sposi');set('m-btn','Crea Evento','Crea Matrimonio');
+  document.getElementById('m-n1').placeholder=ev?'es. Red Eclectic':'Sofia';document.getElementById('m-n2').placeholder=ev?'es. Referente / organizzatore':'Marco';
+  if(LANG!=='it')applyI18nDom();
+};
 window.createWedding=async function(){
   const n1=document.getElementById('m-n1').value.trim();
   const n2=document.getElementById('m-n2').value.trim();
@@ -4598,7 +4761,8 @@ window.createWedding=async function(){
   const pwd=document.getElementById('m-pwd').value;
   const loc=document.getElementById('m-location').value.trim();
   const errEl=document.getElementById('modal-err');
-  if(!n1||!n2||!date||!email||!pwd){errEl.textContent='Compila tutti i campi obbligatori';return;}
+  const tipo=document.getElementById('m-tipo').value;const isEv=tipo!=='matrimonio';
+  if(!n1||(!isEv&&!n2)||!date||!email||!pwd){errEl.textContent='Compila tutti i campi obbligatori';return;}
   if(pwd.length<6){errEl.textContent='Password minimo 6 caratteri';return;}
   try{
     // App secondaria: l'account sposi si crea senza disconnettere l'admin
@@ -4606,13 +4770,13 @@ window.createWedding=async function(){
     const uc=await createUserWithEmailAndPassword(auth2,email,pwd);
     try{await signOut(auth2);}catch(_){}
     const wRef=push(ref(db,'matrimoni'));
-    await set(wRef,{nome1:n1,nome2:n2,data:date,uid:uc.user.uid,email,location:loc,archived:false,pubblico:{nome1:n1,nome2:n2,data:date}});
+    await set(wRef,{nome1:n1,nome2:n2,data:date,tipo,uid:uc.user.uid,email,location:loc,archived:false,pubblico:{nome1:n1,nome2:n2,data:date,tipo}});
     closeModal('modal-wedding');
     ['m-n1','m-n2','m-date','m-email','m-pwd','m-location'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
     errEl.textContent='';
     const cred=`Email: ${email}\nPassword: ${pwd}`;
     try{await navigator.clipboard.writeText(cred);}catch(_){}
-    alert(`Matrimonio creato!\n\nCredenziali sposi (copiate negli appunti):\n${cred}`);
+    alert(isEv?`Evento creato!\n\nCredenziali cliente (copiate negli appunti):\n${cred}`:`Matrimonio creato!\n\nCredenziali sposi (copiate negli appunti):\n${cred}`);
   }catch(e){
     errEl.textContent=e.code==='auth/email-already-in-use'?'Email già in uso':'Errore: '+e.message;
   }
@@ -4669,7 +4833,7 @@ window.exportGuestsXLS=function(){
 
 window.exportGuestsPDF=function(mode){
   const w=window.open('','_blank');
-  const couple=CW_DATA?`${CW_DATA.nome1} & ${CW_DATA.nome2}`:'';
+  const couple=CW_DATA?`${wName(CW_DATA,null)}`:'';
   const date=CW_DATA?formatDate(CW_DATA.data):'';
   let body='';
   if(mode==='tavolo'){
@@ -4736,7 +4900,7 @@ window.exportTimelineXLS=function(){
 
 window.exportTimelinePDF=function(){
   const w=window.open('','_blank');
-  const couple=CW_DATA?`${CW_DATA.nome1} & ${CW_DATA.nome2}`:'';
+  const couple=CW_DATA?`${wName(CW_DATA,null)}`:'';
   const date=CW_DATA?formatDate(CW_DATA.data):'';
   const logo='https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png';
   const showCat=timelineActiveCat()==='Completa';
@@ -4765,7 +4929,7 @@ window.exportTimelinePDF=function(){
 
 window.exportTimelinePDFB=function(){
   const w=window.open('','_blank');
-  const couple=CW_DATA?`${CW_DATA.nome1} & ${CW_DATA.nome2}`:'';
+  const couple=CW_DATA?`${wName(CW_DATA,null)}`:'';
   const date=CW_DATA?formatDate(CW_DATA.data):'';
   const logo='https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20(centro)%20GisaCompleto%20Def.png';
   const showCat=timelineActiveCat()==='Completa';
