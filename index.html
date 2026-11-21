@@ -770,6 +770,20 @@ tr.b-vendor{cursor:pointer}
 </div>
 
 <!-- ══ CHECK-IN STAFF ══ -->
+<div id="s-timeline" style="display:none;min-height:100vh;background:var(--cream)">
+  <div style="background:var(--black);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <img src="https://raw.githubusercontent.com/Gisahcw/weddingmanager/main/Logo%20GisaCompleto%20DefBianco.png" alt="Gisa" style="height:36px">
+      <span id="tp-title" style="color:var(--gold);font-size:16px;letter-spacing:2px;text-transform:uppercase"></span>
+    </div>
+    <button class="btn-sm" id="tp-pdf" onclick="tpPdf()" style="background:var(--gold);color:#fff;border-color:var(--gold)">PDF</button>
+  </div>
+  <div style="padding:18px 24px;max-width:900px;margin:0 auto">
+    <div id="tp-plan" style="display:flex;gap:8px;margin-bottom:12px"></div>
+    <div id="tp-cats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px"></div>
+    <div id="tp-list"></div>
+  </div>
+</div>
 <div id="s-checkin" style="display:none;min-height:100vh;background:var(--cream)">
   <div style="background:var(--black);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:16px">
@@ -878,6 +892,7 @@ tr.b-vendor{cursor:pointer}
             <button class="btn-copy" onclick="copyRsvpLink()" >Copia link RSVP</button>
             <button class="btn-copy" onclick="copyKitchenLink()" style="background:var(--teal)" data-t="copy_kitchen">Link cucina</button>
             <button class="btn-copy" onclick="copyCheckinLink()" style="background:var(--gold)" data-t="copy_checkin">Link check-in staff</button>
+            <button class="btn-copy" onclick="copyTimelineLink()" style="background:var(--black)">Link timeline staff</button>
           </div>
           <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <label style="font-size:15px;color:var(--gray);letter-spacing:1px;text-transform:uppercase">Chiave check-in</label>
@@ -1674,6 +1689,7 @@ function t(key){
 
 // ── TRADUZIONE AUTOMATICA IT → EN (testi non coperti da data-t e testi dinamici) ──
 const EN_MAP={
+"Link timeline staff":"Staff timeline link",
 "Evento":"Event",
 "Fuochi d'artificio":"Fireworks",
 "Recap budget — tutte le giornate":"Budget recap — all days",
@@ -1820,6 +1836,7 @@ const EN_FRAG=[
 ];
 const EN_MON={gen:'Jan',feb:'Feb',mar:'Mar',apr:'Apr',mag:'May',giu:'Jun',lug:'Jul',ago:'Aug',set:'Sep',ott:'Oct',nov:'Nov',dic:'Dec'};
 const FR_MAP={
+"Link timeline staff":"Lien programme équipe",
 "Evento":"Événement",
 "Fuochi d'artificio":"Feux d'artifice",
 "Recap budget — tutte le giornate":"Récapitulatif du budget — toutes les journées",
@@ -2160,7 +2177,7 @@ const KEY_PARAM=urlP.get('key');
 
 // ── SCREEN SWITCHER ──
 function showScreen(id){
-  ['s-login','s-rsvp','s-cucina','s-checkin','s-app'].forEach(s=>{
+  ['s-login','s-rsvp','s-cucina','s-checkin','s-timeline','s-app'].forEach(s=>{
     const el=document.getElementById(s);
     el.classList.remove('active');
     el.style.display='none';
@@ -2190,6 +2207,9 @@ if(MODE==='rsvp'&&WID_PARAM){
 }else if(MODE==='checkin'&&WID_PARAM){
   showScreen('s-checkin');
   loadCheckinPage(WID_PARAM,KEY_PARAM);
+}else if(MODE==='timeline'&&WID_PARAM){
+  showScreen('s-timeline');
+  loadTimelinePage(WID_PARAM,KEY_PARAM);
 }
 
 let rsvpSelection=null;
@@ -2285,6 +2305,79 @@ function ciCard(gid,g,onclick){
 }
 let ciStaffGuests={};
 let ciStaffTab='waiting';
+
+// ── TIMELINE STAFF (pagina pubblica con filtro fornitore e PDF) ──
+const TP={w:null,A:{},B:{},plan:'A',sel:new Set(),wid:null};
+async function loadTimelinePage(wid,key){
+  const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
+  const box=document.getElementById('tp-list');
+  if(!snap.exists()){box.innerHTML='<p style="color:red;padding:20px">Matrimonio non trovato.</p>';return;}
+  const w=snap.val();
+  if(w.checkinKey&&w.checkinKey!==key){box.innerHTML='<p style="color:red;padding:20px">Accesso non autorizzato.</p>';return;}
+  const ul=urlP.get('lang');LANG=(['it','en','fr'].includes(ul)?ul:w.lang)||'it';
+  TP.w=w;TP.wid=wid;
+  (urlP.get('cat')||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(c=>TP.sel.add(c));
+  if(urlP.get('plan')==='B')TP.plan='B';
+  document.getElementById('tp-title').textContent=`${wName(w,null)}${w.giornata?' · '+w.giornata:''} — ${formatDate(w.data)}`;
+  onValue(ref(db,`matrimoni/${wid}/timeline`),s=>{TP.A=s.exists()?s.val():{};tpRender();});
+  onValue(ref(db,`matrimoni/${wid}/timelineB`),s=>{TP.B=s.exists()?s.val():{};tpRender();});
+}
+function tpTr(x){return LANG!=='it'?trStr(x):x;}
+function tpItems(){
+  const src=TP.plan==='B'?TP.B:TP.A;
+  return Object.values(src||{}).filter(i=>i&&i.ora).sort((a,b)=>a.ora.localeCompare(b.ora))
+    .filter(i=>!TP.sel.size||tlCats(i).some(c=>TP.sel.has(c)));
+}
+function tpRender(){
+  const hasB=Object.keys(TP.B||{}).length>0;
+  const plan=document.getElementById('tp-plan');
+  plan.innerHTML=hasB?['A','B'].map(p=>`<span class="tl-pill${TP.plan===p?' active':''}" onclick="tpPlan('${p}')">${p==='A'?tpTr('Piano A — Principale'):tpTr('Piano B — Alternativo')}</span>`).join(''):'';
+  if(!hasB&&TP.plan==='B')TP.plan='A';
+  const used=new Set();Object.values(TP.plan==='B'?TP.B:TP.A||{}).forEach(i=>tlCats(i).forEach(c=>used.add(c)));
+  TP.sel.forEach(c=>used.add(c));
+  const cats=[...used].sort((a,b)=>a.localeCompare(b));
+  document.getElementById('tp-cats').innerHTML=`<span class="tl-pill${TP.sel.size?'':' active'}" onclick="tpCat('')">${tpTr('Tutti')}</span>`+cats.map(c=>`<span class="tl-pill${TP.sel.has(c)?' active':''}" data-c="${wEsc(c)}" onclick="tpCat(this.dataset.c)">${wEsc(tpTr(c))}</span>`).join('');
+  const items=tpItems();
+  document.getElementById('tp-list').innerHTML=items.length?items.map(i=>`<div style="display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--gray-l)">
+    <div style="min-width:86px;font-size:22px;color:var(--gold);font-family:'Playfair Display',serif">${wEsc(i.ora)}${i.fine?`<div style="font-size:14px;color:var(--gray)">→ ${wEsc(i.fine)}</div>`:''}</div>
+    <div style="flex:1"><div style="font-size:19px;color:var(--black)">${wEsc(i.txt)}</div>
+      <div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap">${tlCats(i).map(c=>`<span style="font-size:12px;letter-spacing:1px;text-transform:uppercase;background:rgba(176,141,87,.15);color:var(--gold);padding:2px 8px">${wEsc(tpTr(c))}</span>`).join('')}</div>
+      ${i.note?`<div style="margin-top:8px;white-space:pre-line;line-height:1.5;color:#3f3f3f;background:rgba(176,141,87,.08);border-left:3px solid var(--gold);padding:7px 12px"><b style="display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)">${tpTr('Note operative')}</b>${wEsc(i.note)}</div>`:''}
+    </div></div>`).join(''):`<p style="padding:20px;color:var(--gray)">${tpTr('Nessun evento')}</p>`;
+  document.getElementById('tp-pdf').textContent=LANG==='en'?'PDF':'PDF';
+}
+window.tpPlan=function(p){TP.plan=p;tpRender();};
+window.tpCat=function(c){
+  if(!c)TP.sel.clear();else if(TP.sel.has(c))TP.sel.delete(c);else TP.sel.add(c);
+  try{const u=new URL(location.href);if(TP.sel.size)u.searchParams.set('cat',[...TP.sel].join(','));else u.searchParams.delete('cat');history.replaceState(null,'',u);}catch(_){}
+  tpRender();
+};
+window.tpPdf=function(){
+  const items=tpItems();const w=TP.w;
+  const title=`${wName(w,null)}${w.giornata?' · '+w.giornata:''} — ${formatDate(w.data)}`;
+  const sub=[TP.plan==='B'?tpTr('Piano B — Alternativo'):tpTr('Piano A — Principale'),TP.sel.size?[...TP.sel].map(tpTr).join(', '):''].filter(Boolean).join(' · ');
+  const win=window.open('','_blank');if(!win)return;
+  win.document.write(`<html><head><meta charset="utf-8"><title>${wEsc(title)}</title><style>
+  body{font-family:Georgia,serif;margin:28px;color:#1a1a1a}h1{font-size:22px;margin:0 0 2px}h2{font-size:13px;color:#b08d57;letter-spacing:2px;text-transform:uppercase;font-weight:400;margin:0 0 18px}
+  .r{display:flex;gap:16px;padding:9px 0;border-bottom:1px solid #ddd;page-break-inside:avoid}.t{min-width:80px;font-size:17px;color:#b08d57}.t small{display:block;font-size:11px;color:#777}
+  .e{flex:1;font-size:15px}.c{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b08d57;margin-top:2px}.n{margin-top:5px;font-size:12px;white-space:pre-line;color:#444;border-left:3px solid #b08d57;padding-left:8px}
+  @media print{body{margin:14mm}}</style></head><body><h1>${wEsc(title)}</h1><h2>${wEsc(sub)}</h2>
+  ${items.map(i=>`<div class="r"><div class="t">${wEsc(i.ora)}${i.fine?`<small>→ ${wEsc(i.fine)}</small>`:''}</div><div class="e">${wEsc(i.txt)}<div class="c">${tlCats(i).map(c=>wEsc(tpTr(c))).join(' · ')}</div>${i.note?`<div class="n">${wEsc(i.note)}</div>`:''}</div></div>`).join('')}
+  <script>setTimeout(function(){window.print()},400)<\/script></body></html>`);
+  win.document.close();
+};
+window.copyTimelineLink=function(){
+  const key=(document.getElementById('checkin-key-input')?.value||'').trim();
+  const cats=[...new Set(Object.values(timeline||{}).concat(Object.values(timelineB||{})).flatMap(i=>tlCats(i)))].sort();
+  const c=prompt('Link timeline per lo staff.\nPer un link dedicato a un fornitore scrivi la categoria (es. '+(cats.slice(0,3).join(', ')||'Fotografo')+'), anche più di una separate da virgola. Lascia vuoto per il link generale.\n\nCategorie in uso: '+cats.join(', '),'');
+  if(c===null)return;
+  let url=`${location.origin}${location.pathname}?mode=timeline&w=${CW_ID}`;
+  if(key)url+=`&key=${encodeURIComponent(key)}`;
+  if(c.trim())url+=`&cat=${encodeURIComponent(c.split(',').map(x=>x.trim()).filter(Boolean).join(','))}`;
+  navigator.clipboard.writeText(url);
+  alert('Link timeline staff copiato!\n\n'+url);
+};
+
 async function loadCheckinPage(wid,key){
   const snap=await get(ref(db,`matrimoni/${wid}/pubblico`));
   if(!snap.exists()){document.getElementById('ci-grid-staff').innerHTML='<p style="color:red;padding:20px">Matrimonio non trovato.</p>';return;}
@@ -2659,7 +2752,7 @@ window.doLogin=async function(){
 window.doLogout=async function(){pickRole(null);await signOut(auth);};
 
 onAuthStateChanged(auth,async(user)=>{
-  if(MODE==='rsvp'||MODE==='cucina'||MODE==='checkin')return;
+  if(MODE==='rsvp'||MODE==='cucina'||MODE==='checkin'||MODE==='timeline')return;
   if(user){
     CU=user;
     const adminSnap=await get(ref(db,`admin/${user.uid}`));
@@ -2692,7 +2785,7 @@ onAuthStateChanged(auth,async(user)=>{
     }
   }else{
     CU=null;CW_ID=null;
-    if(MODE!=='rsvp'&&MODE!=='cucina'&&MODE!=='checkin')showScreen('s-login');
+    if(MODE!=='rsvp'&&MODE!=='cucina'&&MODE!=='checkin'&&MODE!=='timeline')showScreen('s-login');
   }
 });
 
