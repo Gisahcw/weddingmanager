@@ -1674,6 +1674,7 @@ function t(key){
 
 // ── TRADUZIONE AUTOMATICA IT → EN (testi non coperti da data-t e testi dinamici) ──
 const EN_MAP={
+"Evento":"Event",
 "Fuochi d'artificio":"Fireworks",
 "Recap budget — tutte le giornate":"Budget recap — all days",
 "Giornata":"Day",
@@ -1819,6 +1820,7 @@ const EN_FRAG=[
 ];
 const EN_MON={gen:'Jan',feb:'Feb',mar:'Mar',apr:'Apr',mag:'May',giu:'Jun',lug:'Jul',ago:'Aug',set:'Sep',ott:'Oct',nov:'Nov',dic:'Dec'};
 const FR_MAP={
+"Evento":"Événement",
 "Fuochi d'artificio":"Feux d'artifice",
 "Recap budget — tutte le giornate":"Récapitulatif du budget — toutes les journées",
 "Giornata":"Journée",
@@ -2825,7 +2827,7 @@ function dayGroup(wid){
   const list=[[root,window._weddingCache[root]||(root===CW_ID?CW_DATA:null)]].concat(dayKids(root).map(k=>[k,window._weddingCache[k]])).filter(x=>x[1]);
   return list.sort((a,b)=>(a[1].data||'9999').localeCompare(b[1].data||'9999'));
 }
-function dayName(w){return w.giornata||'Matrimonio';}
+function dayName(w){return w.giornata||(isEvT(w)?'Evento':'Matrimonio');}
 function dayLabel(wid,w){return dayGroup(wid).length>1?' · '+dayName(w):'';}
 function renderDayBar(){
   const bar=document.getElementById('day-bar');if(!bar||!CW_ID)return;
@@ -2863,7 +2865,7 @@ window.addGiornata=async function(){
   if(d===null)return;
   if(!/^\d{4}-\d{2}-\d{2}$/.test(d.trim())){alert('Formato non valido. Usa AAAA-MM-GG, es. 2026-10-10');return;}
   const copy=Object.keys(guests||{}).length&&confirm('Copiare nella nuova giornata gli ospiti di questa giornata (RSVP riportato "In attesa", senza tavoli)? Poi potrai togliere chi non è invitato.');
-  if(!rw.giornata){await update(ref(db,`matrimoni/${root}`),{giornata:'Matrimonio'});await update(ref(db,`matrimoni/${root}/pubblico`),{giornata:'Matrimonio'});rw.giornata='Matrimonio';}
+  if(!rw.giornata){const dn=dayName(rw);await update(ref(db,`matrimoni/${root}`),{giornata:dn});await update(ref(db,`matrimoni/${root}/pubblico`),{giornata:dn});rw.giornata=dn;}
   const rec={nome1:rw.nome1,nome2:rw.nome2||'',data:d.trim(),tipo:rw.tipo||'matrimonio',uid:rw.uid,email:rw.email||'',location:'',archived:false,parent:root,giornata:nome.trim(),
     pubblico:{nome1:rw.nome1,nome2:rw.nome2||'',data:d.trim(),tipo:rw.tipo||'matrimonio',giornata:nome.trim()}};
   if(copy){const o={};Object.entries(guests).forEach(([k,g])=>{o[k]=guestCopy(g);});rec.ospiti=o;}
@@ -4922,7 +4924,7 @@ window.changeTipo=async function(v){
   if(!IS_ADMIN||!CW_ID)return;
   await update(ref(db,`matrimoni/${CW_ID}`),{tipo:v});
   await update(ref(db,`matrimoni/${CW_ID}/pubblico`),{tipo:v});
-  CW_DATA.tipo=v;window._tipoEv=isEvT(CW_DATA);applyTlCats();
+  CW_DATA.tipo=v;window._tipoEv=isEvT(CW_DATA);applyTlCats();renderDayBar();
   document.getElementById('dash-couple-name').textContent=wName(CW_DATA,null);
   const cl=document.querySelector('[data-t="countdown_label"]');if(cl)cl.textContent=t('countdown_label');
   if(LANG!=='it')applyI18nDom();
